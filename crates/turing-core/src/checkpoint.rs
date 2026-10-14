@@ -69,6 +69,9 @@ const MAX_CHECKPOINTS: usize = 512;
 /// current position, and then advances. Since [`Engine::advance`] never overshoots, every
 /// position reached this way equals a fresh run to it.
 ///
+/// Every checkpoint is a clone of the engine, so the engine should hold its machine by a cheap
+/// handle such as `&Machine` or `Rc<Machine>` rather than by value.
+///
 /// ```
 /// use turing_core::{Dir, Machine, Simulator, Timeline};
 /// let m = Machine::builder("walk").transition("q0", '␣', "q0", '␣', Dir::R).build().unwrap();

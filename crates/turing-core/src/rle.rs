@@ -25,7 +25,10 @@
 //!
 //! If a is the blank and no run lies ahead, every cell beyond the head is blank, so the claim
 //! holds for every n: the machine never leaves q, never reads anything but blanks and never
-//! halts.
+//! halts. Likewise δ(q, a) = (q, a, N) leaves the configuration unchanged, so it repeats
+//! forever. [`ChainSim::run`] reports both as [`NonHaltProof`]s; when a
+//! [`Timeline`](crate::Timeline) asks the simulator to go on regardless, it makes all
+//! remaining steps of such a loop in one macro step, which the same arguments justify.
 //!
 //! Every other transition, including those that do not move the head, is executed as a single
 //! step, so the two simulators visit the same configurations at every step count that
