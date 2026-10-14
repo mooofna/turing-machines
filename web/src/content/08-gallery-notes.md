@@ -4,11 +4,11 @@ One or two sentences per gallery machine, keyed by the machine's id.
 
 ## binary-increment
 
-Adds one to a binary number written with the least significant bit first, so that the carry moves in the same direction as the head. It comes from the original 2024 course project and is the example of Fig. 1.1.
+Adds one to a binary number written with the least significant bit first, so that the carry moves in the same direction as the head. It is the first example in the lecture of the course [@theolog2024-lecture1] and the first machine of the 2024 simulator, and Fig. 1.1 steps through it.
 
 ## multiples-of-three
 
-An enumerator for the multiples of three in unary, from task 2a of the first exercise sheet [@theolog2024]. Each time the machine enters its output state, the tape holds the next word of the list.
+An enumerator for the multiples of three in unary, from task 2a of the first exercise sheet [@theolog2024]. Each time the machine enters its output state, the tape holds the next word of the list, starting with the empty word.
 
 ## an-bn
 
@@ -28,7 +28,7 @@ The machine $M_{*2}$ with two tapes (task 4a of the first exercise sheet) [@theo
 
 ## mod-two
 
-The machine $A_{\mathrm{mod2}}$ from task E of the third exercise sheet, computing $x^n \mapsto x^{n \bmod 2}$ in unary [@theolog2024]. It removes the symbols of the input two at a time until at most one is left.
+The machine $A_{\mathrm{mod2}}$ from task E of the third exercise sheet, computing $x^n \mapsto x^{n \bmod 2}$ in unary [@theolog2024]. It erases the input from the right, keeps the parity of the number of erased symbols in its state, and writes a single $x$ at the end if that number is odd.
 
 ## palindromes
 
@@ -40,7 +40,7 @@ An acceptor for the language $\{a^n b^n c^n \mid n \ge 0\}$, which is not contex
 
 ## binary-addition
 
-A transducer that adds two binary numbers and leaves their sum on the tape.
+A transducer that adds two binary numbers, written with the most significant bit first and separated by +, and leaves their sum on the tape. It adds the bits of the second number to the first one at a time, from the right, and lets carries run to the left.
 
 ## bb1
 

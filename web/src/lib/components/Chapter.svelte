@@ -209,6 +209,16 @@
     padding-bottom: var(--space-5);
   }
 
+  @media (max-width: 47.99rem) {
+    .part {
+      padding-block: var(--space-3) var(--space-4);
+    }
+
+    .continuation {
+      padding-bottom: var(--space-4);
+    }
+  }
+
   .part:has(+ :global(.chapter-figure)) {
     padding-bottom: var(--space-4);
   }
@@ -240,7 +250,7 @@
 
   .prose :global(code) {
     font-size: 0.84em;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
   .prose :global(:last-child) {
@@ -248,7 +258,7 @@
   }
 
   /* Facts, citations and live values. */
-  .chapter :global(.fact) {
+  .chapter :global(.fact.short) {
     white-space: nowrap;
   }
 
@@ -343,6 +353,11 @@
   .chapter :global(.table td),
   .chapter :global(.table th) {
     padding-right: 1.25rem;
+  }
+
+  .chapter :global(.table thead th.num) {
+    font-family: inherit;
+    font-size: inherit;
   }
 
   /* Details: between two hairlines, with a plus or minus at the right. */

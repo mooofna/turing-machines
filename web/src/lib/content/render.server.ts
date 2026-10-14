@@ -135,6 +135,7 @@ export function slugify(text: string): string {
     .normalize('NFKD')
     .replace(/[\u0300-\u036F'\u2019]/g, '')
     .toLowerCase()
+    .replace(/[\u03c3\u03c2]/g, 'sigma')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
@@ -192,7 +193,8 @@ export function formatSource(source: LedgerSource): string {
   const link = source.url ?? (source.doi ? `https://doi.org/${source.doi}` : undefined);
   const title = escapeHtml(source.title);
   const parts: string[] = [];
-  parts.push(`${escapeHtml(formatAuthors(source.authors))}.`);
+  const authors = escapeHtml(formatAuthors(source.authors));
+  parts.push(authors.endsWith('.') ? authors : `${authors}.`);
   parts.push(`${link ? `<a href="${escapeHtml(link)}">${title}</a>` : title}.`);
   let venue = escapeHtml(source.venue);
   if (source.volume) venue += ` ${escapeHtml(source.volume)}`;
@@ -261,7 +263,13 @@ function renderMath(ctx: Context, tex: string, display: boolean, line?: number):
 function factHtml(fact: LedgerFact): string {
   const text = powers(escapeHtml(fact.display));
   const mono = !isDate(fact.display) && !isPhrase(fact.display);
-  return `<span class="fact${mono ? ' mono' : ''}" data-fact="${escapeHtml(fact.id)}">${text}</span>`;
+  // Short values stay on one line; long ones (lists, phrases) may wrap.
+  const classes = [
+    'fact',
+    ...(mono ? ['mono'] : []),
+    ...(fact.display.length <= 28 ? ['short'] : [])
+  ];
+  return `<span class="${classes.join(' ')}" data-fact="${escapeHtml(fact.id)}">${text}</span>`;
 }
 
 function tableHtml(ctx: Context, table: LedgerTable, line?: number): string {
@@ -272,9 +280,15 @@ function tableHtml(ctx: Context, table: LedgerTable, line?: number): string {
     const fact = factById(row.fact);
     if (!fact) fail(ctx, `table ${table.id} uses unknown fact ${row.fact}`, line);
     checkConfirmed(ctx, fact, row.cells.join(' '), line);
-    const cells = row.cells.map((c) => `<td>${escapeHtml(smartQuotes(c))}</td>`).join('');
+    // The citation goes into the last cell: directly after the number it would read as a power.
     const source = fact.source[0] ?? '';
-    return `<tr><td class="num">${factHtml(fact)}${cite(ctx, [source], line)}</td>${cells}</tr>`;
+    const cells = row.cells
+      .map((c, i) => {
+        const text = escapeHtml(smartQuotes(c));
+        return `<td>${i === row.cells.length - 1 ? text + cite(ctx, [source], line) : text}</td>`;
+      })
+      .join('');
+    return `<tr><td class="num">${factHtml(fact)}</td>${cells}</tr>`;
   });
   return (
     `<div class="table-wrap"><table class="table">` +
@@ -306,16 +320,101 @@ const lineAt = (text: string, offset: number, first: number) =>
  * Replaces code, maths, facts, live values and citations in one block of Markdown by
  * placeholders, in document order, so that citations are numbered by first appearance.
  */
-function protect(ctx: Context, text: string, firstLine: number): string {
-  // Explicit citations of this block, so that facts whose source is cited here need no number.
-  const cited = new Set([...text.matchAll(/\[@([^\]\s]+)\]/g)].map((m) => m[1] ?? ''));
-  const autoCited = new Set<string>();
+/**
+ * Where the citation of a fact goes: after the clause that contains the value, that is before
+ * the next comma, semicolon, colon or full stop outside maths and code, before the end of a
+ * table cell, or at the end of the block. A citation directly after a number would read as an
+ * exponent.
+ */
+function citeTarget(text: string, from: number): number {
+  let i = from;
+  const skip = (open: string, close: string) => {
+    if (!text.startsWith(open, i)) return false;
+    const end = text.indexOf(close, i + open.length);
+    i = end < 0 ? text.length : end + close.length;
+    return true;
+  };
+  while (i < text.length) {
+    if (
+      skip('$$', '$$') ||
+      skip('$', '$') ||
+      skip('`', '`') ||
+      skip('{{', '}}') ||
+      skip('[@', ']')
+    ) {
+      continue;
+    }
+    const char = text[i] ?? '';
+    const next = text[i + 1] ?? '';
+    if (char === '|' || char === '\n') break;
+    if (/[.,;:]/.test(char) && (next === '' || /[ \n]/.test(next))) break;
+    i += 1;
+  }
+  while (i > from && /[ ]/.test(text[i - 1] ?? '')) i -= 1;
+  return i;
+}
 
+/**
+ * In a table row, the citation of a fact joins the last citation of the row, which names the
+ * sources of the row, or else goes to the end of the last cell. Undefined outside tables.
+ */
+function rowCiteTarget(text: string): number | undefined {
+  if (!text.trimStart().startsWith('|')) return undefined;
+  const last = text.lastIndexOf('[@');
+  if (last >= 0) return text.indexOf(']', last) + 1;
+  let end = text.trimEnd().lastIndexOf('|');
+  while (end > 0 && text[end - 1] === ' ') end -= 1;
+  return end;
+}
+
+/**
+ * Gives every fact a citation of its first source, unless the block already cites one of its
+ * sources: the citation is inserted as `[@id]` after the clause that contains the fact, or in
+ * the last cell of a table row.
+ */
+function citeFacts(text: string): string {
+  const cited = new Set([...text.matchAll(/\[@([^\]\s]+)\]/g)].map((m) => m[1] ?? ''));
+  const insertions: { at: number; id: string }[] = [];
+  for (const match of text.matchAll(/\{\{fact:([^}\s]+)\}\}/g)) {
+    const fact = factById(match[1] ?? '');
+    if (!fact || fact.source.some((s) => cited.has(s))) continue;
+    const source = fact.source[0] ?? '';
+    cited.add(source);
+    const at = rowCiteTarget(text) ?? citeTarget(text, (match.index ?? 0) + match[0].length);
+    insertions.push({ at, id: source });
+  }
+  let result = text;
+  for (const { at, id } of insertions.reverse()) {
+    result = `${result.slice(0, at)} [@${id}]${result.slice(at)}`;
+  }
+  return result;
+}
+
+/**
+ * Replaces code, maths, facts, live values and citations in one block of Markdown by
+ * placeholders, in document order, so that citations are numbered by first appearance.
+ * Citations follow a comma, semicolon, colon or full stop that comes directly after them.
+ */
+function protect(ctx: Context, raw: string, firstLine: number): string {
+  const text = citeFacts(raw);
   const pattern =
-    /(`+)([\s\S]*?)\1|\$\$([\s\S]+?)\$\$|\$((?:\\\$|[^$\n])+?)\$|\{\{fact:([^}\s]+)\}\}|\{\{live:([a-z0-9-]+)(?::\s*([^}]*))?\}\}|\{\{([^}]*)\}\}|\s*((?:\[@[^\]\s]+\])(?:\s*\[@[^\]\s]+\])*)/g;
+    /(`+)([\s\S]*?)\1|\$\$([\s\S]+?)\$\$|\$((?:\\\$|[^$\n])+?)\$|\{\{fact:([^}\s]+)\}\}|\{\{live:([a-z0-9-]+)(?::\s*([^}]*))?\}\}|\{\{([^}]*)\}\}|\s*((?:\[@[^\]\s]+\])(?:\s*\[@[^\]\s]+\])*)([.,;:](?=\s|$))?/g;
   return text.replace(
     pattern,
-    (match, ticks, code, display, inline, factId, liveId, liveText, other, cites, offset) => {
+    (
+      match,
+      ticks,
+      code,
+      display,
+      inline,
+      factId,
+      liveId,
+      liveText,
+      other,
+      cites,
+      punct,
+      offset
+    ) => {
       const line = lineAt(text, offset as number, firstLine);
       if (ticks !== undefined) return stash(ctx, 'C', match);
       if (display !== undefined) return stash(ctx, 'D', renderMath(ctx, display, true, line));
@@ -325,18 +424,11 @@ function protect(ctx: Context, text: string, firstLine: number): string {
         if (table) return stash(ctx, 'T', tableHtml(ctx, table, line));
         const fact = factById(factId);
         if (!fact) fail(ctx, `unknown fact {{fact:${factId}}}`, line);
-        checkConfirmed(ctx, fact, text, line);
+        checkConfirmed(ctx, fact, raw, line);
         for (const [char, name] of FORBIDDEN) {
           if (fact.display.includes(char)) fail(ctx, `fact ${fact.id} contains an ${name}`, line);
         }
-        let html = factHtml(fact);
-        const needsCite = !fact.source.some((s) => cited.has(s) || autoCited.has(s));
-        if (needsCite) {
-          const source = fact.source[0] ?? '';
-          autoCited.add(source);
-          html += cite(ctx, [source], line);
-        }
-        return stash(ctx, 'F', html);
+        return stash(ctx, 'F', factHtml(fact));
       }
       if (liveId !== undefined) {
         if (!Object.hasOwn(liveIds, liveId)) fail(ctx, `unknown live value ${liveId}`, line);
@@ -353,7 +445,7 @@ function protect(ctx: Context, text: string, firstLine: number): string {
       }
       if (other !== undefined) fail(ctx, `unknown directive {{${other}}}`, line);
       const ids = [...(cites as string).matchAll(/\[@([^\]\s]+)\]/g)].map((m) => m[1] ?? '');
-      return stash(ctx, 'R', cite(ctx, ids, line));
+      return (punct ?? '') + stash(ctx, 'R', cite(ctx, ids, line));
     }
   );
 }
@@ -417,7 +509,7 @@ function styleTables(html: string): string {
     .replace(/<table>/g, '<div class="table-wrap"><table class="table">')
     .replace(/<\/table>/g, '</table></div>')
     .replace(/<(td|th)( align="\w+")?>([\s\S]*?)<\/\1>/g, (match, tag, _align, body: string) => {
-      const bare = body.replace(/\uE000[FM]\d+\uE001/g, '').replace(/<[^>]*>/g, '');
+      const bare = body.replace(/\uE000[FMR]\d+\uE001/g, '').replace(/<[^>]*>/g, '');
       const numeric = /^[\s\d,.]*$/.test(bare) && body.trim() !== '';
       const scope = tag === 'th' ? ' scope="col"' : '';
       return `<${tag}${scope}${numeric ? ' class="num"' : ''}>${body}</${tag}>`;
@@ -446,9 +538,11 @@ function renderBlock(ctx: Context, text: string, firstLine: number): string {
 function finish(html: string): string {
   return html
     .replace(/(<math>(?:(?!<\/math>)[\s\S])*<\/math>)([.,;:)]+)/g, '<span class="nobr">$1$2</span>')
-    .replace(
-      /<code>([^<]*_[^<]*)<\/code>/g,
-      (_, code: string) => `<code>${code.replaceAll('_', '_<wbr>')}</code>`
+    .replace(/<code>([^<]*_[^<]*)<\/code>/g, (_, code: string) =>
+      code
+        .split(/(?<=_)/)
+        .map((part) => `<code>${part}</code>`)
+        .join('<wbr>')
     );
 }
 

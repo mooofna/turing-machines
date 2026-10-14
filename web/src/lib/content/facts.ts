@@ -1724,6 +1724,26 @@ export const facts = {
     verified: '2026-10-14',
     confirmed: true,
     note: 'Lower bound for the counter a after the simulation in antihydra-simulated, as a separate value for running text.'
+  },
+  'bb6-lower-bound-value': {
+    id: 'bb6-lower-bound-value',
+    value: '10↑↑10↑↑10↑↑8',
+    display: '10↑↑10↑↑10↑↑8',
+    source: ['wiki-bb6', 'wiki-bb6-champion'],
+    url: 'https://wiki.bbchallenge.org/wiki/BB(6)',
+    verified: '2026-10-14',
+    confirmed: true,
+    note: 'The right-hand side of bb6-lower-bound, S(6) > Σ(6) > 10↑↑10↑↑10↑↑8, for running text that writes S(6) > Σ(6) as mathematics.'
+  },
+  'bb6-lower-bound-conservative-value': {
+    id: 'bb6-lower-bound-conservative-value',
+    value: '2↑↑↑5',
+    display: '2↑↑↑5',
+    source: ['bbchallenge2025', 'michel-survey'],
+    url: 'https://arxiv.org/abs/2509.12337',
+    verified: '2026-10-14',
+    confirmed: true,
+    note: 'The right-hand side of bb6-lower-bound-conservative, S(6) > 2↑↑↑5.'
   }
 } satisfies Record<string, LedgerFact>;
 

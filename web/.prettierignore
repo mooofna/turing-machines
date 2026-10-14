@@ -6,3 +6,5 @@ src/lib/engine/pkg
 test-results
 playwright-report
 screenshots
+# Chapter sources: Prettier would read the maths (for example \Sigma^*) as Markdown emphasis.
+src/content/*.md

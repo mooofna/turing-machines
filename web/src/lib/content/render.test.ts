@@ -130,12 +130,26 @@ describe('mathematics', () => {
 });
 
 describe('facts', () => {
-  it('replaces a fact by its display value and cites its first source', () => {
-    const [section] = sections('## F\n\nIt halts after {{fact:bb5-steps}} steps.');
+  it('replaces a fact by its display value and cites its first source after the clause', () => {
+    const [section] = sections('## F\n\nIt halts after {{fact:bb5-steps}} steps, which is a lot.');
     expect(section?.html).toBe(
-      '<p>It halts after <span class="fact mono" data-fact="bb5-steps">47,176,870</span>' +
+      '<p>It halts after <span class="fact mono short" data-fact="bb5-steps">47,176,870</span> steps,' +
         '<sup class="cite"><a href="#ref-1" aria-label="Source 1: bbchallenge wiki contributors 2026" ' +
-        'title="Source 1: bbchallenge wiki contributors 2026">1</a></sup> steps.</p>'
+        'title="Source 1: bbchallenge wiki contributors 2026">1</a></sup> which is a lot.</p>'
+    );
+  });
+
+  it('cites a fact in a table row in the last cell of the row', () => {
+    const [section] = sections(
+      '## F\n\n| $n$ | $S(n)$ | By |\n|---|---|---|\n| 5 | {{fact:bb5-steps}} | Them |'
+    );
+    expect(section?.html).toMatch(/<td>Them<sup class="cite">/);
+  });
+
+  it('cites a fact in a table at the end of its cell', () => {
+    const [section] = sections('## F\n\n| $n$ | $S(n)$ |\n|---|---|\n| 5 | {{fact:bb5-steps}} |');
+    expect(section?.html).toMatch(
+      /<td class="num"><span class="fact mono short" data-fact="bb5-steps">47,176,870<\/span><sup class="cite">/
     );
   });
 
@@ -143,7 +157,7 @@ describe('facts', () => {
     const result = render('## F\n\nIt halts after {{fact:bb5-steps}} steps [@coqbb5].');
     expect(result.references.map((r) => r.id)).toEqual(['coqbb5']);
     expect(result.segments[0]).toMatchObject({
-      html: expect.stringContaining('</span> steps<sup class="cite">')
+      html: expect.stringContaining('</span> steps.<sup class="cite">')
     });
   });
 
@@ -151,7 +165,7 @@ describe('facts', () => {
     const [section] = sections(
       '## F\n\nOn {{fact:bb5-announcement-date}}, below {{fact:antihydra-halting-probability}}.'
     );
-    expect(section?.html).toContain('<span class="fact" data-fact="bb5-announcement-date">');
+    expect(section?.html).toContain('<span class="fact short" data-fact="bb5-announcement-date">');
     expect(section?.html).toContain('less than 3 \u00d7 10<sup>\u221228,723,042,565</sup>');
   });
 
@@ -194,9 +208,9 @@ describe('citations', () => {
     ]);
     const html = (result.segments[0] as SectionSegment).html;
     expect(html).toMatch(
-      /^<p>First<sup class="cite"><a href="#ref-1"[^>]*>1<\/a><span class="sep">,<\/span><a href="#ref-2"/
+      /^<p>First\.<sup class="cite"><a href="#ref-1"[^>]*>1<\/a><span class="sep">,<\/span><a href="#ref-2"/
     );
-    expect(html).toMatch(/Again<sup class="cite"><a href="#ref-2"/);
+    expect(html).toMatch(/Again\.<sup class="cite"><a href="#ref-2"/);
   });
 
   it('fails on unknown sources', () => {
@@ -272,7 +286,7 @@ describe('house style', () => {
 
   it('lets machines in the text format break after underscores', () => {
     const [section] = sections('## S\n\nThe machine `1RB1LB_1LA1RZ`.');
-    expect(section?.html).toContain('<code>1RB1LB_<wbr>1LA1RZ</code>');
+    expect(section?.html).toContain('<code>1RB1LB_</code><wbr><code>1LA1RZ</code>');
   });
 
   it('marks numeric table cells', () => {

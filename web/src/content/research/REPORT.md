@@ -3,6 +3,7 @@
 Files: facts.json (159 facts, 3 unverified: tnf-origin, zf-tm-254, riemann-tm-claim-2026), sources.json (76).
 
 Corrections:
+
 1. BB(2): Radó 1962 proves Σ(2) = 4 only; S(2) = 6 from Lin 1963 / Lin and Radó 1965.
 2. BB(6) May 2022 record > 10↑↑15 is Pavel Kropitz (30 May 2022), announced by Ligocki (21 June 2022). Ligocki's own: 13 May (> 9.66e78913), 27 May (> 10↑↑5.63).
 3. BB(6) history: Green 1964 S ≥ 436; Marxen and Buntrock Jan 1990 (two machines, second posted 1997); Kropitz June 2010 > 7.41e36534; mxdys June 2025 (current champion 25 June 2025).
