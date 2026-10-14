@@ -499,12 +499,12 @@
   },
   {
     "id": "pratt2007fom",
-    "authors": "Vaughan Pratt (and replies by Martin Davis, Alex Smith, Clive Gifford et al.)",
+    "authors": "Vaughan Pratt and others",
     "title": "[FOM] Simplest universal Turing machine / Smallest universal machine / 2,3 Turing machine proof controversy",
     "venue": "Foundations of Mathematics (FOM) mailing list",
     "year": 2007,
     "url": "https://fomarchive.ugent.be/2007-October/012143.html",
-    "note": "Also 2007-October/012130 (25 Oct 2007) and 2007-November/012233 (8 Nov 2007, summary of the dispute).",
+    "note": "Also 2007-October/012130 (25 Oct 2007) and 2007-November/012233 (8 Nov 2007, summary of the dispute). Thread with replies by Martin Davis, Alex Smith, Clive Gifford and others.",
     "verified": true
   },
   {
@@ -568,7 +568,7 @@
   },
   {
     "id": "ketchersid2026zf254",
-    "authors": "Jeff Ketchersid (jeff87654); machine by Mira-Cult",
+    "authors": "Jeff Ketchersid; Mira-Cult",
     "title": "A verified 254-state Turing machine that halts iff ZFC is inconsistent (busy-beaver repo, branch zf-254, ZF/m254)",
     "venue": "GitHub",
     "year": 2026,
@@ -864,6 +864,66 @@
     "url": "https://wiki.bbchallenge.org/wiki/Busy_Beaver_Functions",
     "revision": 8751,
     "note": "Current revision 8751 (2026-09-28); accessed 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "theolog2024",
+    "authors": "Markus Krötzsch; Stephan Mennicke",
+    "title": "Theoretische Informatik und Logik, exercise sheets",
+    "venue": "Course at TU Dresden, summer semester 2024",
+    "year": 2024,
+    "url": "https://iccl.inf.tu-dresden.de/web/Theoretische_Informatik_und_Logik_(SS2024)",
+    "note": "Exercise sheets 1 (tasks 2 to 4: enumerators, A_mul, M*2) and 3 (task E: A_mod2; task G: Rice), with the revision session (Repetitorium). Sheet 1: https://iccl.inf.tu-dresden.de/w/images/f/fb/TheoLog24-Uebung01.pdf; sheet 3: https://iccl.inf.tu-dresden.de/w/images/9/96/TheoLog24-Uebung03.pdf. Read from the author's copies, 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "theolog2024-lecture1",
+    "authors": "Markus Krötzsch",
+    "title": "Theoretische Informatik und Logik, 1. Vorlesung: Willkommen/Einleitung/Übersicht",
+    "venue": "Lecture slides, TU Dresden, 8 April 2024",
+    "year": 2024,
+    "url": "https://iccl.inf.tu-dresden.de/w/images/e/e4/TheoLog2024-Vorlesung-01-print.pdf",
+    "note": "Slide 20: DTM M = <Q, Sigma, Gamma, delta, q0, F>, delta a partial function Q x Gamma -> Q x Gamma x {L, R, N}, blank ␣. Slides 22 and 23: the binary increment machine, run q0 1101 |- 0q0 101 |- 00q0 01 |- 001q1 1, output 0011. Slide 25: transducers and deciders. Read 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "theolog2024-lecture2",
+    "authors": "Markus Krötzsch",
+    "title": "Theoretische Informatik und Logik, 2. Vorlesung: Berechenbarkeit und Unentscheidbarkeit",
+    "venue": "Lecture slides, TU Dresden, 11 April 2024",
+    "year": 2024,
+    "url": "https://iccl.inf.tu-dresden.de/w/images/d/d7/TheoLog2024-Vorlesung-02-print.pdf",
+    "note": "Slide 6: computed function f_M. Slide 8: enumerators. Slide 24: S(n). Slide 25: Sigma(n) for machines with at most n states over {x, ␣}. Slide 26: Sigma(2) = 4. Slide 27: proof that Sigma is not computable with I_k, M_x2, M_Sigma and M_+1, giving Sigma(2k) >= Sigma(2k) + 1. Read 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "theolog2024-lecture4",
+    "authors": "Markus Krötzsch",
+    "title": "Theoretische Informatik und Logik, 4. Vorlesung: Das Halteproblem und Reduktionen",
+    "venue": "Lecture slides, TU Dresden, 18 April 2024",
+    "year": 2024,
+    "url": "https://iccl.inf.tu-dresden.de/w/images/f/f1/TheoLog2024-Vorlesung-04-print.pdf",
+    "note": "Slide 9: enc(M) over {0, 1, #} with bin(i) and ## between components; enc(w). Slides 10 and 11: universal machine U on enc(M)##enc(w). Slide 13: P_Halt = {enc(M)##enc(w) | M halts on input w}. Slide 16: diagonal machine D running H on enc(M)##enc(enc(M)). Slide 18: second proof via the busy beaver function. Read 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "theolog2024-lecture5",
+    "authors": "Markus Krötzsch",
+    "title": "Theoretische Informatik und Logik, 5. Vorlesung: Der Satz von Rice und das Postsche Korrespondenzproblem",
+    "venue": "Lecture slides, TU Dresden, 22 April 2024",
+    "year": 2024,
+    "url": "https://iccl.inf.tu-dresden.de/w/images/c/c5/TheoLog2024-Vorlesung-05-print.pdf",
+    "note": "Slides 3 to 6: Rice's theorem for non-trivial properties of Turing-recognisable languages, proved by a many-one reduction from the halting problem on the empty word. Read 2026-10-14.",
+    "verified": true
+  },
+  {
+    "id": "bbchallenge-format",
+    "authors": "bbchallenge wiki contributors",
+    "title": "Turing machine: Standard Text Format",
+    "venue": "bbchallenge wiki",
+    "year": 2026,
+    "url": "https://wiki.bbchallenge.org/wiki/Standard_Text_Format",
+    "note": "Redirects to the section of the page 'Turing machine'. States are letters from A (start state A), symbols are digits from 0, one three-character entry per symbol (written symbol, direction, next state), states joined by underscores, '---' for undefined transitions, halting transitions to a letter beyond the states (H or Z encouraged). Accessed 2026-10-14.",
     "verified": true
   }
 ]
