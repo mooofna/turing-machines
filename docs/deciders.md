@@ -7,8 +7,9 @@ the blank tape, and reads off the busy beaver values S(n) (the largest number of
 parameters are those of Coq-BB5, the Coq proof of BB(5) = 47,176,870 by mxdys and the
 bbchallenge collaboration [1, 2]. The Rust deciders are not formally verified; instead, their
 results are compared with the enumerations that Coq-BB5 verified, node by node, and they agree
-on every node. The values themselves are classical: BB(2) = 6 is due to Radó, BB(3) = 21 to
-Lin and Radó, BB(4) = 107 to Brady [5], and BB(2,3) = 38 to Lafitte and Papazian.
+on every node. The values themselves are classical: Σ(2) = 4 is due to Radó, S(2) = 6 and both
+values for three states to Lin (published with Radó in 1965), BB(4) = 107 to Brady [5], and
+BB(2,3) = 38 to Lafitte and Papazian.
 
 | Size | Nodes | Halting | Non-halting | Holdouts | S | Σ | Time |
 |---|---:|---:|---:|---:|---:|---:|---:|
