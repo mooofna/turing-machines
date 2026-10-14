@@ -67,7 +67,7 @@
   }
 
   /** The machine shown on a first visit. */
-  const firstMachine = galleryMachine('binary-increment') ?? machines[0];
+  const firstMachine = galleryMachine('binary-increment-msb') ?? machines[0];
 
   /** Loads a machine of the gallery; false if its description does not parse. */
   function loadEntry(entry: GalleryMachine, input?: string): boolean {

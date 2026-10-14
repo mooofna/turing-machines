@@ -251,21 +251,25 @@ test('a share link reproduces the machine and the input', async ({ page, context
 });
 
 test('gallery links load a machine with its input', async ({ page }) => {
-  await open(page, '#g=binary-increment&in=111');
+  await open(page, '#g=binary-increment-msb&in=111');
   await expect(page.getByLabel('Machine name')).toHaveValue('Binary increment');
   await expect(page.getByLabel('Input', { exact: true })).toHaveValue('111');
   await page.getByRole('button', { name: 'Run', exact: true }).click();
-  await expect(status(page)).toContainText('output 1000');
+  await expect(status(page)).toContainText('output 1000 (8)');
+
+  // The course's machine writes the least significant bit first: 111 is 7, and 7 + 1 = 8.
+  await open(page, '#g=binary-increment&in=111');
+  await page.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status(page)).toContainText('output 0001 (8)');
 });
 
 test('the machine picker lists the gallery', async ({ page }) => {
   await open(page);
   await page.getByRole('button', { name: 'Machines' }).click();
   const menu = page.getByRole('menu', { name: 'Machines from the gallery' });
-  await expect(menu.getByRole('menuitemcheckbox', { name: /Binary increment/ })).toHaveAttribute(
-    'aria-checked',
-    'true'
-  );
+  await expect(
+    menu.getByRole('menuitemcheckbox', { name: /^Binary increment, most significant bit first/ })
+  ).toHaveAttribute('aria-checked', 'true');
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
 });
