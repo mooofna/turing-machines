@@ -20,7 +20,8 @@ pub struct Stats {
     pub nodes: u64,
     /// Nodes that reach an undefined transition (internal nodes of the tree).
     pub halting: u64,
-    /// Nodes proved non-halting, per decider, in pipeline order.
+    /// Nodes proved non-halting, per decider, in pipeline order: one entry for each of
+    /// [`DeciderId::ALL`], whether the pipeline uses it or not.
     pub by_decider: Vec<(DeciderId, u64)>,
     /// Nodes no decider could resolve.
     pub holdouts: u64,
