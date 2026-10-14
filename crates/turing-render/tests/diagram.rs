@@ -1,5 +1,7 @@
 //! State diagrams: labels, layout, routing and SVG output.
 
+use std::fmt::Write as _;
+
 use proptest::prelude::*;
 use turing_core::{Dir, MachineSpec, StateSpec, TransitionSpec};
 use turing_render::layout::NODE_RADIUS;
@@ -20,16 +22,19 @@ fn spec(
         })
         .collect();
     spec.start = start.into();
-    spec.tapes = rows
-        .first()
-        .map_or(1, |r| u8::try_from(r.1.chars().count()).unwrap());
+    spec.tapes = rows.first().map_or(1, |r| {
+        u8::try_from(r.1.chars().count()).expect("at most 255 tapes")
+    });
     for &(from, read, to, write, moves) in rows {
         spec.transitions.push(TransitionSpec {
             from: from.into(),
             read: read.chars().collect(),
             to: to.into(),
             write: write.chars().collect(),
-            dir: moves.chars().map(|c| Dir::from_char(c).unwrap()).collect(),
+            dir: moves
+                .chars()
+                .map(|c| Dir::from_char(c).expect("a move L, R or N"))
+                .collect(),
             ..TransitionSpec::default()
         });
     }
@@ -52,20 +57,14 @@ fn increment() -> MachineSpec {
 fn describe(graph: &Graph) -> String {
     let mut out = String::new();
     for (i, n) in graph.nodes.iter().enumerate() {
-        out.push_str(&format!(
-            "node {i} {}{}{}\n",
-            n.name,
-            if n.is_start { " start" } else { "" },
-            if n.is_final { " final" } else { "" }
-        ));
+        let start = if n.is_start { " start" } else { "" };
+        let last = if n.is_final { " final" } else { "" };
+        let _ = writeln!(out, "node {i} {}{start}{last}", n.name);
     }
     for e in &graph.edges {
-        out.push_str(&format!(
-            "edge {} -> {} {:?}\n",
-            e.from, e.to, e.transitions
-        ));
+        let _ = writeln!(out, "edge {} -> {} {:?}", e.from, e.to, e.transitions);
         for l in &e.labels {
-            out.push_str(&format!("  {l}\n"));
+            let _ = writeln!(out, "  {l}");
         }
     }
     out
@@ -144,7 +143,10 @@ fn ends(path: &str) -> ((f64, f64), (f64, f64)) {
         .split_whitespace()
         .filter_map(|t| t.parse().ok())
         .collect();
-    assert!(numbers.len() >= 4 && numbers.len() % 2 == 0, "{path}");
+    assert!(
+        numbers.len() >= 4 && numbers.len().is_multiple_of(2),
+        "{path}"
+    );
     let n = numbers.len();
     ((numbers[0], numbers[1]), (numbers[n - 2], numbers[n - 1]))
 }
