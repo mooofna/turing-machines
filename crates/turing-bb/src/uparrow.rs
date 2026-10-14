@@ -2,7 +2,7 @@
 //!
 //! A tower b↑↑h = b^b^…^b (h copies, evaluated from the top) is computed exactly as long as
 //! its decimal expansion is short enough. Beyond that its number of digits,
-//! ⌊e · log₁₀ b⌋ + 1 for b↑↑h = bᵉ, is computed from rigorous lower and upper bounds on log₁₀ b
+//! ⌊e × log₁₀ b⌋ + 1 for b↑↑h = bᵉ, is computed from rigorous lower and upper bounds on log₁₀ b
 //! obtained with integer arithmetic only, and reported only when both bounds give the same
 //! integer, so a reported digit count is never an approximation.
 
@@ -94,7 +94,7 @@ fn power(base: u32, exponent: &BigUint, max_bits: u64) -> Option<BigUint> {
     (value.bits() <= max_bits).then_some(value)
 }
 
-/// The number of decimal digits of `base ^ exponent` (base ≥ 2): ⌊e · log₁₀ b⌋ + 1.
+/// The number of decimal digits of `base ^ exponent` (base ≥ 2): ⌊e × log₁₀ b⌋ + 1.
 fn digit_count(base: u32, exponent: &BigUint) -> Option<BigUint> {
     if exponent.is_zero() {
         return Some(BigUint::one());
@@ -109,7 +109,7 @@ fn digit_count(base: u32, exponent: &BigUint) -> Option<BigUint> {
     if rest == 1 {
         return Some(exponent * k + 1u32);
     }
-    // log₁₀ b is irrational: bracket e · log₁₀ b until its integer part is certain.
+    // log₁₀ b is irrational: bracket e × log₁₀ b until its integer part is certain.
     let mut precision = exponent.bits() + 64;
     for _ in 0..4 {
         let (lo, hi) = log10_bounds(base, precision);
@@ -123,7 +123,7 @@ fn digit_count(base: u32, exponent: &BigUint) -> Option<BigUint> {
     None
 }
 
-/// Bounds `lo ≤ 2^p · log₁₀ n ≤ hi` for n ≥ 2.
+/// Bounds `lo ≤ 2^p × log₁₀ n ≤ hi` for n ≥ 2.
 fn log10_bounds(n: u32, p: u64) -> (BigUint, BigUint) {
     let (n_lo, n_hi) = log2_bounds(n, p);
     let (t_lo, t_hi) = log2_bounds(10, p);
@@ -134,9 +134,9 @@ fn log10_bounds(n: u32, p: u64) -> (BigUint, BigUint) {
     (lo, hi)
 }
 
-/// Bounds `lo ≤ 2^p · log₂ n ≤ hi` for n ≥ 1, with integer arithmetic only.
+/// Bounds `lo ≤ 2^p × log₂ n ≤ hi` for n ≥ 1, with integer arithmetic only.
 ///
-/// With n = 2ᵏ · x and x in [1, 2), the bits of log₂ x come from repeated squaring: if x² ≥ 2
+/// With n = 2ᵏ × x and x in [1, 2), the bits of log₂ x come from repeated squaring: if x² ≥ 2
 /// the next bit is 1 and x becomes x²/2, otherwise it is 0 and x becomes x². Carrying out the
 /// squarings in fixed point once rounded down and once rounded up (capping the upper value at
 /// 2) yields a lower and an upper bound, because log₂ is increasing and every rounded value
@@ -222,7 +222,7 @@ mod tests {
         // 4↑↑3 = 4^256 = 2^512 has 155 digits.
         assert_eq!(tetration(4, 3, 10).digits, Some(155));
         assert_eq!(tetration(4, 3, 10).exact, None);
-        // 3↑↑4 = 3^7625597484987: ⌊7625597484987 · log₁₀ 3⌋ + 1.
+        // 3↑↑4 = 3^7625597484987: ⌊7625597484987 × log₁₀ 3⌋ + 1.
         assert_eq!(tetration(3, 4, 10).digits, Some(3_638_334_640_025));
         assert_eq!(tetration(10, 4, 10).digits, None);
     }

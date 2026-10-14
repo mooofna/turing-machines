@@ -149,6 +149,54 @@ fn the_records_halt_as_recorded() {
     }
 }
 
+/// Known champions: their halting node appears in the enumeration with the right counts.
+#[test]
+fn known_champions_are_halting_nodes() {
+    use std::collections::HashMap;
+    use turing_bb::{CompactTm, Verdict};
+    // (machine, S, Σ); the S(3) and Σ(3) champions differ.
+    let champions: [(&str, u64, u64); 6] = [
+        ("1RZ---", 1, 1),
+        ("1RB1LB_1LA1RZ", 6, 4),
+        ("1RB1RZ_1LB0RC_1LC1LA", 21, 5),
+        ("1RB1RZ_0RC1RB_1LC1LA", 14, 6),
+        ("1RB2LB1RZ_2LA2RB1LB", 38, 9),
+        ("1RB1LB_1LA0LC_1RZ1LD_1RD0RA", 107, 13),
+    ];
+    for (text, s, sigma) in champions {
+        let tm: CompactTm = text.parse().unwrap();
+        assert_eq!(common::halts_within(&tm, 1_000), Some((s, sigma)), "{text}");
+        if tm.states() == 4 && cfg!(debug_assertions) {
+            continue;
+        }
+        // The node: the halting transition left undefined.
+        let mut node = tm;
+        for q in 0..tm.states() {
+            for a in 0..tm.symbols() {
+                if tm
+                    .get(q, a)
+                    .is_some_and(|t| t.next == turing_bb::Next::Halt)
+                {
+                    node.set(q, a, None);
+                }
+            }
+        }
+        assert_eq!(node.undefined(), tm.undefined() + 1);
+        let mut halting = HashMap::new();
+        let mut e = Enumerator::new(tm.states(), tm.symbols()).unwrap();
+        while !e.is_done() {
+            e.advance_with(1 << 16, |v| {
+                if let Verdict::Halts { steps, ones, .. } = v.verdict {
+                    halting.insert(*v.tm, (steps, ones));
+                }
+            });
+        }
+        let (steps, ones) = halting[&node];
+        assert_eq!(steps + 1, s, "{text}");
+        assert!(ones == sigma || ones + 1 == sigma, "{text}");
+    }
+}
+
 #[test]
 #[ignore = "about a second in release mode; run with --release -- --include-ignored"]
 fn four_states() {
