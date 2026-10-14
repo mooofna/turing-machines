@@ -13,6 +13,7 @@ Corrections:
 7. BB(5) announced 2 July 2024; Coq proof finished April to June 2024.
 8. BB(2,4) champion: Terry and Shawn Ligocki Feb 2005; formally proved in Coq-BB5 (23 Aug 2024 UTC).
 9. Machine count: Radó (4(n+1))^(2n) = 63,403,380,965,376 for n = 5; Aaronson and the BB(5) paper (4n+1)^(2n) = 16,679,880,978,201.
+10. Content review (15 Oct 2026): the display of antihydra-halting-probability, "less than 10^−28,723,042,565", was wrong, since 2.88 × 10^−28,723,042,565 exceeds 10^−28,723,042,565; it now reads "less than 3 × 10^−28,723,042,565".
 
 Unverified: zf-tm-254 (13 Oct 2026, Mira with ChatGPT, formalised by Jeff Ketchersid with Claude; awaiting review; established record 432, Wade Aug 2025). Riemann 120-state claim (arXiv:2609.30306), keep 744. Brady dissertation year.
 

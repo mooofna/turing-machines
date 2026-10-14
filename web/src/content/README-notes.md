@@ -45,3 +45,17 @@ Only structural numbers: numbers of states and symbols in definitions, rule cons
 13. **Gallery.** The notes for `palindromes`, `anbncn`, `binary-addition` and `mod-two` describe the usual algorithms and should be checked against the actual machines. The 2024 enumerators for task 2a and 2b do not output the empty word ($n = 0$); the notes avoid claiming that it is listed.
 14. **About page.** The crate descriptions follow the brief only. The BibTeX URL `https://mooofna.github.io/turing-machines/` is a guess at the deployed address. The acknowledgement is written in the first person.
 15. **Rendering.** The math uses `\text{␣}` for the blank, `\rightharpoonup` for partial functions, `\tfrac`, `\bmod` and `\square`; please check that the MathML renderer supports them. Figure captions contain plain-text formulas (A_mul, M*2, 2↑↑k) because they may not pass through the math renderer.
+
+## Editorial pass (15 October 2026)
+
+The open points above were settled against the public lecture slides of the course (lectures 1, 2, 4 and 5, cited as `theolog2024-lecture1` to `theolog2024-lecture5`):
+
+1. **Directions.** The course defines $\delta$ with $D \in \{L, R, N\}$ (lecture 1, slide 20). Chapter 1 now uses $\{L, R, N\}$, gives the step rule for $N$ and keeps the replacement of $N$ by two steps; the busy beaver chapters use only $L$ and $R$.
+2. **Notation.** The course writes $\mathbf{P}_{\mathrm{Halt}} = \{\mathrm{enc}(M)\#\#\mathrm{enc}(w) \mid \dots\}$ and encodes over $\{0, 1, \#\}$ with $\mathrm{bin}(i)$ (lecture 4, slides 9 and 13). Chapters 2 and 3 follow this; the details block in chapter 2 gives the encoding of the course instead of the unary one, and the diagonal machine runs $H$ on $\mathrm{enc}(M)\#\#\mathrm{enc}(\mathrm{enc}(M))$ as on slide 16.
+3. **Non-computability.** Lecture 2, slide 27, proves that $\Sigma$ is not computable with $I_k$, $M_{\times 2}$, $M_\Sigma$ and $M_{+1}$ and the contradiction $\Sigma(2k) \ge \Sigma(2k) + 1$. Chapter 4 now follows it (in the model with a halting state, so $I_k$ has $k$ states and no states are merged) and derives that $S$ is not computable from it; the monotonicity lemma is no longer needed. The second proof of lecture 4, slide 18 (halting decidable implies $\Sigma$ computable), is mentioned.
+4. **Computed function.** As on lecture 2, slide 6: $f_M(w) = v$ if $M$ halts with only $v \in \Sigma^*$ on the tape; final states play no role.
+5. **Fig. 1.1.** The increment machine is the first example of lecture 1 (slides 22 and 23); its run on 1101 is quoted.
+6. **Lecture convention for $S$ and $\Sigma$.** Chapter 4 notes that the lecture has no halting state and that its example machine for $\Sigma(2) = 4$ is `1RB1LB_1LA1RZ` without the halting transition.
+7. **Descriptions not in the ledger** (Lin's program plus separate arguments, Marxen and Buntrock's accelerated simulator, Machlin and Stout's different method) were reduced to what the sources' titles and the ledger support.
+8. **Gallery notes** for `mod-two` and `binary-addition` now describe the machines in `machines/`.
+9. **Ledger.** `antihydra-halting-probability` was displayed as "less than 10^−28,723,042,565", which is wrong (the value is about 2.88 × 10^−28,723,042,565); it now reads "less than 3 × 10^−28,723,042,565". New entries: the three dates, the lecture sources, `bbchallenge-format`, the table `zf-history`, and values split out for running text (`utm-smallest-pairs`, `antihydra-simulated-steps`, `antihydra-simulated-balance`, `bb6-lower-bound-value`, `bb6-lower-bound-conservative-value`).
