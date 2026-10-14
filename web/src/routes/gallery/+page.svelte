@@ -19,8 +19,18 @@
 
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
+  /**
+   * The number of states as busy beaver machines are counted: the halting state that the
+   * standard format writes as Z (a final state without transitions) is not one of them.
+   */
+  function stateCount(spec: MachineSpecDto): number {
+    if (spec.kind !== 'beaver') return spec.states.length;
+    const active = new Set(spec.transitions.map((t) => t.from));
+    return spec.states.filter((s) => !(s.isFinal && !active.has(s.name))).length;
+  }
+
   function size(spec: MachineSpecDto): string {
-    const parts = [plural(spec.states.length, 'state'), plural(spec.tapeAlphabet.length, 'symbol')];
+    const parts = [plural(stateCount(spec), 'state'), plural(spec.tapeAlphabet.length, 'symbol')];
     if (spec.tapes > 1) parts.push(plural(spec.tapes, 'tape'));
     return parts.join(', ');
   }
