@@ -439,13 +439,15 @@ F = {Z}
 * one tape, and only the moves `L` and `R`;
 * at most 10 symbols, which must be exactly the digits `0` to `k - 1` with blank `0` (the format
   writes glyphs, so a machine over `x` and `#` is rejected rather than silently renamed);
-* at most 26 states, or 25 plus a halting state;
-* at most one halting state: a state other than the start state that has no transitions but is
-  entered by one. It is written as `Z`. Two such states cannot be told apart in the format.
+* at most 26 states, or 25 plus the halting state;
+* at most one halting state: a final state, other than the start state, that has no transitions
+  but is entered by one. It is written as `Z`. Two such states cannot be told apart in the
+  format. A state that is not final keeps a letter of its own even if it has no transitions,
+  which halts the machine just the same.
 
 State names are not kept: the start state becomes `A` and the other states follow in their
-order. For every text that `parse_standard` accepts and that uses `Z` for halting,
-`to_standard` gives back exactly the same text.
+order. For every text that `parse_standard` accepts, `to_standard` gives back the same text with
+every halting letter written as `Z`.
 
 ## Worked example: A_mul
 

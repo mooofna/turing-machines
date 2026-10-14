@@ -3,6 +3,7 @@
 //! The step counts and scores below are the published values (bbchallenge wiki); the states
 //! after a million steps were computed independently with a plain reference simulator.
 
+use proptest::prelude::*;
 use turing_core::dsl::{self, FormatStyle};
 use turing_core::standard::{StandardError, parse_standard, spec_from_standard, to_standard};
 use turing_core::{ChainSim, Kind, Machine, Outcome, Simulator, TapeView};
@@ -216,27 +217,72 @@ fn unsupported(source: &str) -> String {
 #[test]
 fn writing_relabels_states_with_the_start_first() {
     let m = machine(
-        "blank = 0\nstart = go\n\
+        "blank = 0\nstart = go\nF = {stop}\n\
          δ(back, 0) = (go, 1, L)\n\
          δ(go, 0) = (back, 1, R)\n\
          δ(go, 1) = (stop, 0, R)",
     );
     assert_eq!(to_standard(&m).unwrap(), "1RB0RZ_1LA---");
+    // A state that halts without being final keeps a letter of its own.
+    let m = machine("blank = 0\nδ(A, 0) = (B, 1, R)\nδ(A, 1) = (C, 1, R)");
+    assert_eq!(to_standard(&m).unwrap(), "1RB1RC_------_------");
 }
 
 #[test]
 fn writing_rejects_what_the_format_cannot_express() {
-    assert!(
-        unsupported("tapes = 2\nblank = 0\nδ(A, (0, 0)) = (A, (1, 1), (R, R))").contains("2 tapes")
-    );
+    let two_tapes = "tapes = 2\nblank = 0\nδ(A, (0, 0)) = (A, (1, 1), (R, R))";
+    assert!(unsupported(two_tapes).contains("2 tapes"));
     assert!(unsupported("blank = 0\nδ(A, 0) = (A, 1, N)").contains("moves N"));
     assert!(unsupported("δ(A, x) = (A, x, R)").contains("digits"));
-    assert!(
-        unsupported("blank = 0\nδ(A, 0) = (B, 1, R)\nδ(A, 1) = (C, 1, R)").contains("both halt")
-    );
+    let two_halts = "blank = 0\nF = {B, C}\nδ(A, 0) = (B, 1, R)\nδ(A, 1) = (C, 1, R)";
+    assert!(unsupported(two_halts).contains("both halt"));
     assert!(unsupported("blank = 0\nΓ = {0, 2}\nδ(A, 0) = (A, 2, R)").contains("digits"));
     let many: String = (0..26)
         .map(|i| format!("δ(q{i}, 0) = (q{}, 1, R)\n", i + 1))
         .collect();
-    assert!(unsupported(&format!("blank = 0\n{many}")).contains("at most 25"));
+    let many = format!("blank = 0\nF = {{q26}}\n{many}");
+    assert!(unsupported(&many).contains("at most 25"));
+}
+
+/// A text in the standard format with `states` states and `symbols` symbols.
+fn standard_text() -> impl Strategy<Value = String> {
+    (1..=6_usize, 1..=4_usize).prop_flat_map(|(states, symbols)| {
+        let entry = prop_oneof![
+            1 => Just("---".to_string()),
+            4 => (0..symbols, prop::bool::ANY, 0..=states + 1).prop_map(move |(w, r, next)| {
+                let next = if next >= states { 25 } else { next };
+                format!(
+                    "{w}{}{}",
+                    if r { 'R' } else { 'L' },
+                    char::from(b'A' + u8::try_from(next).unwrap_or(25))
+                )
+            }),
+        ];
+        prop::collection::vec(prop::collection::vec(entry, symbols), states).prop_map(|rows| {
+            rows.iter()
+                .map(|r| r.concat())
+                .collect::<Vec<_>>()
+                .join("_")
+        })
+    })
+}
+
+proptest! {
+    #[test]
+    fn writing_inverts_reading(text in standard_text()) {
+        let machine = parse_standard(&text).unwrap();
+        prop_assert_eq!(to_standard(&machine).unwrap(), text);
+    }
+
+    #[test]
+    fn halting_letters_are_all_z(text in standard_text(), letter in b'A'..=b'Z') {
+        // Rename the halting letter; every letter beyond the last state halts.
+        let states = text.split('_').count();
+        let letter = char::from(letter);
+        if usize::from(u8::try_from(letter).unwrap_or(b'Z') - b'A') >= states {
+            let renamed = text.replace('Z', &letter.to_string());
+            let machine = parse_standard(&renamed).unwrap();
+            prop_assert_eq!(to_standard(&machine).unwrap(), text);
+        }
+    }
 }
