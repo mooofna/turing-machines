@@ -1,7 +1,7 @@
 //! Types that cross the WebAssembly boundary, with generated TypeScript definitions.
 //!
 //! Characters cross as one-character strings, positions as UTF-16 code unit offsets (what
-//! JavaScript strings and CodeMirror use) and step counts as `number`, which is exact up to
+//! JavaScript strings and `CodeMirror` use) and step counts as `number`, which is exact up to
 //! 2^53. Values that can grow beyond that cross as decimal strings.
 
 use serde::{Deserialize, Serialize};
@@ -224,6 +224,12 @@ pub struct ParseResultDto {
     pub spec: Option<MachineSpecDto>,
     /// All diagnostics.
     pub diagnostics: Vec<DiagnosticDto>,
+    /// The decoded description, set by `decodeShare` whenever the link could be unpacked, so
+    /// that a shared machine with errors can still be opened in the text editor. Diagnostic
+    /// positions refer to this text.
+    #[tsify(optional)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
 }
 
 /// A list of diagnostics.
