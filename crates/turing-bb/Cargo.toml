@@ -1,0 +1,31 @@
+[package]
+name = "turing-bb"
+description = "Busy beaver search: tree normal form enumeration, non-halting deciders and cryptids"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+keywords = ["busy-beaver", "turing-machine", "computability"]
+categories = ["science", "mathematics"]
+
+[dependencies]
+turing-core.workspace = true
+thiserror = { workspace = true, features = ["std"] }
+rustc-hash = { workspace = true, features = ["std"] }
+num-bigint.workspace = true
+num-traits.workspace = true
+num-integer.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+divan.workspace = true
+
+[[bench]]
+name = "enumerate"
+harness = false
+
+[lints]
+workspace = true

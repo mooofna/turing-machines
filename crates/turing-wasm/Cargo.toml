@@ -1,0 +1,30 @@
+[package]
+name = "turing-wasm"
+description = "WebAssembly bindings of the turing-machines workspace for the web front end"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+turing-core = { workspace = true, features = ["serde"] }
+turing-bb.workspace = true
+turing-render.workspace = true
+wasm-bindgen.workspace = true
+js-sys.workspace = true
+serde = { workspace = true, features = ["std"] }
+serde-wasm-bindgen.workspace = true
+serde_bytes.workspace = true
+tsify.workspace = true
+miniz_oxide.workspace = true
+base64.workspace = true
+console_error_panic_hook.workspace = true
+
+[lints]
+workspace = true

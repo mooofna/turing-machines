@@ -1,0 +1,8 @@
+build
+.svelte-kit
+node_modules
+package-lock.json
+src/lib/engine/pkg
+test-results
+playwright-report
+screenshots

@@ -1,0 +1,10 @@
+/target
+**/node_modules
+web/build
+web/.svelte-kit
+web/test-results
+web/playwright-report
+web/screenshots
+web/src/lib/engine/pkg
+.DS_Store
+*.profraw

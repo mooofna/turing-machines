@@ -1,0 +1,23 @@
+[package]
+name = "turing-render"
+description = "Space-time diagrams, state diagram layout and SVG export for Turing machines"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+keywords = ["turing-machine", "visualization", "graph-layout"]
+categories = ["visualization", "science"]
+
+[dependencies]
+turing-core.workspace = true
+thiserror = { workspace = true, features = ["std"] }
+
+[dev-dependencies]
+insta.workspace = true
+proptest.workspace = true
+
+[lints]
+workspace = true

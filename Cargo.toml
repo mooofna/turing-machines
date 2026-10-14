@@ -1,0 +1,75 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mooofna/turing-machines"
+authors = ["Maurice Heide"]
+publish = false
+
+[workspace.dependencies]
+turing-core = { path = "crates/turing-core" }
+turing-bb = { path = "crates/turing-bb" }
+turing-render = { path = "crates/turing-render" }
+
+thiserror = { version = "2.0", default-features = false }
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
+serde_json = "1.0"
+rustc-hash = { version = "2.1", default-features = false }
+num-bigint = "0.5"
+num-traits = "0.2"
+num-integer = "0.1"
+clap = { version = "4.6", features = ["derive"] }
+annotate-snippets = "0.12"
+anstream = "1.0"
+png = "0.18"
+wasm-bindgen = "=0.2.129"
+js-sys = "0.3.106"
+serde-wasm-bindgen = "0.6.5"
+serde_bytes = "0.11"
+tsify = { version = "0.5.8", default-features = false, features = ["js"] }
+miniz_oxide = "0.9"
+base64 = "0.23"
+console_error_panic_hook = "0.1.7"
+proptest = "1.12"
+insta = "1.49"
+divan = "0.1.21"
+trycmd = "1.2"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+unused_qualifications = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+unwrap_used = "warn"
+dbg_macro = "deny"
+todo = "warn"
+print_stdout = "warn"
+allow_attributes_without_reason = "warn"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 3
+panic = "abort"
+strip = true
+
+[profile.bench]
+debug = true
+
+[profile.test]
+opt-level = 1

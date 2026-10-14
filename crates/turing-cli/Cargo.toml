@@ -1,0 +1,32 @@
+[package]
+name = "turing-cli"
+description = "The `tm` command: run, trace, check, convert and render Turing machines, enumerate busy beavers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+keywords = ["turing-machine", "busy-beaver", "cli"]
+categories = ["command-line-utilities", "science"]
+
+[[bin]]
+name = "tm"
+path = "src/main.rs"
+
+[dependencies]
+turing-core = { workspace = true, features = ["serde"] }
+turing-bb.workspace = true
+turing-render.workspace = true
+clap.workspace = true
+annotate-snippets.workspace = true
+anstream.workspace = true
+png.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+trycmd.workspace = true
+
+[lints]
+workspace = true
