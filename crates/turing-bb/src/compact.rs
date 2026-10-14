@@ -545,6 +545,50 @@ mod tests {
     }
 
     #[test]
+    fn converts_to_and_from_machines() {
+        for text in [
+            "1RB1RZ_1LB0RC_1LC1LA",
+            "1RB1LB_1LA0LC_1RZ1LD_1RD0RA",
+            "1RB2LB1RZ_2LA2RB1LB",
+            "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+            "0RA---",
+        ] {
+            let tm: CompactTm = text.parse().unwrap();
+            let machine = tm.to_machine();
+            assert_eq!(machine.kind(), Kind::Beaver);
+            assert_eq!(machine.name(), text);
+            assert_eq!(machine.state(machine.start()).name, "A");
+            assert_eq!(machine.alphabet().blank(), '0');
+            assert_eq!(CompactTm::try_from(&machine).unwrap(), tm, "{text}");
+        }
+    }
+
+    #[test]
+    fn machines_run_like_the_compact_form() {
+        use turing_core::{Outcome, Simulator};
+        let bb4: CompactTm = "1RB1LB_1LA0LC_1RZ1LD_1RD0RA".parse().unwrap();
+        let machine = bb4.to_machine();
+        let mut sim = Simulator::new(&machine, &[]);
+        assert!(matches!(sim.run(1_000), Outcome::Halted { steps: 107, .. }));
+    }
+
+    #[test]
+    fn states_without_transitions_become_the_halting_state() {
+        let machine = Machine::builder("bb1")
+            .blank('0')
+            .transition("A", '0', "H", '1', Dir::R)
+            .build()
+            .unwrap();
+        assert_eq!(CompactTm::try_from(&machine).unwrap().to_string(), "1RZ---");
+        let stay = Machine::builder("stay")
+            .blank('0')
+            .transition("A", '0', "A", '1', Dir::N)
+            .build()
+            .unwrap();
+        assert!(CompactTm::try_from(&stay).is_err());
+    }
+
+    #[test]
     fn next_state_bound_follows_the_coq_pointer() {
         let bound = |s: &str| s.parse::<CompactTm>().unwrap().next_state_bound();
         assert_eq!(bound("------_------_------_------"), 1);
