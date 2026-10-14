@@ -1,0 +1,11 @@
+---
+source: crates/turing-render/tests/diagram.rs
+expression: "describe(&Graph::from_spec(&increment()))"
+---
+node 0 q0 start
+node 1 q1 final
+edge 0 -> 0 [0]
+  1 ↦ 0, R
+edge 0 -> 1 [1, 2]
+  0 ↦ 1, R
+  ␣ ↦ 1, R
