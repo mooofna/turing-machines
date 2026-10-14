@@ -68,7 +68,11 @@
       <span class="formula">{base}<sup>{exponent}</sup> =</span>
     </p>
     <p class="number mono" class:pending={value === null}>
-      {value === null ? (failure ? '' : 'computing') : group(value)}
+      {#if value === null}
+        {failure ? '' : 'computing'}
+      {:else}
+        {#each group(value).split(',') as part, i (i)}{#if i > 0},<wbr />{/if}{part}{/each}
+      {/if}
     </p>
     <p class="digits">
       {#if value !== null}
@@ -165,10 +169,10 @@
 
   .number {
     margin: 0.15rem 0 0;
-    font-size: var(--text-xl);
+    /* 23 characters for six states fit the width of a phone. */
+    font-size: min(var(--text-xl), 6.2vw);
     line-height: 1.2;
     letter-spacing: -0.01em;
-    overflow-wrap: anywhere;
   }
 
   .number.pending {

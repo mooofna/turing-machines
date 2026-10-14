@@ -75,7 +75,7 @@
 
 <div class="chart" bind:clientWidth={width}>
   <div class="legend" aria-hidden="true">
-    <span class="n mono">n = {shown}</span>
+    <span class="n mono" class:preview={hover !== null && hover !== selected}>n = {shown}</span>
     <span class="key"
       ><span class="swatch ink"></span>One tape
       <span class="mono">{one ? `${count(one[shown] ?? 0)} steps` : ''}</span></span
@@ -134,6 +134,10 @@
         <text class="label" x={x(last) + 10} y={ends.one} dy="0.32em">One tape</text>
         <text class="label" x={x(last) + 10} y={ends.two} dy="0.32em">Two tapes</text>
 
+        {#if hover !== null && hover !== selected}
+          <circle class="dot ink" cx={x(hover)} cy={y(one[hover] ?? 0)} r="3.5" />
+          <circle class="dot grey" cx={x(hover)} cy={y(two[hover] ?? 0)} r="3.5" />
+        {/if}
         <circle class="dot active" cx={x(selected)} cy={y(one[selected] ?? 0)} r="4" />
         <circle class="dot active" cx={x(selected)} cy={y(two[selected] ?? 0)} r="4" />
       {/if}
@@ -162,6 +166,10 @@
     min-width: 4.5rem;
     color: var(--accent);
     font-size: var(--text-sm);
+  }
+
+  .legend .n.preview {
+    color: var(--text);
   }
 
   .key {
@@ -266,14 +274,13 @@
 
   .select {
     stroke: var(--accent);
-    stroke-width: 1;
-    shape-rendering: crispEdges;
+    stroke-width: 1.5;
   }
 
   .ghost {
     stroke: var(--rule-strong);
     stroke-width: 1;
     shape-rendering: crispEdges;
-    opacity: 0.5;
+    opacity: 0.3;
   }
 </style>
