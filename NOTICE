@@ -1,0 +1,57 @@
+turing-machines
+Copyright (c) 2024 to 2026 Maurice Heide
+Licensed under the MIT licence or the Apache License, Version 2.0, at your option.
+
+This project includes data from, and algorithms ported from, the following work.
+
+Coq-BB5
+-------
+
+Source: https://github.com/ccz181078/Coq-BB5 (commit 9142e219229baf2245d3f70851947230ea28a318)
+Release: Coq-BB5 release v1.0.0, https://doi.org/10.5281/zenodo.17061968
+Paper: The bbchallenge Collaboration et al., "Determination of the fifth Busy Beaver value",
+arXiv:2509.12337, 2025.
+
+* crates/turing-bb/tests/data/BB2_verified_enumeration.csv,
+  crates/turing-bb/tests/data/BB3_verified_enumeration.csv and
+  crates/turing-bb/tests/data/BB2x3_verified_enumeration.csv are copied unchanged from
+  https://docs.bbchallenge.org/CoqBB5_release_v1.0.0/. Their SHA-256 hashes are listed in
+  crates/turing-bb/tests/data/README.md.
+* The tree normal form enumeration (crates/turing-bb/src/tnf.rs, crates/turing-bb/src/stats.rs)
+  and the deciders Loops, n-gram CPS with its history and LRU augmentations, and repeated word
+  lists (crates/turing-bb/src/deciders/) are Rust ports of TNF.v, BB4_TNF_Enumeration.v,
+  Decider_Loop.v, Decider_NGramCPS.v, Decider_RepWL.v and TM.v of Coq-BB5, with the parameters
+  of BB2_Deciders_Pipeline.v, BB3_Deciders_Pipeline.v, BB4_Deciders_Pipeline.v and
+  BB2x3_Deciders_Pipeline.v. The ports are not formally verified; their results are compared
+  with the Coq-BB5 enumerations node by node.
+
+Coq-BB5 is distributed under the following licence:
+
+    MIT License
+
+    Copyright (c) 2024 ccz181078
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+n-gram closed position sets
+---------------------------
+
+The n-gram CPS technique was introduced by Nathan Fenner,
+https://github.com/Nathan-Fenner/bb-simple-n-gram-cps. No code from that repository is
+included; the implementation here follows Coq-BB5.
