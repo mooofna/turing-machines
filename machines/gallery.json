@@ -417,7 +417,7 @@
       "file": "classic/binary-increment-msb.tm",
       "provenance": "Classic exercise, written for this project",
       "source": "original",
-      "description": "Adds one to a binary number written with the most significant bit first. The head runs to the right end of the input and then carries to the left; the playground opens with this machine.",
+      "description": "Adds one to a binary number written with the most significant bit first. The head runs to the right end of the input and then carries to the left, turning ones into zeros until it can write a one.",
       "budget": 1000000,
       "examples": [
         {
