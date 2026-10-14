@@ -19,3 +19,7 @@ Pro with 16 GB of memory, macOS 26.5, Rust 1.99.0, one thread, on 14 October 202
 Running Antihydra itself with the chain simulator up to 2^53 steps (41 rule applications, the
 last one A(20, 86956818) at step 4,536,893,241,720,843) takes about 9.4 s
 (`cargo test --release -p turing-bb --test antihydra -- --include-ignored`).
+
+The same BB(4) enumeration compiled to `wasm32-unknown-unknown` (release, fat LTO, no
+wasm-opt) and run in Node.js 25.2 takes 0.85 to 1.05 s on the same machine, the BB(3)
+enumeration 7.5 ms.
