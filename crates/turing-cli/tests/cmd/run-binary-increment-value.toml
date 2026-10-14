@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/course/binary-increment.tm --binary 11"
+fs.cwd = "../../../.."

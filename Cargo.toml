@@ -57,6 +57,8 @@ dbg_macro = "deny"
 todo = "warn"
 print_stdout = "warn"
 allow_attributes_without_reason = "warn"
+# `assert!(x.is_empty())` reads better than the suggested `assert_eq!(x, [] as [T; 0])`.
+assert_is_empty = "allow"
 
 [profile.release]
 lto = "fat"

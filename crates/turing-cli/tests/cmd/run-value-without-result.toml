@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run --standard 1RA--- --format value"
+status.code = 1

@@ -1,0 +1,4 @@
+bin.name = "tm"
+args = "check typo.tm"
+fs.cwd = "../fixtures"
+status.code = 1

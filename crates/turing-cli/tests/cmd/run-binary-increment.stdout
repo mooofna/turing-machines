@@ -1,0 +1,7 @@
+machine   Binary increment
+          transducer, 1 tape, 2 states, 3 symbols, 3 transitions
+input     1011
+outcome   halted after 2 steps in state q1
+output    0111 (14)
+tape      01 q1 11
+non-blank 4

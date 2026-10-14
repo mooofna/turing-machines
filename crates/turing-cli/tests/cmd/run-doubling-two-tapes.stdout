@@ -1,0 +1,7 @@
+machine   M*2 (two tapes)
+          transducer, 2 tapes, 4 states, 2 symbols, 6 transitions
+input     xxxx
+outcome   halted after 9 steps in state q3
+output    xxxxxxxx (8)
+tape      xxxxxxxx␣ q3 ␣ | q3 xxx
+non-blank 11

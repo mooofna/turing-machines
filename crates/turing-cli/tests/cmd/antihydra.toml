@@ -1,0 +1,2 @@
+bin.name = "tm"
+args = "antihydra --iterations 1000 --check-rows 8"

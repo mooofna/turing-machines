@@ -1,0 +1,8 @@
+warning[W001]: the state `q2` cannot be reached from the start state `q0`
+  ╭▸ unreachable.tm:7:3
+  │
+7 │ δ(q2, x) = (q1, x, R)
+  │   ━━
+  │
+  ╰ help: no chain of transitions leads from the start state to it
+

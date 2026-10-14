@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/course/unary-multiplication.tm --unary 3 4"
+fs.cwd = "../../../.."

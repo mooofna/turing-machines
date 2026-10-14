@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/course/multiples-of-three.tm --max-words 5"
+fs.cwd = "../../../.."

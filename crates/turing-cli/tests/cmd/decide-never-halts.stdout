@@ -1,0 +1,2 @@
+machine   1RB0LB_1LA0RB
+verdict   never halts (decider: cyclers and translated cyclers)

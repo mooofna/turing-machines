@@ -1,5 +1,6 @@
 //! The description language: parsing, inference, comments, formatting and round trips.
 
+use std::fmt::Write as _;
 use std::fs;
 use std::path::PathBuf;
 
@@ -50,7 +51,11 @@ fn assert_round_trip(spec: &MachineSpec) {
     for style in STYLES {
         let text = dsl::format(spec, style);
         let parsed = dsl::parse(&text);
-        let errors: Vec<_> = parsed.diagnostics.iter().filter(|d| d.is_error()).collect();
+        let errors: Vec<_> = parsed
+            .diagnostics
+            .iter()
+            .filter(|d| d.is_error())
+            .collect();
         assert!(errors.is_empty(), "{text}\n{errors:#?}");
         let again = without_spans(parsed.spec.expect("a spec"));
         assert_eq!(again, expected, "{text}");
@@ -270,13 +275,18 @@ fn the_table_limit_matches_the_builder() {
     };
     // 1024 × 64² = 2²² entries is the largest table.
     let largest = spec(1024);
-    assert!(!largest.check().iter().any(|d| d.is_error()));
+    assert!(
+        !largest
+            .check()
+            .iter()
+            .any(turing_core::Diagnostic::is_error)
+    );
     assert!(largest.compile().is_ok());
     let too_large = spec(1025);
     let codes: Vec<_> = too_large
         .check()
         .into_iter()
-        .filter(|d| d.is_error())
+        .filter(turing_core::Diagnostic::is_error)
         .map(|d| d.code)
         .collect();
     assert_eq!(codes, ["E009"]);
@@ -388,7 +398,11 @@ fn valid_spec() -> impl Strategy<Value = MachineSpec> {
     (alphabet, states, extras).prop_map(build_spec)
 }
 
-#[expect(clippy::needless_pass_by_value, reason = "the shape proptest produces")]
+#[expect(
+    clippy::too_many_lines,
+    clippy::type_complexity,
+    reason = "one generator for the whole spec, in the tuple shape proptest produces"
+)]
 fn build_spec(
     (alphabet, states, extras): (
         ([bool; 5], Index, Vec<char>, Index, u8, Vec<Index>),
@@ -492,7 +506,7 @@ fn build_spec(
 
     let mut tape_alphabet = Vec::new();
     if declared.tape_alphabet {
-        tape_alphabet = gamma.clone();
+        tape_alphabet.clone_from(&gamma);
         let at = blank_position.index(tape_alphabet.len() + 1);
         tape_alphabet.insert(at, blank);
     }
@@ -606,7 +620,10 @@ fn assert_spans_valid(source: &str) {
     }
     assert_eq!(
         parsed.spec.is_some(),
-        !parsed.diagnostics.iter().any(|d| d.is_error())
+        !parsed
+            .diagnostics
+            .iter()
+            .any(turing_core::Diagnostic::is_error)
     );
 }
 
@@ -684,7 +701,7 @@ proptest! {
 
     #[test]
     fn check_and_compile_agree(spec in any_spec()) {
-        let has_errors = spec.check().iter().any(|d| d.is_error());
+        let has_errors = spec.check().iter().any(turing_core::Diagnostic::is_error);
         let compiled = spec.compile();
         prop_assert_eq!(has_errors, compiled.is_err(), "{:?}", compiled.err());
     }
@@ -731,7 +748,7 @@ fn large_inputs_parse_quickly() {
     let states: Vec<String> = (0..5_000).map(|i| format!("q{i}")).collect();
     let mut text = format!("Q = {{{}}}\n", states.join(", "));
     for i in 0..20_000 {
-        text.push_str(&format!("δ(q{i}, x) = (p{i}, x, R)\n"));
+        writeln!(text, "δ(q{i}, x) = (p{i}, x, R)").expect("writing to a String cannot fail");
     }
     let codes: std::collections::BTreeSet<_> = dsl::parse(&text)
         .diagnostics
@@ -743,7 +760,8 @@ fn large_inputs_parse_quickly() {
     let glyphs: String = ('\u{4e00}'..'\u{9000}').take(20_000).collect();
     let mut text = String::new();
     for (i, glyph) in glyphs.chars().enumerate() {
-        text.push_str(&format!("δ(q{i}, {glyph}) = (q{}, {glyph}, R)\n", i + 1));
+        writeln!(text, "δ(q{i}, {glyph}) = (q{}, {glyph}, R)", i + 1)
+            .expect("writing to a String cannot fail");
     }
     let codes: std::collections::BTreeSet<_> = dsl::parse(&text)
         .diagnostics

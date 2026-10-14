@@ -1,0 +1,4 @@
+bin.name = "tm"
+args = "run machines/course/binary-increment.tm --input 102"
+fs.cwd = "../../../.."
+status.code = 2

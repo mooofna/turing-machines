@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "check --standard 1RB1LB_1LA1R"
+status.code = 1

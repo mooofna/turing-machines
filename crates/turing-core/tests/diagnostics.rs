@@ -17,8 +17,8 @@ fn render_span(out: &mut String, source: &str, span: Span, marker: &str, note: &
     let column = source[line_start..start].chars().count();
     let width = source[start..end.min(line_end)].chars().count().max(1);
     let text = source[line_start..line_end].trim_end();
-    writeln!(out, "  --> {line}:{}", column + 1).unwrap();
-    writeln!(out, "{line:>3} | {text}").unwrap();
+    writeln!(out, "  --> {line}:{}", column + 1).expect("writing to a String cannot fail");
+    writeln!(out, "{line:>3} | {text}").expect("writing to a String cannot fail");
     let marks = marker.repeat(width);
     let gap = " ".repeat(column);
     let note = if note.is_empty() {
@@ -26,14 +26,14 @@ fn render_span(out: &mut String, source: &str, span: Span, marker: &str, note: &
     } else {
         format!(" {note}")
     };
-    writeln!(out, "    | {gap}{marks}{note}").unwrap();
+    writeln!(out, "    | {gap}{marks}{note}").expect("writing to a String cannot fail");
 }
 
 /// All diagnostics of `source`, in order, with their spans drawn into the text.
 fn render(source: &str, diagnostics: &[Diagnostic]) -> String {
     let mut out = String::new();
     for d in diagnostics {
-        writeln!(out, "{d}").unwrap();
+        writeln!(out, "{d}").expect("writing to a String cannot fail");
         if let Some(span) = d.span {
             render_span(&mut out, source, span, "^", "");
         }
@@ -41,7 +41,7 @@ fn render(source: &str, diagnostics: &[Diagnostic]) -> String {
             render_span(&mut out, source, *span, "-", note);
         }
         if let Some(help) = &d.help {
-            writeln!(out, "    = help: {help}").unwrap();
+            writeln!(out, "    = help: {help}").expect("writing to a String cannot fail");
         }
         out.push('\n');
     }

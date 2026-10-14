@@ -1,0 +1,9 @@
+error: invalid standard format: every transition has three characters
+  ╭▸ --standard:1:13
+  │
+1 │ 1RB1LB_1LA1R
+  │             ━
+  │
+  ╰ help: states are separated by `_`, each transition is written like `1RB`, `---` is undefined
+
+error: `--standard` is invalid: 1 error

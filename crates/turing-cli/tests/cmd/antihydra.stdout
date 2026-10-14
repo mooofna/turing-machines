@@ -1,0 +1,23 @@
+machine   1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA
+
+Rule applications on the machine, A(a, b) = 0^∞ 1^a 0 1^b E> 0^∞
+
+  n    a     b   at step   steps   predicted   agrees
+  0    0     4        11      11          11   yes
+  1    2     8        58      47          47   yes
+  2    4    14       169     111         111   yes
+  3    6    23       419     250         250   yes
+  4    5    36       919     500         500   yes
+  5    7    56     2,128   1,209       1,209   yes
+  6    9    86     4,841   2,713       2,713   yes
+  7   11   131    10,933   6,092       6,092   yes
+
+check     8 of 8 rule applications on the machine agree with the rule
+rule      1,000 iterations from h = 8, c = 0
+          h even 499 times (c + 2), odd 501 times (c - 1)
+          balance c = 497, smallest 2
+          h has 588 bits
+
+The balance did not become negative in 1,000 iterations.
+Whether it ever does is an open problem, so nobody knows whether Antihydra halts.
+The question is close to Mahler's 3/2 problem.

@@ -1,0 +1,15 @@
+ 0    q0 #xx#xx#
+ 1 ⊢  # q1 xx#xx#
+ 2 ⊢  #X q2 x#xx#
+ 3 ⊢  #Xx q2 #xx#
+ 4 ⊢  #Xx# q3 xx#
+ 5 ⊢  #Xx#X q4 x#
+ 6 ⊢  #Xx#Xx q4 #
+ 7 ⊢  #Xx#Xx# q5 ␣
+ 8 ⊢  #Xx#Xx q6 #x
+ 9 ⊢  #Xx#X q7 x#x
+10 ⊢  #Xx# q7 Xx#x
+11 ⊢  #Xx#X q3 x#x
+12 ⊢  #Xx#XX q4 #x
+
+not halted after 12 steps (use --steps to see more)
