@@ -1,0 +1,16 @@
+---
+source: crates/turing-render/tests/diagram.rs
+expression: "describe(&Graph::from_spec(&spec))"
+---
+node 0 q0 start
+node 1 q1
+node 2 qf final
+edge 0 -> 0 [1, 3]
+  (a, ␣) ↦ (a, a), (R, R)
+  (b, ␣) ↦ (b, b), (R, R)
+edge 0 -> 1 [2]
+  (␣, ␣) ↦ (␣, ␣), (L, N)
+edge 1 -> 1 [0]
+  (a, ␣) ↦ (a, ␣), (L, N)
+edge 1 -> 2 [4]
+  (␣, ␣) ↦ (␣, ␣), (R, L)
