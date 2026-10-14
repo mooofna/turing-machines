@@ -62,9 +62,9 @@ fn write_rows(out: &mut dyn Write, rows: &[Row]) -> std::io::Result<()> {
         ("n", Align::Right),
         ("a", Align::Right),
         ("b", Align::Right),
-        ("step", Align::Right),
-        ("steps since", Align::Right),
-        ("rule says", Align::Right),
+        ("at step", Align::Right),
+        ("steps", Align::Right),
+        ("predicted", Align::Right),
         ("agrees", Align::Left),
     ])
     .indent(2);
@@ -126,15 +126,12 @@ fn write_conclusion(out: &mut dyn Write, summary: &WalkSummary) -> std::io::Resu
         let line = format!("The balance became negative within {iterations}: Antihydra halts.");
         writeln!(out, "{}", paint(style::NOTE, line))
     } else {
+        writeln!(out, "The balance did not become negative in {iterations}.")?;
         writeln!(
             out,
-            "The balance did not become negative in {iterations}. Whether it ever does is an open"
+            "Whether it ever does is an open problem, so nobody knows whether Antihydra halts."
         )?;
-        writeln!(
-            out,
-            "problem, so nobody knows whether Antihydra halts. The question is close to Mahler's"
-        )?;
-        writeln!(out, "3/2 problem.")
+        writeln!(out, "The question is close to Mahler's 3/2 problem.")
     }
 }
 

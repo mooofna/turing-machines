@@ -1,3 +1,2 @@
 bin.name = "tm"
 args = "antihydra --iterations 1000 --check-rows 8"
-status.code = 101
