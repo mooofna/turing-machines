@@ -98,11 +98,28 @@ pub struct MacroEvent {
 
 /// Executes a single-tape machine with chain steps on a [`RunTape`].
 ///
+/// The three-state busy beaver champion `1RB1RZ_1LB0RC_1LC1LA` (in the standard format of
+/// [`standard`](crate::standard)) halts after 21 steps with five ones on the tape:
+///
 /// ```
-/// use turing_core::{ChainSim, Outcome, standard};
-/// let bb3 = standard::parse_standard("1RB1RZ_0RC1RB_1LC1LA").unwrap();
+/// use turing_core::{ChainSim, Dir, Kind, Machine, Outcome, TapeView};
+/// let bb3 = Machine::builder("bb3")
+///     .kind(Kind::Beaver)
+///     .blank('0')
+///     .tape_alphabet(['0', '1'])
+///     .transition("A", '0', "B", '1', Dir::R)
+///     .transition("A", '1', "Z", '1', Dir::R)
+///     .transition("B", '0', "B", '1', Dir::L)
+///     .transition("B", '1', "C", '0', Dir::R)
+///     .transition("C", '0', "C", '1', Dir::L)
+///     .transition("C", '1', "A", '1', Dir::L)
+///     .final_state("Z")
+///     .build()
+///     .unwrap();
 /// let mut sim = ChainSim::new(&bb3, &[]).unwrap();
 /// assert!(matches!(sim.run(1_000), Outcome::Halted { steps: 21, .. }));
+/// assert_eq!(sim.tape().count_non_blank(), 5);
+/// assert!(sim.macro_steps() < 21);
 /// ```
 #[derive(Clone, Debug)]
 pub struct ChainSim<M: Borrow<Machine>> {
