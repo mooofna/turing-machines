@@ -61,7 +61,6 @@
           <th scope="col">Kind and size</th>
           <th scope="col">Origin</th>
           <th scope="col"><span class="visually-hidden">Space-time diagram</span></th>
-          <th scope="col"><span class="visually-hidden">Link</span></th>
         </tr>
       </thead>
       <tbody>
@@ -71,6 +70,11 @@
             <th scope="row" class="name">
               <span class="title">{machine.title}</span>
               <span class="description">{machine.description}</span>
+              <!-- rel="external": the playground reads #g= on load, and the prerenderer does not
+                   look for an element with that id. -->
+              <a class="open" href={resolve(`/playground#g=${machine.id}`)} rel="external"
+                >Open in playground<span class="visually-hidden">: {machine.title}</span></a
+              >
             </th>
             <td class="kind">
               {#if spec}
@@ -99,13 +103,6 @@
                 <span class="muted none">No diagram for several tapes</span>
               {/if}
             </td>
-            <td class="open">
-              <!-- rel="external": the playground reads #g= on load, and the prerenderer does not
-                   look for an element with that id. -->
-              <a href={resolve(`/playground#g=${machine.id}`)} rel="external"
-                >Open in playground<span class="visually-hidden">: {machine.title}</span></a
-              >
-            </td>
           </tr>
         {/each}
       </tbody>
@@ -128,11 +125,7 @@
   }
 
   .machines thead th:nth-child(4) {
-    width: calc(144px + 1.5rem);
-  }
-
-  .machines thead th:nth-child(5) {
-    width: 9.5rem;
+    width: calc(144px + 2px);
   }
 
   .machines td,
@@ -171,11 +164,13 @@
   }
 
   .open {
-    text-align: right;
-    white-space: nowrap;
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: 400;
   }
 
-  @media (max-width: 47.99rem) {
+  /* Below 64rem the four columns do not fit: each machine becomes a block. */
+  @media (max-width: 63.99rem) {
     .machines,
     .machines tbody,
     .machines tr,
@@ -225,12 +220,6 @@
       grid-column: 2;
       grid-row: 2 / span 2;
       margin-top: 0.6rem;
-    }
-
-    .open {
-      grid-column: 1 / -1;
-      margin-top: 0.75rem;
-      text-align: left;
     }
   }
 </style>

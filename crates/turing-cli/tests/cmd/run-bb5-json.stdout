@@ -1,0 +1,14 @@
+{
+  "configuration": "1 Z 01001001001001001001001001001001001001001001001001001001001…",
+  "input": "",
+  "kind": "beaver",
+  "machine": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+  "nonBlank": 4098,
+  "outcome": {
+    "state": "Z",
+    "status": "halted",
+    "steps": 47176870
+  },
+  "states": 6,
+  "tapes": 1
+}

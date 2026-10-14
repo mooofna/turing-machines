@@ -29,6 +29,8 @@ export default defineConfig({
       }
     }
   ],
+  // Locally an already running preview is reused; stop it after a rebuild, or the tests see the
+  // old files.
   webServer: {
     command: 'npm run build && npm run preview',
     url: 'http://localhost:4173',

@@ -18,6 +18,11 @@ thiserror = { workspace = true, features = ["std"] }
 [dev-dependencies]
 insta.workspace = true
 proptest.workspace = true
+divan.workspace = true
+
+[[bench]]
+name = "render"
+harness = false
 
 [lints]
 workspace = true

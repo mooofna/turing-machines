@@ -105,6 +105,7 @@ impl Dir {
     }
 
     /// The opposite move; `N` stays `N`.
+    #[must_use]
     pub const fn reversed(self) -> Self {
         match self {
             Self::L => Self::R,

@@ -1,0 +1,9 @@
+bin.name = "tm"
+args = "run - --input xxx"
+stdin = """
+machine "walk"
+F = {q1}
+
+δ(q0, x) = (q0, X, R)
+δ(q0, ␣) = (q1, ␣, L)
+"""

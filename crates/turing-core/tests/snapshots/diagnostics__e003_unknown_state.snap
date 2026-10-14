@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0, q1}\\nδ(q0, x) = (q1, x, R)\\nδ(q1, x) = (q2, x, R)\", &\n[\"E003\"])"
+---
+error[E003]: the state `q2` is not declared in Q
+  --> 3:13
+  3 | δ(q1, x) = (q2, x, R)
+    |             ^^
+    = help: did you mean `q0`?

@@ -1,0 +1,8 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"tapes = 4\\nδ(q0, x) = (q0, x, R)\", & [\"E009\"])"
+---
+error[E009]: a machine has 1 to 3 tapes, not 4
+  --> 1:9
+  1 | tapes = 4
+    |         ^

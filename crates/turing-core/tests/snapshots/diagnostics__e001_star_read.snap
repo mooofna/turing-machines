@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, *) = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected a symbol, found `*`
+  --> 1:7
+  1 | δ(q0, *) = (q1, x, R)
+    |       ^
+    = help: `*` writes back the symbol read; write `'*'` for the symbol itself

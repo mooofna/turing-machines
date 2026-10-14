@@ -1,0 +1,8 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0} q1\", & [\"E001\"])"
+---
+error[E001]: expected the end of the line, found `q1`
+  --> 1:10
+  1 | Q = {q0} q1
+    |          ^^

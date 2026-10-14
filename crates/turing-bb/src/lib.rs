@@ -11,4 +11,4 @@ pub mod uparrow;
 
 pub use compact::{CompactAction, CompactTm, Next, ParseCompactError};
 pub use pipeline::{Decider, DeciderId, Pipeline, Verdict};
-pub use stats::{EnumError, Enumerator, Stats};
+pub use stats::{EnumError, Enumerator, Stats, Visit};

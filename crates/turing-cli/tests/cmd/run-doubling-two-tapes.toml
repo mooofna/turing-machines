@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/course/doubling-two-tapes.tm --unary 4 --format text"
+fs.cwd = "../../../.."

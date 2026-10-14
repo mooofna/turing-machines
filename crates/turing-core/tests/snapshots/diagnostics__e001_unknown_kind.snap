@@ -1,0 +1,8 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"kind decider\\nδ(q0, x) = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected `acceptor`, `transducer`, `enumerator` or `beaver`, found `decider`
+  --> 1:6
+  1 | kind decider
+    |      ^^^^^^^

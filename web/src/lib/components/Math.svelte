@@ -54,7 +54,11 @@
     overflow-y: hidden;
   }
 
+  /* Left-aligned with the text: block math would be centred in the column. Temml sets
+     display: block math as an inline style, hence the !important. */
   .display :global(math) {
+    display: math !important;
     margin: 0;
+    math-style: normal;
   }
 </style>

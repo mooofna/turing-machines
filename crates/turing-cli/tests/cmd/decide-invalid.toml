@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "decide 1RB_1LZ"
+status.code = 1

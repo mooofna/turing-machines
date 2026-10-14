@@ -1,0 +1,27 @@
+error[E004]: δ(q0, x) is defined twice
+  ╭▸ typo.tm:7:1
+  │
+6 │ δ(q0, x) = (q0, X, R)
+  │ ───────────────────── first defined here
+7 │ δ(q0, x) = (q1, X, L)
+  │ ━━━━━━━━━━━━━━━━━━━━━
+  │
+  ╰ help: a deterministic machine has at most one transition per state and symbol
+
+error[E003]: the state `qq1` is not declared in Q
+  ╭▸ typo.tm:8:13
+  │
+8 │ δ(q0, ␣) = (qq1, ␣, L)
+  │             ━━━
+  │
+  ╰ help: did you mean `q1`?
+
+error[E008]: `Q` is not a direction
+  ╭▸ typo.tm:9:20
+  │
+9 │ δ(q1, X) = (q1, X, Q)
+  │                    ━
+  │
+  ╰ help: use L, R or N
+
+error: `typo.tm` is invalid: 3 errors

@@ -1,0 +1,4 @@
+bin.name = "tm"
+args = "fmt --check unformatted.tm"
+fs.cwd = "../fixtures"
+status.code = 1

@@ -128,3 +128,69 @@ impl Alphabet {
             .filter_map(|(i, &c)| u8::try_from(i).ok().map(|i| (Symbol::new(i), c)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn glyphs_keep_their_order_with_the_blank_first() {
+        let a = Alphabet::new('_', &['b', 'a'], &['x', 'a', '_', 'x']).unwrap();
+        assert_eq!(a.glyphs(), ['_', 'x', 'a', 'b']);
+        assert_eq!(a.blank(), '_');
+        assert_eq!(a.input_glyphs().collect::<Vec<_>>(), ['a', 'b']);
+        assert_eq!(
+            a.iter().collect::<Vec<_>>(),
+            [
+                (Symbol::new(0), '_'),
+                (Symbol::new(1), 'x'),
+                (Symbol::new(2), 'a'),
+                (Symbol::new(3), 'b'),
+            ]
+        );
+        assert!(!a.is_empty());
+    }
+
+    #[test]
+    fn unknown_symbols_and_glyphs_are_handled() {
+        let a = Alphabet::new('␣', &['x'], &[]).unwrap();
+        assert_eq!(a.symbol('y'), None);
+        assert_eq!(a.glyph(Symbol::new(7)), '?');
+        assert!(!a.is_input(Symbol::new(7)));
+        assert!(!a.is_input(Symbol::BLANK));
+    }
+
+    #[test]
+    fn invalid_alphabets_are_rejected() {
+        assert_eq!(
+            Alphabet::new('␣', &['␣'], &[]),
+            Err(BuildError::BlankInInputAlphabet { blank: '␣' })
+        );
+        let many: Vec<char> = (0x100..)
+            .filter_map(char::from_u32)
+            .take(MAX_SYMBOLS)
+            .collect();
+        assert_eq!(
+            Alphabet::new('␣', &[], &many),
+            Err(BuildError::TooManySymbols { max: MAX_SYMBOLS })
+        );
+        assert!(Alphabet::new('␣', &[], &many[1..]).is_ok());
+    }
+
+    #[test]
+    fn digit_alphabets_have_blank_zero() {
+        let a = Alphabet::digits(10);
+        assert_eq!(
+            a.glyphs().iter().collect::<alloc::string::String>(),
+            "0123456789"
+        );
+        assert_eq!(a.input_glyphs().count(), 9);
+        assert_eq!(Alphabet::digits(1).glyphs(), ['0']);
+    }
+
+    #[test]
+    #[should_panic(expected = "1 to 10 symbols")]
+    fn digit_alphabets_are_limited() {
+        let _ = Alphabet::digits(11);
+    }
+}

@@ -1,0 +1,34 @@
+name: Verify BB(4)
+
+# Compares the enumeration of all 858,909 four-state machines in tree normal form, node by node,
+# with the enumeration verified in Coq by the bbchallenge collaboration (Coq-BB5 release v1.0.0).
+# The 45 MB file is not committed; it is downloaded and checked against its SHA-256.
+
+on:
+  push:
+    branches: [main]
+    paths: ["crates/turing-bb/**", "crates/turing-core/**", ".github/workflows/verify-bb4.yml"]
+  schedule:
+    - cron: "41 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - name: Download the verified enumeration
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/BB4.csv" \
+            https://docs.bbchallenge.org/CoqBB5_release_v1.0.0/BB4_verified_enumeration.csv
+          echo "c517de277a3f0c8c95ffefa510caf834d8f53763e59623813f98c2b64c6df621  $RUNNER_TEMP/BB4.csv" | sha256sum --check
+      - name: Compare node by node
+        env:
+          COQ_BB4_CSV: ${{ runner.temp }}/BB4.csv
+        run: cargo test --release -p turing-bb --test coq_bb4

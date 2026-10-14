@@ -1,0 +1,31 @@
+---
+source: crates/turing-render/tests/diagram.rs
+expression: "to_svg(&graph, &l, &routes, \"#111111\", \"#ffffff\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="244" height="127.98" viewBox="0 0 244 127.98" role="img" aria-label="State diagram">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g fill="none" stroke="#111111" stroke-width="1.5">
+<path d="M 57.84 69.55 C 25.23 23.48 106.77 23.48 74.16 69.55"/>
+<path d="M 88 89.98 L 184 89.98"/>
+<path d="M 16 89.98 L 44 89.98"/>
+</g>
+<g fill="#ffffff" stroke="#111111" stroke-width="1.5">
+<circle cx="66" cy="89.98" r="22"/>
+<circle cx="206" cy="89.98" r="22"/>
+<circle cx="206" cy="89.98" r="18"/>
+</g>
+<g fill="#111111">
+<path d="M 74.16 69.55 L 76.5 60.18 L 82.22 64.23 Z"/>
+<path d="M 184 89.98 L 175 93.48 L 175 86.48 Z"/>
+<path d="M 44 89.98 L 35 93.48 L 35 86.48 Z"/>
+</g>
+<g font-family="'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="12" fill="#111111" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">
+<text x="66" y="27.7" text-anchor="middle">1 ↦ 0, R</text>
+<text x="136" y="67.68" text-anchor="middle">0 ↦ 1, R</text>
+<text x="136" y="82.68" text-anchor="middle">␣ ↦ 1, R</text>
+</g>
+<g font-family="'Schibsted Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif" fill="#111111" text-anchor="middle">
+<text x="66" y="94.88" font-size="14">q0</text>
+<text x="206" y="94.88" font-size="14">q1</text>
+</g>
+</svg>

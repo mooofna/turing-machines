@@ -1,0 +1,7 @@
+error: invalid machine spec: invalid type: string "one", expected u8
+  ╭▸ broken.json:1:33
+  │
+1 │ {"name": "broken", "tapes": "one"}
+  ╰╴                                ━
+
+error: `broken.json` is invalid: 1 error

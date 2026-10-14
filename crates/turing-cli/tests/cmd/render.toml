@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "render --standard 1RB1RZ_1LB0RC_1LC1LA --spacetime bb3.png --exact 0 --width 64 --height 48 --diagram bb3.svg"
+fs.sandbox = true

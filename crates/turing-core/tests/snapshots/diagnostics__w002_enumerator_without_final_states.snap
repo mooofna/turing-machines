@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"kind enumerator\\nδ(q0, ␣) = (q0, a, R)\", & [\"W002\"])"
+---
+warning[W002]: the enumerator has no final state, so it outputs no word
+  --> 1:1
+  1 | kind enumerator
+    | ^^^^^^^^^^^^^^^
+    = help: declare the final states with `F = {...}`

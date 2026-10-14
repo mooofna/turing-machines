@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "enumerate --states 9"
+status.code = 2
