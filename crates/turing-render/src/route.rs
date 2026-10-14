@@ -27,8 +27,12 @@ pub const LABEL_FONT_SIZE: f64 = 12.0;
 /// The distance between the lines of a label block.
 pub const LABEL_LINE_HEIGHT: f64 = 15.0;
 
-/// The estimated advance of one label character, 0.6 em of a monospace font.
+/// The estimated advance of an ASCII label character, 0.6 em of a monospace font.
 pub const LABEL_CHAR_WIDTH: f64 = 0.6 * LABEL_FONT_SIZE;
+
+/// The estimated advance of any other label character, such as `↦` or `␣`, a full em: a
+/// monospace font may lack these glyphs and borrow wider ones from a fallback font.
+pub const LABEL_WIDE_CHAR_WIDTH: f64 = LABEL_FONT_SIZE;
 
 /// The free space between an edge and its label.
 pub const LABEL_GAP: f64 = 4.0;
@@ -76,22 +80,28 @@ impl EdgeRoute {
 /// The estimated width and height of a label block with these lines.
 ///
 /// ```
-/// use turing_render::route::{LABEL_CHAR_WIDTH, LABEL_LINE_HEIGHT, label_size};
+/// use turing_render::route::{
+///     LABEL_CHAR_WIDTH, LABEL_LINE_HEIGHT, LABEL_WIDE_CHAR_WIDTH, label_size,
+/// };
 /// let (w, h) = label_size(&["a ↦ b, R".to_string(), "␣ ↦ ␣, L".to_string()]);
-/// assert_eq!(w, 8.0 * LABEL_CHAR_WIDTH);
+/// assert_eq!(w, 5.0 * LABEL_CHAR_WIDTH + 3.0 * LABEL_WIDE_CHAR_WIDTH);
 /// assert_eq!(h, 2.0 * LABEL_LINE_HEIGHT);
 /// ```
 pub fn label_size(lines: &[String]) -> (f64, f64) {
-    let chars = lines.iter().map(|l| l.chars().count()).max().unwrap_or(0);
-    #[expect(
-        clippy::cast_precision_loss,
-        reason = "label lengths and counts are small"
-    )]
-    let size = (
-        chars as f64 * LABEL_CHAR_WIDTH,
-        lines.len() as f64 * LABEL_LINE_HEIGHT,
-    );
-    size
+    let width = |line: &String| -> f64 {
+        line.chars()
+            .map(|c| {
+                if c.is_ascii() {
+                    LABEL_CHAR_WIDTH
+                } else {
+                    LABEL_WIDE_CHAR_WIDTH
+                }
+            })
+            .sum()
+    };
+    #[expect(clippy::cast_precision_loss, reason = "a handful of lines")]
+    let height = lines.len() as f64 * LABEL_LINE_HEIGHT;
+    (lines.iter().map(width).fold(0.0, f64::max), height)
 }
 
 /// Routes every edge of `graph` for node centres `x` and `y`.
@@ -495,13 +505,19 @@ struct Scene<'a> {
 impl Scene<'_> {
     /// How badly a label box of edge `own` collides with states, labels and other edges.
     ///
-    /// Other edges and labels must keep a small distance, so that a label is never read as
-    /// belonging to a neighbouring edge.
+    /// Other edges must keep a small distance, so that a label is never read as belonging
+    /// to a neighbouring edge, and other labels a character's width to the side, so that two
+    /// labels never read as one line.
     ///
     /// Counting stops once the cost reaches `limit`, the best cost found so far.
     fn box_cost(&self, b: Rect, own: usize, limit: usize) -> usize {
         const KEEP: f64 = 4.0;
         let wide = b.grown(KEEP);
+        let apart = Rect {
+            x0: b.x0 - LABEL_CHAR_WIDTH,
+            x1: b.x1 + LABEL_CHAR_WIDTH,
+            ..wide
+        };
         let mut cost = 10
             * self
                 .pos
@@ -512,7 +528,7 @@ impl Scene<'_> {
             if cost >= limit {
                 return cost;
             }
-            if o.overlaps(wide) {
+            if o.overlaps(apart) {
                 cost += 6;
             }
         }
