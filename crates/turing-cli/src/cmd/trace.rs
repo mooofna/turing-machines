@@ -60,7 +60,15 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
     let digits = text::num(args.steps).len();
     let number = |step: u64| paint(style::DIM, format!("{:>digits$}", text::num(step)));
 
-    writeln!(out, "{}    {}", number(0), line(m, &sim, args.width))?;
+    let mut first = format!("{}    {}", number(0), line(m, &sim, args.width));
+    if m.kind() == Kind::Enumerator && m.is_final(m.start()) {
+        let word = decode(m, sim.tape(0)).word;
+        first.push_str(&paint(
+            style::DIM,
+            format!("   prints {}", text::word(&word)),
+        ));
+    }
+    writeln!(out, "{first}")?;
     let mut halted = false;
     while sim.steps() < args.steps {
         let next = sim.next_action();

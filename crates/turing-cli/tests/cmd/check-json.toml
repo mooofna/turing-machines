@@ -1,0 +1,4 @@
+bin.name = "tm"
+args = "check broken.json"
+fs.cwd = "../fixtures"
+status.code = 1

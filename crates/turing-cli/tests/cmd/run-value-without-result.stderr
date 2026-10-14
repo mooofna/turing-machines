@@ -1,0 +1,1 @@
+error: no result, because the machine never halts: in state A the head moves right over blank tape forever (proved at step 0)

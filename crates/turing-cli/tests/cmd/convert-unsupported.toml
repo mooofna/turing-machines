@@ -1,0 +1,4 @@
+bin.name = "tm"
+args = "convert machines/course/binary-increment.tm --to standard"
+fs.cwd = "../../../.."
+status.code = 1

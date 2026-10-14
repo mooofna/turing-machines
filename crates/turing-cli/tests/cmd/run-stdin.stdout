@@ -1,0 +1,7 @@
+machine   walk
+          transducer, 1 tape, 2 states, 3 symbols, 2 transitions
+input     xxx
+outcome   halted after 4 steps in state q1
+output    XXX
+tape      XX q1 X
+non-blank 3

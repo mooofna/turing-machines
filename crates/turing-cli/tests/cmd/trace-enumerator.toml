@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "trace machines/course/multiples-of-three.tm --steps 7"
+fs.cwd = "../../../.."

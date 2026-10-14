@@ -1,0 +1,9 @@
+// Replaces every x by X.
+machine "walk"
+input "xxx"
+
+F = {q1}
+
+delta(q0, x) = (q0, X, R)  // read sets are expanded
+delta(q0, X) = (q0, X, R)
+delta(q0, _) = (q1, _, L)

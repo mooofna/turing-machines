@@ -56,7 +56,7 @@ pub(crate) enum Format {
     /// A JSON object with exact numbers
     Json,
     /// Only the result: the decoded number or word, `accept` or `reject`, or the words of an
-    /// enumerator
+    /// enumerator, one per line
     Value,
 }
 
@@ -105,16 +105,22 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
     let mut engine = Engine::new(machine, &input.symbols);
     let mut words = Vec::new();
     let outcome = if machine.kind() == Kind::Enumerator && args.max_words > 0 {
+        // A final start state outputs the input before the first step.
+        if machine.is_final(machine.start()) {
+            words.push(engine.output().word);
+        }
         loop {
+            if words.len() >= args.max_words {
+                break Outcome::Stopped {
+                    steps: engine.steps(),
+                };
+            }
             let fuel = args.max_steps.saturating_sub(engine.steps());
             let outcome = engine.run_to_output(fuel);
             if !matches!(outcome, Outcome::Stopped { .. }) {
                 break outcome;
             }
             words.push(engine.output().word);
-            if words.len() >= args.max_words {
-                break outcome;
-            }
         }
     } else {
         engine.run(args.max_steps)
@@ -270,7 +276,7 @@ fn write_value(out: &mut dyn Write, run: &Run<'_>, args: &Args) -> Result<()> {
     let m = run.machine;
     if m.kind() == Kind::Enumerator {
         for w in &run.words {
-            writeln!(out, "{}", text::word(w))?;
+            writeln!(out, "{w}")?;
         }
         return Ok(());
     }
@@ -281,7 +287,9 @@ fn write_value(out: &mut dyn Write, run: &Run<'_>, args: &Args) -> Result<()> {
         } else {
             String::new()
         };
-        return Err(Error::failed(format!("no result: the machine {why}{hint}")));
+        return Err(Error::failed(format!(
+            "no result, because the machine {why}{hint}"
+        )));
     }
     match m.kind() {
         Kind::Acceptor => {
@@ -295,7 +303,7 @@ fn write_value(out: &mut dyn Write, run: &Run<'_>, args: &Args) -> Result<()> {
         Kind::Beaver => writeln!(out, "{}", run.non_blank)?,
         Kind::Transducer | Kind::Enumerator => match run.output.value {
             Some(v) => writeln!(out, "{v}")?,
-            None => writeln!(out, "{}", text::word(&run.output.word))?,
+            None => writeln!(out, "{}", run.output.word)?,
         },
     }
     Ok(())

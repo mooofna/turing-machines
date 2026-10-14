@@ -1,0 +1,5 @@
+machine   1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA
+          beaver, 1 tape, 5 states and the halting state Z, 2 symbols, 10 transitions
+outcome   halted after 47,176,870 steps in state Z
+tape      1 Z 01001001001001001001001001001001001001001001001001001001001…
+non-blank 4,098

@@ -128,9 +128,9 @@ pub(crate) fn outcome_text(machine: &Machine, outcome: Outcome) -> String {
             )
         }
         Outcome::NeverHalts { steps, proof } => format!(
-            "never halts: {} (seen after {})",
+            "never halts: {} (proved at step {})",
             proof_text(machine, proof),
-            text::count(steps, "step", "steps")
+            text::num(steps)
         ),
         Outcome::Stopped { steps } => {
             format!("stopped after {}", text::count(steps, "step", "steps"))

@@ -1,0 +1,10 @@
+0    q0 ␣   prints ε
+1 ⊢  x q1 ␣
+2 ⊢  xx q2 ␣
+3 ⊢  xxx q0 ␣   prints xxx
+4 ⊢  xxxx q1 ␣
+5 ⊢  xxxxx q2 ␣
+6 ⊢  xxxxxx q0 ␣   prints xxxxxx
+7 ⊢  xxxxxxx q1 ␣
+
+not halted after 7 steps (use --steps to see more)

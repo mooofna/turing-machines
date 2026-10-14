@@ -1,0 +1,5 @@
+ 0    q0 1011
+ 1 ⊢  0 q0 011
+ 2 ⊢  01 q1 11
+
+halted after 2 steps in state q1, output 0111 (14)

@@ -1,0 +1,7 @@
+machine   Palindromes
+          acceptor, 1 tape, 7 states, 3 symbols, 16 transitions
+input     abba
+outcome   halted after 15 steps in state qacc
+verdict   accepted
+tape      qacc ␣
+non-blank 0

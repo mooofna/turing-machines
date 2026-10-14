@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "fmt --ascii unformatted.tm"
+fs.cwd = "../fixtures"

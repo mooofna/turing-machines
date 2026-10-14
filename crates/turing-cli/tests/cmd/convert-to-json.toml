@@ -1,0 +1,2 @@
+bin.name = "tm"
+args = "convert --standard 1RB1LB_1LA1RZ --to json"
