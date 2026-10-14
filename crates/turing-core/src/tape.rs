@@ -30,7 +30,12 @@ pub trait TapeView {
 
 /// A two-way infinite tape stored densely, growing by doubling on either side.
 ///
-/// Reading, writing and moving are amortised O(1).
+/// Reading, writing and moving are amortised O(1). The head always points into the allocated
+/// cells: moving past either end first doubles the allocation on that side, and every cell
+/// outside the allocation is blank.
+///
+/// Equality compares the stored representation, including the allocation and the visited
+/// range. To compare contents, compare [`TapeView::non_blank`] and [`TapeView::window`].
 ///
 /// ```
 /// use turing_core::{Dir, Symbol, Tape, TapeView};
@@ -157,7 +162,7 @@ impl Tape {
 
     /// The position of the cell at `index`.
     #[inline]
-    fn position(&self, index: usize) -> i64 {
+    pub(crate) fn position(&self, index: usize) -> i64 {
         signed(index) - signed(self.origin)
     }
 
@@ -172,7 +177,7 @@ impl Tape {
     #[inline(never)]
     fn grow_left(&mut self) {
         let extra = self.cells.len().max(INITIAL_PADDING);
-        let mut cells = Vec::with_capacity(2 * (extra + self.cells.len()));
+        let mut cells = Vec::with_capacity(extra + self.cells.len());
         cells.resize(extra, Symbol::BLANK);
         cells.extend_from_slice(&self.cells);
         self.cells = cells;
