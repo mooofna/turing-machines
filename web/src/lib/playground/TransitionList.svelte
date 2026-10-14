@@ -161,7 +161,7 @@
 </script>
 
 <div class="states">
-  <span class="label">States</span>
+  <span class="states-label">States</span>
   <ul>
     {#each spec.states as s (s.name)}
       <li>
@@ -277,7 +277,7 @@
     margin-bottom: var(--space-2);
   }
 
-  .label {
+  .states-label {
     font-size: var(--text-xs);
     color: var(--muted);
   }

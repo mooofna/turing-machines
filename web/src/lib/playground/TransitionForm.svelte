@@ -13,6 +13,7 @@
   import type { Playground, Point } from './state.svelte';
 
   interface Props {
+    placement?: 'below' | 'side';
     pg: Playground;
     from: string;
     /** The target state; a name that does not exist yet is created at `at`. */
@@ -24,7 +25,16 @@
     onclose: () => void;
   }
 
-  let { pg, from, to, at = null, index = null, anchor, onclose }: Props = $props();
+  let {
+    pg,
+    from,
+    to,
+    at = null,
+    index = null,
+    anchor,
+    onclose,
+    placement = 'side'
+  }: Props = $props();
   const id = $props.id();
 
   // svelte-ignore state_referenced_locally
@@ -143,7 +153,7 @@
   ];
 </script>
 
-<Popover open={true} {anchor} label={title} {onclose} width={280}>
+<Popover open={true} {anchor} label={title} {onclose} width={280} {placement}>
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <form class="form" onsubmit={submit} onkeydown={formKeydown}>
     <p class="title">{title}</p>

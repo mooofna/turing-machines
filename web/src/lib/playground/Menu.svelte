@@ -21,6 +21,7 @@
   import Popover from './Popover.svelte';
 
   interface Props {
+    placement?: 'below' | 'side';
     open: boolean;
     anchor: HTMLElement | DOMRect | null;
     label: string;
@@ -28,7 +29,7 @@
     onclose: () => void;
   }
 
-  let { open, anchor, label, items, onclose }: Props = $props();
+  let { open, anchor, label, items, onclose, placement = 'below' }: Props = $props();
   const id = $props.id();
   let panel: HTMLElement | null = $state(null);
 
@@ -92,13 +93,13 @@
   {/each}
 {/snippet}
 
-<Popover {open} {anchor} {label} {onclose} role="menu" width={176} bind:panel>
+<Popover {open} {anchor} {label} {onclose} role="menu" width={176} {placement} bind:panel>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="items" onkeydown={keydown}>
     {#each sections as section, i (i)}
       {#if section.name}
-        <div class="section" role="group" aria-labelledby={`${id}-section-${i}`}>
-          <p class="section-name" id={`${id}-section-${i}`}>{section.name}</p>
+        <div class="group" role="group" aria-labelledby={`${id}-section-${i}`}>
+          <p class="group-name" id={`${id}-section-${i}`}>{section.name}</p>
           {@render entries(section.items)}
         </div>
       {:else}
@@ -110,17 +111,16 @@
 
 <style>
   .items {
-    display: grid;
     padding-block: 0.25rem;
   }
 
-  .section + .section {
+  .group + .group {
     border-top: 1px solid var(--rule);
     margin-top: 0.25rem;
     padding-top: 0.25rem;
   }
 
-  .section-name {
+  .group-name {
     margin: 0;
     padding: 0.35rem 0.75rem 0.15rem 1.9rem;
     font-size: var(--text-xs);

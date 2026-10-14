@@ -15,6 +15,8 @@
     role?: 'dialog' | 'menu';
     /** Minimum width in pixels. */
     width?: number;
+    /** Below (or above) the anchor, or beside it, which keeps a diagram node visible. */
+    placement?: 'below' | 'side';
     children: Snippet;
     panel?: HTMLElement | null;
   }
@@ -26,6 +28,7 @@
     label,
     role = 'dialog',
     width = 0,
+    placement = 'below',
     children,
     panel = $bindable(null)
   }: Props = $props();
@@ -46,11 +49,20 @@
     const h = panel.offsetHeight;
     const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight;
+    const fits = (y: number) => y >= margin && y + h + margin <= vh;
+    if (placement === 'side') {
+      const right = r.right + 8;
+      left = right + w + margin <= vw ? right : Math.max(margin, r.left - w - 8);
+      const centred = r.top + r.height / 2 - h / 2;
+      top = Math.max(margin, Math.min(centred, vh - h - margin));
+      return;
+    }
     // Anchors on the right side of the page get panels that end where they end.
     const preferred = r.left + r.width / 2 > vw * 0.6 ? r.right - w : r.left;
     left = Math.max(margin, Math.min(preferred, vw - w - margin));
     const below = r.bottom + 4;
-    top = below + h + margin > vh && r.top - h - 4 > margin ? r.top - h - 4 : below;
+    const above = r.top - h - 4;
+    top = fits(below) ? below : fits(above) ? above : Math.max(margin, vh - h - margin);
   }
 
   $effect(() => {
@@ -126,11 +138,12 @@
     margin: 0;
     padding: 0;
     max-width: min(24rem, calc(100vw - 16px));
+    max-height: calc(100vh - 16px);
+    overflow: auto;
     border: 1px solid var(--rule-strong);
     background: var(--bg);
     color: var(--text);
     font-size: var(--text-sm);
-    overflow: visible;
   }
 
   .popover:focus {

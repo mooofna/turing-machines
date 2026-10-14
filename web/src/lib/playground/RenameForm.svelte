@@ -7,6 +7,7 @@
   import type { Origin, Playground } from './state.svelte';
 
   interface Props {
+    placement?: 'below' | 'side';
     pg: Playground;
     name: string;
     anchor: HTMLElement | DOMRect | null;
@@ -14,7 +15,7 @@
     onclose: () => void;
   }
 
-  let { pg, name, anchor, origin = 'table', onclose }: Props = $props();
+  let { pg, name, anchor, origin = 'table', onclose, placement = 'below' }: Props = $props();
   const id = $props.id();
 
   // svelte-ignore state_referenced_locally
@@ -29,7 +30,7 @@
   }
 </script>
 
-<Popover open={true} {anchor} label={`Rename ${name}`} {onclose} width={240}>
+<Popover open={true} {anchor} label={`Rename ${name}`} {onclose} width={240} {placement}>
   <form class="form" onsubmit={submit}>
     <label class="field" for={`${id}-name`}>New name for {name}</label>
     <input

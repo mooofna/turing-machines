@@ -383,7 +383,7 @@
   }
 
   .head {
-    align-items: center;
+    align-items: baseline;
     padding-block: var(--space-3);
   }
 

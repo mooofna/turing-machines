@@ -36,6 +36,10 @@
     )
   );
   const entry = $derived(pg.galleryId ? machines.find((m) => m.id === pg.galleryId) : undefined);
+  /** Busy beaver machines also show their standard format, as on bbchallenge.org. */
+  const standard = $derived(
+    !entry && pg.spec?.kind === 'beaver' && pg.ready ? pg.services.toStandard(pg.spec) : undefined
+  );
 
   function commitName(input: HTMLInputElement) {
     const name = input.value.trim().replace(/"/g, "'");
@@ -72,7 +76,13 @@
       }}
       onblur={(e) => commitName(e.currentTarget)}
     />
-    {#if entry}<p class="about">{entry.description} {entry.provenance}.</p>{/if}
+    {#if entry}
+      <p class="about">{entry.description} {entry.provenance}.</p>
+    {:else if standard}
+      <p class="about">
+        <span class="visually-hidden">Standard format </span><span class="mono">{standard}</span>
+      </p>
+    {/if}
   </div>
   <div class="actions">
     <button
@@ -125,7 +135,7 @@
   .bar {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-2);
   }

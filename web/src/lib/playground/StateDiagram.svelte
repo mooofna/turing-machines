@@ -88,15 +88,31 @@
   const current = $derived(pg.snapshot?.state ?? null);
   const last = $derived(pg.snapshot?.lastTransition);
 
-  // Fit when a machine is loaded and whenever the diagram first gets a size.
+  // When a machine is loaded (and when the diagram first gets a size), choose a height that
+  // suits the machine and fit it.
   let fitted = -1;
+  let boxHeight = $state(0);
   $effect(() => {
     const loads = pg.loads;
     if (!visible || width === 0 || height === 0) return;
     if (fitted === loads) return;
     fitted = loads;
-    fit();
+    boxHeight = idealHeight();
+    fit(boxHeight - 2);
   });
+
+  /** Room for the tool buttons above the drawing and a margin below it. */
+  const TOP = 48;
+  const BOTTOM = 16;
+  const SIDE = 24;
+
+  function idealHeight(): number {
+    if (!nodes.length) return width < 600 ? 260 : 320;
+    const b = bounds();
+    const k = Math.min(1.2, (width - 2 * SIDE) / Math.max(1, b.x1 - b.x0));
+    const [low, high] = width < 600 ? [260, 420] : [320, 560];
+    return Math.round(Math.max(low, Math.min(high, (b.y1 - b.y0) * k + TOP + BOTTOM + 16)));
+  }
 
   function bounds() {
     let x0 = Infinity;
@@ -124,17 +140,17 @@
     return { x0, y0, x1, y1 };
   }
 
-  function fit() {
-    if (!nodes.length || !width || !height) return;
+  function fit(h = height) {
+    if (!nodes.length || !width || !h) return;
     const b = bounds();
-    const pad = 24;
     const bw = Math.max(1, b.x1 - b.x0);
     const bh = Math.max(1, b.y1 - b.y0);
-    const k = Math.min(1.2, (width - 2 * pad) / bw, (height - 2 * pad) / bh);
+    const room = Math.max(1, h - TOP - BOTTOM);
+    const k = Math.min(1.2, (width - 2 * SIDE) / bw, room / bh);
     view = {
       k,
       x: width / 2 - ((b.x0 + b.x1) / 2) * k,
-      y: height / 2 - ((b.y0 + b.y1) / 2) * k
+      y: TOP + room / 2 - ((b.y0 + b.y1) / 2) * k
     };
   }
 
@@ -280,7 +296,7 @@
 
   function dblclick(event: MouseEvent) {
     if (!editable) return;
-    if ((event.target as Element).closest('.node, .label')) return;
+    if ((event.target as Element).closest('.node, .edge-label')) return;
     const p = toWorld(event.clientX, event.clientY);
     const name = pg.addState(undefined, p, 'diagram');
     if (name) void tick().then(() => focusNode(name));
@@ -355,6 +371,12 @@
 
   const lineHeight = 15;
 
+  /** Font size that fits a state name into its circle, down to 9 px. */
+  function nameSize(name: string): number {
+    const chars = Array.from(name).length;
+    return Math.max(9, Math.min(13, (2 * r - 8) / (0.6 * chars)));
+  }
+
   const rubber = $derived.by(() => {
     if (!linking) return null;
     const from = nodes.find((n) => n.name === linking!.from);
@@ -385,6 +407,7 @@
   class:editable
   bind:clientWidth={width}
   bind:clientHeight={height}
+  style:height={boxHeight ? `${boxHeight}px` : undefined}
   data-own-keys
 >
   <div class="tools">
@@ -392,7 +415,7 @@
     <button type="button" class="tool" onclick={() => zoom(0.8)} aria-label="Zoom out"
       >&minus;</button
     >
-    <button type="button" class="tool text" onclick={fit}>Fit</button>
+    <button type="button" class="tool text" onclick={() => fit()}>Fit</button>
     {#if editable}
       <button type="button" class="tool text" onclick={() => pg.arrange()}>Arrange</button>
     {/if}
@@ -473,7 +496,7 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <circle class="body" {r} onpointerdown={(e) => down(e, n.name, 'move')} />
           {#if n.isFinal}<circle class="inner" r={r - 4} />{/if}
-          <text class="name" dy="0.35em">{n.name}</text>
+          <text class="name" dy="0.35em" style:font-size={`${nameSize(n.name)}px`}>{n.name}</text>
           {#if editable}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <circle class="rim" r={r + 1} onpointerdown={(e) => down(e, n.name, 'link')} />
@@ -498,7 +521,7 @@
           {#each edge.labels as label, j (j)}
             {@const index = edge.transitions[j]!}
             <g
-              class="label"
+              class="edge-label"
               class:active={last === index}
               role="button"
               tabindex={editable ? 0 : -1}
@@ -535,15 +558,15 @@
       {/if}
     </g>
   </svg>
-  <p class="help" id={`${id}-help`}>
-    {#if editable}
-      Double-click to add a state. Drag from the square on a state to connect it. Click a label to
-      edit it. Ctrl and scroll to zoom.
-    {:else}
-      Drag to pan, pinch to zoom. Edit the machine in the table.
-    {/if}
-  </p>
 </div>
+<p class="help" id={`${id}-help`}>
+  {#if editable}
+    Double-click to add a state. Drag from the square on a state to connect it. Click a label to
+    edit it. Ctrl and scroll to zoom.
+  {:else}
+    Drag to pan, pinch to zoom. Edit the machine in the table.
+  {/if}
+</p>
 
 {#if menu}
   <Menu
@@ -551,6 +574,7 @@
     anchor={menu.anchor}
     label={`State ${menu.name}`}
     items={nodeMenu(menu.name, menu.anchor)}
+    placement="side"
     onclose={closeMenu}
   />
 {/if}
@@ -561,6 +585,7 @@
     name={renaming.name}
     anchor={renaming.anchor}
     origin="diagram"
+    placement="side"
     onclose={() => (renaming = null)}
   />
 {/if}
@@ -634,14 +659,10 @@
   }
 
   .help {
-    position: absolute;
-    left: 0.75rem;
-    bottom: 0.5rem;
-    right: 0.75rem;
-    margin: 0;
+    margin: 0.5rem 0 0;
+    max-width: var(--measure);
     font-size: var(--text-xs);
     color: var(--muted);
-    pointer-events: none;
   }
 
   .edge .line {
@@ -696,9 +717,12 @@
 
   .name {
     font-family: var(--font-mono);
-    font-size: 13px;
     text-anchor: middle;
     fill: var(--text);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
     pointer-events: none;
   }
 
@@ -763,12 +787,12 @@
     opacity: 1;
   }
 
-  .label {
+  .edge-label {
     cursor: pointer;
     outline: none;
   }
 
-  .label text {
+  .edge-label text {
     font-family: var(--font-mono);
     font-size: 12px;
     fill: var(--text);
@@ -778,15 +802,15 @@
     stroke-linejoin: round;
   }
 
-  .label:hover text {
+  .edge-label:hover text {
     text-decoration: underline;
   }
 
-  .label.active text {
+  .edge-label.active text {
     fill: var(--accent);
   }
 
-  .label:focus-visible text {
+  .edge-label:focus-visible text {
     fill: var(--accent);
     text-decoration: underline;
   }
