@@ -1,7 +1,8 @@
 // Captures every route in the light and the dark theme, on a desktop and a phone, as full-page
 // PNG files in web/screenshots/<route>-<theme>-<device>.png, for the visual review.
 //
-// Run against a preview server (npm run build && npm run preview), then:
+// Run against a preview server (npm run build && npm run preview; restart the preview after every
+// build, it does not serve files that appeared after it started), then:
 //   node scripts/screenshots.ts [route ...]
 // BASE_URL overrides the address of the server (default http://localhost:4173).
 
