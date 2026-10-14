@@ -170,6 +170,7 @@ export function createSourceView(
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({
           'aria-label': label,
+          tabindex: '0',
           spellcheck: 'false',
           autocapitalize: 'off',
           autocorrect: 'off'

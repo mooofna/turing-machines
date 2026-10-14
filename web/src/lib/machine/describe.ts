@@ -74,3 +74,23 @@ export function transition(t: {
   const tuple = (xs: string[]) => (xs.length === 1 ? xs[0]! : `(${xs.join(', ')})`);
   return `δ(${t.from}, ${tuple(t.read)}) = (${t.to}, ${tuple(t.write)}, ${tuple(t.dir)})`;
 }
+
+/**
+ * A configuration `u q v` shortened around the state: at most `keep` symbols of u and of v,
+ * with an ellipsis for the rest. Each line is one tape.
+ */
+export function clipConfiguration(configuration: string, state: string, keep = 40): string {
+  return configuration
+    .split('\n')
+    .map((line) => {
+      if (line.length <= 2 * keep + state.length + 2) return line;
+      const at = line.startsWith(`${state} `) ? 0 : line.indexOf(` ${state} `) + 1;
+      if (at <= 0 && !line.startsWith(`${state} `)) return `${line.slice(0, 2 * keep)}…`;
+      const u = line.slice(0, Math.max(0, at - 1));
+      const v = line.slice(at + state.length + 1);
+      const left = u.length > keep ? `…${u.slice(-keep)}` : u;
+      const right = v.length > keep ? `${v.slice(0, keep)}…` : v;
+      return [left, state, right].filter((x) => x !== '').join(' ');
+    })
+    .join('\n');
+}

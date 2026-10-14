@@ -138,19 +138,13 @@
       return false;
     }
     if (missing.state || missing.symbol) {
-      const parts = [
-        missing.state ? `state ${missing.state}` : '',
-        missing.symbol ? `symbol ${missing.symbol}` : ''
-      ].filter(Boolean);
-      confirm = {
-        key: k,
-        from: state,
-        read,
-        to,
-        write,
-        dir,
-        text: `${parts.join(' and ')} ${parts.length > 1 ? 'do' : 'does'} not exist yet.`
-      };
+      const what =
+        missing.state && missing.symbol
+          ? `state ${missing.state} and no symbol ${missing.symbol}`
+          : missing.state
+            ? `state ${missing.state}`
+            : `symbol ${missing.symbol}`;
+      confirm = { key: k, from: state, read, to, write, dir, text: `There is no ${what} yet.` };
       problem = null;
       void tick().then(() => root?.querySelector<HTMLElement>('[data-confirm]')?.focus());
       return false;
@@ -478,7 +472,8 @@
               onclick={addState}>+ State</button
             >
           </th>
-          <td colspan={symbols.length + 1}></td>
+          <td colspan={symbols.length}></td>
+          <td class="filler"></td>
         </tr>
       </tbody>
     </table>
@@ -486,10 +481,10 @@
 
   <div class="message" id="table-message" data-message aria-live="polite">
     {#if confirm}
-      <span>The {confirm.text}</span>
+      <span>{confirm.text}</span>
       <span class="actions">
         <button type="button" class="button small" data-confirm onclick={accept}
-          >Create and save</button
+          >Add and save</button
         >
         <button type="button" class="button small quiet" onclick={decline}>Edit</button>
       </span>
@@ -575,6 +570,10 @@
     border-top: 1px solid var(--rule-strong);
   }
 
+  .add-row td.filler {
+    border-top: 0;
+  }
+
   tbody tr:last-of-type th {
     border-right: 0;
   }
@@ -590,6 +589,7 @@
     background: none;
     cursor: pointer;
     font-size: var(--text-sm);
+    font-weight: 400;
     white-space: nowrap;
   }
 

@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import type { DirDto } from '#lib/engine/pkg/turing_wasm.js';
+  import { transition } from '#lib/machine/describe.ts';
   import { glyph } from './cell';
   import { findTransition, symbolProblem } from './edit';
   import Popover from './Popover.svelte';
@@ -62,8 +63,16 @@
   const symbols = $derived([...gamma, ...extra]);
   const states = $derived([...spec.states.map((s) => s.name), ...(isNewState ? [to] : [])]);
   const clash = $derived(k === 1 ? taken.has(read.join('\u0001')) : false);
-  const title = $derived(
-    editing ? `Edit δ(${from}, ${read.map(glyph).join(', ')})` : `New transition from ${from}`
+  // svelte-ignore state_referenced_locally
+  const title = editing ? `Edit the transition of ${from}` : `New transition from ${from}`;
+  const preview = $derived(
+    transition({
+      from,
+      read: read.map(glyph),
+      to: target,
+      write: write.map(glyph),
+      dir
+    })
   );
 
   function addCustom(group: 'read' | 'write', tape: number) {
@@ -137,7 +146,8 @@
 <Popover open={true} {anchor} label={title} {onclose} width={280}>
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <form class="form" onsubmit={submit} onkeydown={formKeydown}>
-    <p class="title mono">{title}</p>
+    <p class="title">{title}</p>
+    <p class="preview mono" aria-live="polite">{preview}</p>
 
     {#each { length: k } as _, tape (tape)}
       <fieldset class="group">
@@ -261,6 +271,12 @@
 
   .title {
     margin: 0;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .preview {
+    margin: -0.4rem 0 0;
     font-size: var(--text-sm);
     font-weight: 500;
   }

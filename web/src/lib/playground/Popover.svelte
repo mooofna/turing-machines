@@ -46,7 +46,9 @@
     const h = panel.offsetHeight;
     const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight;
-    left = Math.max(margin, Math.min(r.left, vw - w - margin));
+    // Anchors on the right side of the page get panels that end where they end.
+    const preferred = r.left + r.width / 2 > vw * 0.6 ? r.right - w : r.left;
+    left = Math.max(margin, Math.min(preferred, vw - w - margin));
     const below = r.bottom + 4;
     top = below + h + margin > vh && r.top - h - 4 > margin ? r.top - h - 4 : below;
   }

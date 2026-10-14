@@ -30,6 +30,8 @@
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const radius = $derived(width > 0 ? Math.ceil(width / cellPx / 2) + 2 : 0);
+  /** Cells on either side of the head that are fully visible; the others stay empty. */
+  const visible = $derived(width > 0 ? Math.floor((width / cellPx - 1) / 2) : Infinity);
 
   $effect(() => {
     if (radius > 0) onradius?.(radius);
@@ -55,6 +57,7 @@
     });
   });
 
+  /** The blank ␣ is an empty cell; a written blank such as 0 stays, in grey. */
   function shown(g: string) {
     return g === blank && (g === '␣' || g === '_') ? '' : g;
   }
@@ -85,9 +88,10 @@
         >
           {#each tape.cells as glyph, j (tape.start + j)}
             {@const pos = tape.start + j}
-            <span class="cell mono" class:blank={shown(glyph) === ''}>
-              {shown(glyph)}
-              {#if pos % 5 === 0}<span class="tick">{pos}</span>{/if}
+            {@const inside = Math.abs(pos - tape.head) <= visible}
+            <span class="cell mono" class:blank={glyph === blank}>
+              {inside ? shown(glyph) : ''}
+              {#if inside && pos % 5 === 0}<span class="tick">{pos}</span>{/if}
             </span>
           {/each}
         </div>
@@ -170,6 +174,10 @@
     font-size: 1rem;
     line-height: 1;
     color: var(--text);
+  }
+
+  .cell.blank {
+    color: var(--muted);
   }
 
   .cell:first-child {

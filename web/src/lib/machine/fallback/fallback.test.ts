@@ -1,7 +1,7 @@
 // Checks of the development fallback and of the built-in sample machines run on it.
 
 import { describe, expect, it } from 'vitest';
-import { samples } from '#lib/playground/samples.ts';
+import { bb4, binaryIncrement, unaryMultiplication } from './fixtures';
 import { format, fromStandard, parse, toStandard } from './dsl';
 import { FallbackSession } from './sim';
 
@@ -14,8 +14,8 @@ function run(source: string, input?: string) {
 
 describe('fallback description language', () => {
   it('round-trips every sample through format and parse', () => {
-    for (const sample of samples) {
-      const first = parse(sample.source).spec!;
+    for (const source of [binaryIncrement, unaryMultiplication, bb4]) {
+      const first = parse(source).spec!;
       const again = parse(format(first, false)).spec!;
       const strip = (s: typeof first) => ({
         ...s,
@@ -52,13 +52,13 @@ describe('fallback description language', () => {
 
 describe('sample machines', () => {
   it('increments 1011 to 1100', () => {
-    const { snapshot, reason } = run(samples[0]!.source);
+    const { snapshot, reason } = run(binaryIncrement);
     expect(reason).toBe('halted');
     expect(snapshot.output?.word).toBe('1100');
   });
 
   it('multiplies 3 by 2', () => {
-    const { snapshot } = run(samples[1]!.source);
+    const { snapshot } = run(unaryMultiplication);
     expect(snapshot.output).toEqual({ word: 'xxxxxx', value: '6' });
     for (const [m, n] of [
       [0, 3],
@@ -66,19 +66,19 @@ describe('sample machines', () => {
       [1, 1],
       [4, 3]
     ] as const) {
-      const r = run(samples[1]!.source, `#${'x'.repeat(m)}#${'x'.repeat(n)}#`);
+      const r = run(unaryMultiplication, `#${'x'.repeat(m)}#${'x'.repeat(n)}#`);
       expect(r.snapshot.output?.value).toBe(String(m * n));
     }
   });
 
   it('runs the BB(4) champion for 107 steps leaving 13 ones', () => {
-    const { snapshot } = run(samples[2]!.source);
+    const { snapshot } = run(bb4);
     expect(snapshot.step).toBe(107);
     expect(snapshot.ones).toBe(13);
   });
 
   it('steps back exactly', () => {
-    const { spec } = parse(samples[2]!.source);
+    const { spec } = parse(bb4);
     const s = new FallbackSession(spec!, '');
     const at50 = s.seek(50, 4);
     s.step(30, 4);

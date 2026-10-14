@@ -12,6 +12,8 @@
     hint?: string;
     /** A second line in muted text. */
     detail?: string;
+    /** Consecutive items with the same section are grouped under its name. */
+    section?: string;
   }
 </script>
 
@@ -27,25 +29,36 @@
   }
 
   let { open, anchor, label, items, onclose }: Props = $props();
+  const id = $props.id();
   let panel: HTMLElement | null = $state(null);
 
-  function entries(): HTMLElement[] {
+  const sections = $derived.by(() => {
+    const out: { name: string | undefined; items: MenuItem[] }[] = [];
+    for (const item of items) {
+      const last = out[out.length - 1];
+      if (last && last.name === item.section) last.items.push(item);
+      else out.push({ name: item.section, items: [item] });
+    }
+    return out;
+  });
+
+  function all(): HTMLElement[] {
     return Array.from(
       panel?.querySelectorAll<HTMLElement>('[role="menuitem"], [role="menuitemcheckbox"]') ?? []
     );
   }
 
   function keydown(event: KeyboardEvent) {
-    const all = entries();
-    const at = all.indexOf(document.activeElement as HTMLElement);
+    const list = all();
+    const at = list.indexOf(document.activeElement as HTMLElement);
     const move = (i: number) => {
       event.preventDefault();
-      all[(i + all.length) % all.length]?.focus();
+      list[(i + list.length) % list.length]?.focus();
     };
     if (event.key === 'ArrowDown') move(at + 1);
     else if (event.key === 'ArrowUp') move(at - 1);
     else if (event.key === 'Home') move(0);
-    else if (event.key === 'End') move(all.length - 1);
+    else if (event.key === 'End') move(list.length - 1);
     else if (event.key === 'Tab') onclose();
   }
 
@@ -59,25 +72,38 @@
   }
 </script>
 
+{#snippet entries(list: MenuItem[])}
+  {#each list as item (item.label)}
+    <button
+      type="button"
+      role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+      aria-checked={item.checked === undefined ? undefined : item.checked}
+      aria-disabled={item.disabled ? 'true' : undefined}
+      tabindex="-1"
+      class="item"
+      onclick={() => choose(item)}
+    >
+      <span class="mark" aria-hidden="true">{item.checked ? '✓' : ''}</span>
+      <span class="text"
+        >{item.label}{#if item.detail}<span class="detail">{item.detail}</span>{/if}</span
+      >
+      {#if item.hint}<span class="hint mono" aria-hidden="true">{item.hint}</span>{/if}
+    </button>
+  {/each}
+{/snippet}
+
 <Popover {open} {anchor} {label} {onclose} role="menu" width={176} bind:panel>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="items" onkeydown={keydown}>
-    {#each items as item (item.label)}
-      <button
-        type="button"
-        role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
-        aria-checked={item.checked === undefined ? undefined : item.checked}
-        aria-disabled={item.disabled ? 'true' : undefined}
-        tabindex="-1"
-        class="item"
-        onclick={() => choose(item)}
-      >
-        <span class="mark" aria-hidden="true">{item.checked ? '✓' : ''}</span>
-        <span class="text"
-          >{item.label}{#if item.detail}<span class="detail">{item.detail}</span>{/if}</span
-        >
-        {#if item.hint}<span class="hint mono" aria-hidden="true">{item.hint}</span>{/if}
-      </button>
+    {#each sections as section, i (i)}
+      {#if section.name}
+        <div class="section" role="group" aria-labelledby={`${id}-section-${i}`}>
+          <p class="section-name" id={`${id}-section-${i}`}>{section.name}</p>
+          {@render entries(section.items)}
+        </div>
+      {:else}
+        {@render entries(section.items)}
+      {/if}
     {/each}
   </div>
 </Popover>
@@ -86,6 +112,19 @@
   .items {
     display: grid;
     padding-block: 0.25rem;
+  }
+
+  .section + .section {
+    border-top: 1px solid var(--rule);
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+  }
+
+  .section-name {
+    margin: 0;
+    padding: 0.35rem 0.75rem 0.15rem 1.9rem;
+    font-size: var(--text-xs);
+    color: var(--muted);
   }
 
   .item {

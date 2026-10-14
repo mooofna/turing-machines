@@ -1,19 +1,7 @@
-// Machines the playground offers before the gallery (lib/gallery.ts) is connected. Each is a
-// description in the course notation; ids double as `#g=` share links.
+// DEVELOPMENT FALLBACK, see ./index.ts. Machines the fallback is tested with: the binary
+// increment, the course exercise A_mul (unary multiplication) and the BB(4) champion.
 
-export interface Sample {
-  id: string;
-  name: string;
-  summary: string;
-  source: string;
-}
-
-export const samples: Sample[] = [
-  {
-    id: 'binary-increment',
-    name: 'Binary increment',
-    summary: 'Adds one to a binary number.',
-    source: `// Adds one to a binary number, most significant bit first.
+export const binaryIncrement = `// Adds one to a binary number, most significant bit first.
 machine "Binary increment"
 kind transducer
 input "1011"
@@ -32,13 +20,9 @@ F = {q2}
 δ(q1, 1) = (q1, 0, L)
 δ(q1, 0) = (q2, 1, L)
 δ(q1, ␣) = (q2, 1, L)
-`
-  },
-  {
-    id: 'unary-multiplication',
-    name: 'Unary multiplication',
-    summary: 'Turns #xxx#xx# into xxxxxx, the course exercise A_mul.',
-    source: `// Multiplies m and n written in unary as #x...x#x...x#.
+`;
+
+export const unaryMultiplication = `// Multiplies m and n written in unary as #x...x#x...x#.
 // For every x of the first block, copies the second block behind the last #.
 machine "Unary multiplication"
 kind transducer
@@ -81,13 +65,9 @@ F = {q11}
 δ(q10, ␣) = (q10, ␣, R)
 δ(q10, x) = (q10, ␣, R)
 δ(q10, #) = (q11, ␣, R)
-`
-  },
-  {
-    id: 'bb4',
-    name: 'BB(4) champion',
-    summary: 'Four states, 107 steps, 13 ones.',
-    source: `// The four-state busy beaver champion: 107 steps, 13 ones.
+`;
+
+export const bb4 = `// The four-state busy beaver champion: 107 steps, 13 ones.
 machine "BB(4) champion"
 kind beaver
 
@@ -103,12 +83,4 @@ start = A
 δ(C, 1) = (D, 1, L)
 δ(D, 0) = (D, 1, R)
 δ(D, 1) = (A, 0, R)
-`
-  }
-];
-
-export const defaultSample = samples[0]!;
-
-export function sampleById(id: string): Sample | undefined {
-  return samples.find((s) => s.id === id);
-}
+`;

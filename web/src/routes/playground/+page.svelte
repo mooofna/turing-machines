@@ -1,17 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { galleryMachine, machines, type GalleryMachine } from '#lib/gallery.ts';
   import Controls from '#lib/machine/Controls.svelte';
-  import { outcome, transition } from '#lib/machine/describe.ts';
+  import { clipConfiguration, outcome, transition } from '#lib/machine/describe.ts';
   import { services } from '#lib/machine/services.ts';
   import TapeView from '#lib/machine/TapeView.svelte';
   import { glyph } from '#lib/playground/cell.ts';
   import EditorTabs, { type Tab } from '#lib/playground/EditorTabs.svelte';
   import MachineBar from '#lib/playground/MachineBar.svelte';
   import MoreControls from '#lib/playground/MoreControls.svelte';
-  import { defaultSample, sampleById, type Sample } from '#lib/playground/samples.ts';
   import SpaceTimeSlot from '#lib/playground/SpaceTimeSlot.svelte';
-  import { Playground, stepsPerSecond } from '#lib/playground/state.svelte.ts';
+  import { DEFAULT_BUDGET, Playground, stepsPerSecond } from '#lib/playground/state.svelte.ts';
   import { parseHash } from '#lib/share.ts';
 
   const STORE = 'turing-machines:playground';
@@ -37,14 +37,16 @@
     return t ? transition({ ...t, read: t.read.map(glyph), write: t.write.map(glyph) }) : undefined;
   });
   const status = $derived(
-    snapshot && spec
-      ? outcome(snapshot, spec.kind, {
-          running: pg.running,
-          stop: pg.stop,
-          rate: pg.speed >= 100 ? pg.measuredRate : 0,
-          next: nextText
-        })
-      : ''
+    spec && spec.transitions.length === 0
+      ? 'No transitions yet'
+      : snapshot && spec
+        ? outcome(snapshot, spec.kind, {
+            running: pg.running,
+            stop: pg.stop,
+            rate: pg.speed >= 100 ? pg.measuredRate : 0,
+            next: nextText
+          })
+        : ''
   );
 
   function read<T>(key: string): T | null {
@@ -64,9 +66,26 @@
     }
   }
 
-  function loadSample(sample: Sample, input?: string) {
-    pg.load(sample.source, { galleryId: sample.id, input });
+  /** The machine shown on a first visit. */
+  const firstMachine = galleryMachine('binary-increment') ?? machines[0];
+
+  /** Loads a machine of the gallery; false if its description does not parse. */
+  function loadEntry(entry: GalleryMachine, input?: string): boolean {
+    const options = { galleryId: entry.id, input: input ?? entry.input };
+    if (entry.format === 'dsl') {
+      // The text as written, with its comments and layout.
+      pg.load(entry.text, options);
+    } else {
+      const parsed = pg.services.fromStandard(entry.text);
+      if (!parsed.spec) {
+        loadError = `The gallery entry ${entry.id} is not a valid machine.`;
+        return false;
+      }
+      pg.load({ ...parsed.spec, name: parsed.spec.name || entry.title }, options);
+    }
+    pg.budget = Math.max(DEFAULT_BUDGET, entry.budget ?? 0);
     loadError = null;
+    return true;
   }
 
   /** Loads the machine named by a share link; false if the hash names none or it is broken. */
@@ -75,13 +94,12 @@
     if (!link) return false;
     const m = link.machine;
     if (m.kind === 'gallery') {
-      const sample = sampleById(m.id);
-      if (!sample) {
-        loadError = `The link names an example that does not exist: ${m.id}.`;
+      const entry = galleryMachine(m.id);
+      if (!entry) {
+        loadError = `The gallery has no machine called ${m.id}.`;
         return false;
       }
-      loadSample(sample, link.input);
-      return true;
+      return loadEntry(entry, link.input);
     }
     const parsed =
       m.kind === 'standard' ? pg.services.fromStandard(m.text) : pg.services.decodeShare(m.payload);
@@ -136,8 +154,8 @@
         const saved = read<{ source: string; input: string; galleryId?: string | null }>(STORE);
         if (saved && !loadError) {
           pg.load(saved.source, { input: saved.input, galleryId: saved.galleryId ?? undefined });
-        } else loadSample(defaultSample);
-        if (!pg.spec && !loadError) loadSample(defaultSample);
+        } else if (firstMachine) loadEntry(firstMachine);
+        if (!pg.spec && !loadError && firstMachine) loadEntry(firstMachine);
       }
       if (!pg.spec) tab = 'text';
     });
@@ -194,17 +212,16 @@
     else pg.undo();
   }
 
-  const sigma = $derived(spec ? spec.inputAlphabet.map(glyph).join(', ') : '');
-  const finals = $derived(spec ? spec.states.filter((s) => s.isFinal).map((s) => s.name) : []);
-</script>
+  /** A set in the course notation; ∅ when empty. */
+  function set(items: string[]) {
+    return items.length ? `{${items.join(', ')}}` : '∅';
+  }
 
-<svelte:head>
-  <title>Playground | Turing machines</title>
-  <meta
-    name="description"
-    content="Define a Turing machine with a state diagram, a transition table or text, and run it step by step in your browser."
-  />
-</svelte:head>
+  const sigma = $derived(spec ? set(spec.inputAlphabet.map(glyph)) : '');
+  const blankStart = $derived(
+    spec !== null && (spec.kind === 'beaver' || spec.inputAlphabet.length === 0)
+  );
+</script>
 
 <svelte:window onkeydown={keydown} />
 
@@ -214,7 +231,7 @@
       <h1>Playground</h1>
     </div>
     <div class="content">
-      <MachineBar {pg} onpick={(s) => loadSample(s)} onshare={share} />
+      <MachineBar {pg} onpick={(m) => loadEntry(m)} onshare={share} />
       {#if loadError}<p class="load-error" role="alert">{loadError}</p>{/if}
     </div>
   </header>
@@ -234,7 +251,7 @@
           id="pg-input"
           class="mono"
           value={pg.input}
-          placeholder={spec && spec.inputAlphabet.length === 0 ? 'blank tape' : 'empty word'}
+          placeholder={blankStart ? 'blank tape' : 'empty word'}
           autocomplete="off"
           spellcheck="false"
           autocapitalize="off"
@@ -252,10 +269,10 @@
         <span id="pg-input-help" class="input-help" class:problem={pg.inputProblem}>
           {#if pg.inputProblem}
             {pg.inputProblem}
-          {:else if spec && spec.inputAlphabet.length === 0}
+          {:else if blankStart && pg.input === ''}
             This machine starts on a blank tape.
           {:else if spec}
-            <span class="mono">Σ = {'{'}{sigma}{'}'}</span>
+            <span class="mono">Σ = {sigma}</span>
           {/if}
         </span>
       </div>
@@ -282,7 +299,7 @@
         step={snapshot?.step ?? null}
         state={snapshot?.state ?? null}
         outcome={pg.engineError ? `The engine stopped: ${pg.engineError}` : status}
-        configuration={snapshot?.configuration ?? null}
+        configuration={snapshot ? clipConfiguration(snapshot.configuration, snapshot.state) : null}
         shortcuts={true}
         disabled={!snapshot}
         bind:moreOpen
@@ -308,15 +325,15 @@
         <dl class="tuple mono">
           <div>
             <dt>Q</dt>
-            <dd>{'{'}{spec.states.map((s) => s.name).join(', ')}{'}'}</dd>
+            <dd>{set(spec.states.map((s) => s.name))}</dd>
           </div>
           <div>
             <dt>Σ</dt>
-            <dd>{'{'}{sigma}{'}'}</dd>
+            <dd>{sigma}</dd>
           </div>
           <div>
             <dt>Γ</dt>
-            <dd>{'{'}{spec.tapeAlphabet.map(glyph).join(', ')}{'}'}</dd>
+            <dd>{set(spec.tapeAlphabet.map(glyph))}</dd>
           </div>
           <div>
             <dt>q<sub>0</sub></dt>
@@ -324,7 +341,7 @@
           </div>
           <div>
             <dt>F</dt>
-            <dd>{'{'}{finals.join(', ')}{'}'}</dd>
+            <dd>{set(spec.states.filter((s) => s.isFinal).map((s) => s.name))}</dd>
           </div>
           {#if spec.tapes > 1}<div>
               <dt>k</dt>
@@ -354,12 +371,7 @@
         }}
       >
         <summary>Space-time diagram of this run</summary>
-        <SpaceTimeSlot
-          {spec}
-          input={pg.input}
-          step={snapshot?.step ?? 0}
-          onseek={(s) => void pg.seek(s)}
-        />
+        <SpaceTimeSlot {spec} input={pg.input} steps={pg.lastRun} />
       </details>
     </div>
   </section>

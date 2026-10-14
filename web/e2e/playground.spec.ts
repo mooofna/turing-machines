@@ -49,7 +49,7 @@ test('steps forward and back, then runs to the halt', async ({ page }) => {
 });
 
 test('runs at full speed', async ({ page }) => {
-  await open(page, '#g=bb4');
+  await open(page, '#tm=1RB1LB_1LA0LC_1RZ1LD_1RD0RA');
   await page.getByLabel('Speed').fill('100');
   await page.getByRole('button', { name: 'Run', exact: true }).click();
   await expect(status(page)).toContainText('Halted');
@@ -77,35 +77,35 @@ test('keyboard shortcuts step, run and reset', async ({ page }) => {
 test('opens each view of the machine', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Diagram' }).click();
-  await expect(page.getByRole('button', { name: /^State q0, start/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^State right, start/ })).toBeVisible();
   await page.getByRole('tab', { name: 'Table' }).click();
   await expect(page.getByRole('grid', { name: 'Transition table' })).toBeVisible();
   await page.getByRole('tab', { name: 'Text' }).click();
-  await expect(page.locator('.cm-content')).toContainText('δ(q0, 0) = (q0, 0, R)');
+  await expect(page.locator('.cm-content')).toContainText('δ(right, 0) = (right, 0, R)');
 });
 
 test('a table edit rewrites the text', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Table' }).click();
-  const cell = page.getByRole('textbox', { name: 'δ(q1, 0)' });
+  const cell = page.getByRole('textbox', { name: 'δ(carry, 0)' });
   await cell.click();
-  await cell.fill('q2, 1, R');
+  await cell.fill('done, 1, R');
   await cell.press('Enter');
-  await expect(cell).toHaveValue('q2, 1, R');
+  await expect(cell).toHaveValue('done, 1, R');
   await page.getByRole('tab', { name: 'Text' }).click();
-  await expect(page.locator('.cm-content')).toContainText('δ(q1, 0) = (q2, 1, R)');
+  await expect(page.locator('.cm-content')).toContainText('δ(carry, 0) = (done, 1, R)');
   // Comments survive the rewrite.
-  await expect(page.locator('.cm-content')).toContainText('// Add one, carrying to the left.');
+  await expect(page.locator('.cm-content')).toContainText('// The head runs to the right end');
 });
 
 test('a table edit can create a state, and undo removes it', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Table' }).click();
-  const cell = page.getByRole('textbox', { name: 'δ(q2, 0)' });
+  const cell = page.getByRole('textbox', { name: 'δ(done, 0)' });
   await cell.click();
   await cell.fill('q7, 0, L');
   await cell.press('Enter');
-  await expect(page.getByText('The state q7 does not exist yet.')).toBeVisible();
+  await expect(page.getByText('There is no state q7 yet.')).toBeVisible();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: /^State q7/ })).toBeVisible();
   await page.getByRole('button', { name: 'Undo', exact: true }).first().click();
@@ -115,18 +115,18 @@ test('a table edit can create a state, and undo removes it', async ({ page }) =>
 test('keyboard navigation in the table', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Table' }).click();
-  const first = page.getByRole('textbox', { name: 'δ(q0, 0)' });
+  const first = page.getByRole('textbox', { name: 'δ(right, 0)' });
   await first.focus();
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('textbox', { name: 'δ(q0, 1)' })).toBeFocused();
+  await expect(page.getByRole('textbox', { name: 'δ(right, 1)' })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(page.getByRole('textbox', { name: 'δ(q1, 1)' })).toBeFocused();
+  await expect(page.getByRole('textbox', { name: 'δ(carry, 1)' })).toBeFocused();
   // Typing replaces the cell, Escape restores it.
   await page.keyboard.type('nonsense');
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('textbox', { name: 'δ(q1, 1)' })).toHaveValue('q1, 0, L');
+  await expect(page.getByRole('textbox', { name: 'δ(carry, 1)' })).toHaveValue('carry, 0, L');
   // An invalid entry is explained and kept.
-  await page.keyboard.type('q1, 0');
+  await page.keyboard.type('carry, 0');
   await page.keyboard.press('Enter');
   await expect(page.locator('#table-message')).toContainText('Give the next state');
 });
@@ -135,12 +135,12 @@ test('a text edit updates the table', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Text' }).click();
   const editor = page.locator('.cm-content');
-  await expect(editor).toContainText('δ(q1, ␣) = (q2, 1, L)');
+  await expect(editor).toContainText('δ(carry, ␣) = (done, 1, L)');
   await editor.click();
   await page.keyboard.press('ControlOrMeta+End');
-  await page.keyboard.type('\nδ(q2, 0) = (q2, 0, R)');
+  await page.keyboard.type('\nδ(done, 0) = (done, 0, R)');
   await page.getByRole('tab', { name: 'Table' }).click();
-  await expect(page.getByRole('textbox', { name: 'δ(q2, 0)' })).toHaveValue('q2, 0, R');
+  await expect(page.getByRole('textbox', { name: 'δ(done, 0)' })).toHaveValue('done, 0, R');
 });
 
 test('text errors keep the last valid machine', async ({ page }) => {
@@ -149,7 +149,7 @@ test('text errors keep the last valid machine', async ({ page }) => {
   const editor = page.locator('.cm-content');
   await editor.click();
   await page.keyboard.press('ControlOrMeta+End');
-  await page.keyboard.type('\nδ(q2, 0) = (q2, 0, X)');
+  await page.keyboard.type('\nδ(done, 0) = (done, 0, X)');
   await expect(page.locator('.problems')).toContainText('Error');
   await page.getByRole('tab', { name: 'Table' }).click();
   await expect(page.getByText('The text has errors')).toBeVisible();
@@ -157,7 +157,8 @@ test('text errors keep the last valid machine', async ({ page }) => {
   await expect(page.getByText('The text has errors')).toHaveCount(0);
 });
 
-test('the diagram adds a state on double-click', async ({ page }) => {
+test('the diagram adds a state on double-click', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'the diagram is view-only on phones');
   await open(page);
   await page.getByRole('tab', { name: 'Diagram' }).click();
   const svg = page.getByRole('group', { name: 'State diagram' });
@@ -177,9 +178,9 @@ test('a share link reproduces the machine and the input', async ({ page, context
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await open(page);
   await page.getByRole('tab', { name: 'Table' }).click();
-  const cell = page.getByRole('textbox', { name: 'δ(q2, 0)' });
+  const cell = page.getByRole('textbox', { name: 'δ(done, 0)' });
   await cell.click();
-  await cell.fill('q2, 0, R');
+  await cell.fill('done, 0, R');
   await cell.press('Enter');
   const input = page.getByLabel('Input', { exact: true });
   await input.fill('111');
@@ -191,14 +192,28 @@ test('a share link reproduces the machine and the input', async ({ page, context
   await other.goto(url);
   await expect(other.getByLabel('Input', { exact: true })).toHaveValue('111');
   await other.getByRole('tab', { name: 'Table' }).click();
-  await expect(other.getByRole('textbox', { name: 'δ(q2, 0)' })).toHaveValue('q2, 0, R');
+  await expect(other.getByRole('textbox', { name: 'δ(done, 0)' })).toHaveValue('done, 0, R');
   await other.close();
 });
 
-test('gallery links load an example', async ({ page }) => {
-  await open(page, '#g=unary-multiplication&in=%23xx%23xxx%23');
-  await expect(page.getByLabel('Machine name')).toHaveValue('Unary multiplication');
-  await expect(page.getByLabel('Input', { exact: true })).toHaveValue('#xx#xxx#');
+test('gallery links load a machine with its input', async ({ page }) => {
+  await open(page, '#g=binary-increment&in=111');
+  await expect(page.getByLabel('Machine name')).toHaveValue('Binary increment');
+  await expect(page.getByLabel('Input', { exact: true })).toHaveValue('111');
+  await page.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status(page)).toContainText('output 1000');
+});
+
+test('the machine picker lists the gallery', async ({ page }) => {
+  await open(page);
+  await page.getByRole('button', { name: 'Machines' }).click();
+  const menu = page.getByRole('menu', { name: 'Machines from the gallery' });
+  await expect(menu.getByRole('menuitemcheckbox', { name: /Binary increment/ })).toHaveAttribute(
+    'aria-checked',
+    'true'
+  );
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
 });
 
 test('the input is checked against the input alphabet', async ({ page }) => {

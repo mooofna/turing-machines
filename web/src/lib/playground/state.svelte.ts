@@ -57,6 +57,9 @@ export function stepsPerSecond(speed: number): number {
   return speed >= SPEED_MAX ? Infinity : Math.max(1, Math.round(10 ** (speed / 25)));
 }
 
+/** Steps a run makes before it pauses, unless the machine asks for more. */
+export const DEFAULT_BUDGET = 10_000_000;
+
 /** Runs longer than this open the space-time diagram. */
 export const LONG_RUN = 200;
 
@@ -79,12 +82,14 @@ export class Playground {
   snapshot = $state.raw<SnapshotDto | null>(null);
   running = $state(false);
   speed = $state(25);
-  budget = $state(10_000_000);
+  budget = $state(DEFAULT_BUDGET);
   stop = $state<StopReason | null>(null);
   engineError = $state<string | null>(null);
   measuredRate = $state(0);
   /** Set when a run went past LONG_RUN steps; the page opens the space-time diagram once. */
   longRun = $state(0);
+  /** The step the last run reached, 0 before the first run of this machine and input. */
+  lastRun = $state(0);
 
   // The editors.
   positions = $state.raw<Positions>({});
@@ -550,6 +555,7 @@ export class Playground {
     this.#halt();
     this.stop = null;
     this.engineError = null;
+    this.lastRun = 0;
     const spec = this.spec;
     const session = this.#session;
     if (!spec || !session || this.inputProblem) {
@@ -627,6 +633,7 @@ export class Playground {
     if (!this.running) return;
     this.#halt();
     this.stop = 'paused';
+    this.#ranTo(this.snapshot?.step ?? 0);
   }
 
   toggleRun(): void {
@@ -675,7 +682,12 @@ export class Playground {
     this.#runToken++;
     this.running = false;
     this.stop = reason;
-    if ((this.snapshot?.step ?? 0) > LONG_RUN) this.longRun++;
+    this.#ranTo(this.snapshot?.step ?? 0);
+  }
+
+  #ranTo(step: number): void {
+    this.lastRun = Math.max(this.lastRun, step);
+    if (step > LONG_RUN) this.longRun++;
   }
 
   #runInFrames(token: number, start: number): void {

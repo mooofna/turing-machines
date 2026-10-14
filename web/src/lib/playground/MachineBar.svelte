@@ -2,14 +2,14 @@
   The machine bar: the machine's name (editable), a picker of example machines, New and Share.
 -->
 <script lang="ts">
+  import { groups, machines, type GalleryMachine } from '#lib/gallery.ts';
   import Menu, { type MenuItem } from './Menu.svelte';
   import Popover from './Popover.svelte';
-  import { samples, type Sample } from './samples';
   import type { Playground } from './state.svelte';
 
   interface Props {
     pg: Playground;
-    onpick: (sample: Sample) => void;
+    onpick: (machine: GalleryMachine) => void;
     onshare: () => Promise<{ url: string; copied: boolean } | null>;
   }
 
@@ -23,13 +23,19 @@
   let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
   const items = $derived<MenuItem[]>(
-    samples.map((s) => ({
-      label: s.name,
-      detail: s.summary,
-      checked: pg.galleryId === s.id,
-      onselect: () => onpick(s)
-    }))
+    groups.flatMap((group) =>
+      machines
+        .filter((m) => m.group === group.id)
+        .map((m) => ({
+          label: m.title,
+          detail: m.description,
+          section: group.title,
+          checked: pg.galleryId === m.id,
+          onselect: () => onpick(m)
+        }))
+    )
   );
+  const entry = $derived(pg.galleryId ? machines.find((m) => m.id === pg.galleryId) : undefined);
 
   function commitName(input: HTMLInputElement) {
     const name = input.value.trim().replace(/"/g, "'");
@@ -66,6 +72,7 @@
       }}
       onblur={(e) => commitName(e.currentTarget)}
     />
+    {#if entry}<p class="about">{entry.description} {entry.provenance}.</p>{/if}
   </div>
   <div class="actions">
     <button
@@ -87,7 +94,7 @@
 <Menu
   open={picking}
   anchor={picker}
-  label="Example machines"
+  label="Machines from the gallery"
   {items}
   onclose={() => (picking = false)}
 />
@@ -153,6 +160,13 @@
   .name-input::placeholder {
     color: var(--muted);
     opacity: 1;
+  }
+
+  .about {
+    margin: 0.2rem 0 0;
+    max-width: var(--measure);
+    font-size: var(--text-sm);
+    color: var(--muted);
   }
 
   .actions {

@@ -1,47 +1,69 @@
 <!--
-  The place of the space-time diagram in the playground.
-
-  INTEGRATION: replace the placeholder below with A5's lib/machine/SpaceTime.svelte once it is
-  merged, passing the same props (spec, input, step, onseek). Until then this shows where the
-  diagram goes and what it will show.
+  The space-time diagram of the playground's machine: every row is the tape at one step. Short
+  runs are drawn step by step, long runs as an even overview up to the step the run reached.
 -->
 <script lang="ts">
-  import type { MachineSpecDto } from '#lib/engine/pkg/turing_wasm.js';
+  import type { MachineSpecDto, SpaceTimeModeDto } from '#lib/engine/pkg/turing_wasm.js';
+  import { count } from '#lib/machine/describe.ts';
+  import SpaceTime from '#lib/machine/SpaceTime.svelte';
 
   interface Props {
     spec: MachineSpecDto | null;
     input: string;
-    /** The current step, marked in the diagram. */
-    step: number;
-    /** Called when a row of the diagram is chosen. */
-    onseek?: (step: number) => void;
+    /** Steps of the last run; 0 before the first run. */
+    steps: number;
   }
 
-  let { spec, input, step }: Props = $props();
-  const single = $derived(spec?.tapes === 1);
+  let { spec, input, steps }: Props = $props();
+
+  let width = $state(0);
+
+  /** Rows drawn one per step up to this length; longer runs are sampled. */
+  const EXACT = 400;
+  const exact = $derived(steps <= EXACT);
+  const cellPx = $derived(
+    exact ? Math.max(2, Math.min(6, Math.floor(360 / Math.max(steps, 60)))) : 1
+  );
+  const rows = $derived(exact ? Math.max(steps, 60) + 1 : 0);
+  const height = $derived(exact ? Math.min(420, rows * cellPx) : 360);
+  const mode = $derived<SpaceTimeModeDto>(
+    exact ? { kind: 'exact', firstStep: 0, cellPx } : { kind: 'overview', maxSteps: steps }
+  );
+  const label = $derived(
+    `Space-time diagram of ${spec?.name || 'the machine'} on ${
+      input === '' ? 'the blank tape' : `input ${input}`
+    }, ${exact ? `the first ${count(rows)} steps` : `${count(steps)} steps sampled evenly`}`
+  );
 </script>
 
-<div class="slot" data-spacetime-slot>
-  <p class="muted">
-    {#if !spec}
-      There is no machine to draw.
-    {:else if !single}
-      Space-time diagrams show machines with one tape.
-    {:else}
-      Each row of the diagram is the tape at one step, from step 0 at the top to step {step} on input
-      {input === '' ? 'blank' : input}.
-    {/if}
-  </p>
+<div class="slot" bind:clientWidth={width}>
+  {#if !spec}
+    <p class="muted">There is no machine to draw.</p>
+  {:else if spec.tapes !== 1}
+    <p class="muted">Space-time diagrams show machines with one tape.</p>
+  {:else if width > 0}
+    <SpaceTime {spec} {input} {mode} aspect={width / height} {label} />
+    <p class="caption">
+      Each row is the tape at one step, from step 0 at the top. {exact
+        ? `One row per step, ${count(rows)} rows.`
+        : `The rows sample the ${count(steps)} steps of the last run evenly.`}
+    </p>
+  {/if}
 </div>
 
 <style>
   .slot {
-    display: grid;
-    place-items: center;
-    min-height: 12rem;
-    padding: var(--space-3);
-    border: 1px solid var(--rule);
+    min-height: 4rem;
+  }
+
+  .caption {
+    margin: 0.6rem 0 0;
+    max-width: var(--measure);
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  p.muted {
     font-size: var(--text-sm);
-    text-align: center;
   }
 </style>

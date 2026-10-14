@@ -268,11 +268,9 @@
 
   .config {
     display: block;
-    overflow-x: auto;
-    white-space: pre;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     font-size: var(--text-sm);
-    padding-bottom: 0.25rem;
-    scrollbar-width: thin;
   }
 
   .more {
