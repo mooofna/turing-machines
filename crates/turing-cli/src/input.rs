@@ -157,7 +157,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "needs MachineBuilder::build from turing-core"]
     fn unary_course_encoding() {
         assert_eq!(unary(&mul(), &[3, 4]).unwrap(), "#xxx#xxxx#");
         assert_eq!(unary(&mul(), &[0, 2]).unwrap(), "##xx#");

@@ -57,12 +57,32 @@ pub(crate) fn state_name(machine: &Machine, q: State) -> &str {
 }
 
 /// `transducer, 1 tape, 10 states, 4 symbols, 19 transitions`.
+///
+/// Busy beavers are counted without their halting state, as in "the 5-state busy beaver".
 pub(crate) fn shape(machine: &Machine) -> String {
+    let states = if machine.kind() == Kind::Beaver {
+        let halting: Vec<&str> = machine
+            .states()
+            .iter()
+            .enumerate()
+            .filter(|&(i, info)| {
+                info.is_final && !machine.transitions().any(|t| t.from.index() == i)
+            })
+            .map(|(_, info)| info.name.as_str())
+            .collect();
+        let working = machine.num_states() - halting.len();
+        let states = text::count(working as u64, "state", "states");
+        match halting.as_slice() {
+            [z] => format!("{states} and the halting state {z}"),
+            _ => states,
+        }
+    } else {
+        text::count(machine.num_states() as u64, "state", "states")
+    };
     format!(
-        "{}, {}, {}, {}, {}",
+        "{}, {}, {states}, {}, {}",
         kind_name(machine.kind()),
         text::count(machine.tapes() as u64, "tape", "tapes"),
-        text::count(machine.num_states() as u64, "state", "states"),
         text::count(machine.num_symbols() as u64, "symbol", "symbols"),
         text::count(
             machine.num_transitions() as u64,
