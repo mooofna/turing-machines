@@ -28,7 +28,7 @@ pub use diag::{Diagnostic, Severity, Span};
 pub use machine::{Action, BitOrder, Decoder, InputError, Kind, Machine, StateInfo, Transition};
 pub use outcome::{NonHaltProof, Outcome, Status};
 pub use output::{Output, decode};
-pub use rle::{ChainSim, MacroEvent, Run, RunTape};
+pub use rle::{ChainSim, MacroEvent, NotSingleTape, Run, RunTape};
 pub use sim::{Simulator, StepEvent};
 pub use spec::{Declared, MachineSpec, SpecComments, StateSpec, TransitionSpec};
 pub use symbol::{Dir, MAX_STATES, MAX_SYMBOLS, MAX_TAPES, State, Symbol};

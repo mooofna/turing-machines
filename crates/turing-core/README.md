@@ -1,7 +1,7 @@
 # turing-core
 
 The model of a deterministic Turing machine with one to three tapes, two simulators and a small
-description language that follows the notation of the TheoLog course at TU Dresden.
+description language that follows the notation of the course Theoretische Informatik und Logik at TU Dresden.
 
 * `Machine` is a validated machine with a dense transition table. Build one with
   `MachineBuilder`, from a `MachineSpec`, from the description language (`dsl::parse`) or from the
