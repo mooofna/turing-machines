@@ -173,7 +173,7 @@ impl Augmented {
 /// used by `NGramCPS_decider_impl1`).
 ///
 /// A cell written by the transition δ(q, a) = (q', b, D) changes from (a, h) to
-/// (b, first n entries of (q, a) · h).
+/// (b, h'), where h' is (q, a) followed by h, cut to its first n entries.
 #[derive(Clone, Debug)]
 pub struct History(Augmented);
 
@@ -197,9 +197,9 @@ impl AbstractMachine for History {
 /// The machine augmented with a least-recently-used list of updates of each cell
 /// (`TM_history_LRU` in Coq-BB5, used by `NGramCPS_LRU_decider`).
 ///
-/// A cell written by the transition δ(q, a) = (q', b, D) changes from (a, h) to (b, (q, a) · h'),
-/// where h' is h without (q, a). The list never repeats an entry, so it has at most
-/// states × symbols entries.
+/// A cell written by the transition δ(q, a) = (q', b, D) changes from (a, h) to (b, h'), where
+/// h' is (q, a) followed by h without (q, a). The list never repeats an entry, so it has at
+/// most states × symbols entries.
 #[derive(Clone, Debug)]
 pub struct Lru(Augmented);
 

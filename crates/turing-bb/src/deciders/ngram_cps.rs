@@ -95,6 +95,41 @@ impl GramSet {
     }
 }
 
+/// The local contexts found so far, in insertion order (Coq: `mset_impl`), and the stack of
+/// contexts still to process in the current pass.
+#[derive(Clone, Debug, Default)]
+struct ContextSet {
+    list: Vec<Context>,
+    seen: FxHashSet<Context>,
+    stack: Vec<Context>,
+}
+
+impl ContextSet {
+    fn clear(&mut self) {
+        self.list.clear();
+        self.seen.clear();
+        self.stack.clear();
+    }
+
+    /// Adds a context and schedules it for processing; returns whether it was present already
+    /// (Coq: `mset_ins0`, with the new context prepended to the work list).
+    fn insert(&mut self, context: Context) -> bool {
+        if self.seen.insert(context) {
+            self.list.push(context);
+            self.stack.push(context);
+            false
+        } else {
+            true
+        }
+    }
+
+    /// Schedules every known context, the most recent one first.
+    fn start_pass(&mut self) {
+        self.stack.clear();
+        self.stack.extend_from_slice(&self.list);
+    }
+}
+
 /// The n-gram closed position set decider over the abstract machine `M`.
 ///
 /// ```
@@ -113,11 +148,9 @@ pub struct NGramCps<M> {
     len_l: usize,
     len_r: usize,
     gas: u64,
-    contexts: Vec<Context>,
-    seen: FxHashSet<Context>,
+    contexts: ContextSet,
     lefts: GramSet,
     rights: GramSet,
-    stack: Vec<Context>,
 }
 
 impl NGramCps<Plain> {
@@ -202,22 +235,9 @@ impl<M: AbstractMachine> NGramCps<M> {
             len_l,
             len_r,
             gas,
-            contexts: Vec::new(),
-            seen: FxHashSet::default(),
+            contexts: ContextSet::default(),
             lefts: GramSet::default(),
             rights: GramSet::default(),
-            stack: Vec::new(),
-        }
-    }
-
-    /// Adds a context; returns whether it was present already (Coq: `mset_ins0`).
-    fn insert_context(&mut self, context: Context) -> bool {
-        if self.seen.insert(context) {
-            self.contexts.push(context);
-            self.stack.push(context);
-            false
-        } else {
-            true
         }
     }
 
@@ -225,29 +245,34 @@ impl<M: AbstractMachine> NGramCps<M> {
     /// halts, otherwise whether nothing changed.
     fn process(&mut self, c: Context) -> Option<bool> {
         let step = self.machine.step(c.state, c.mid)?;
-        let (behind, ahead, len_b, len_a, behind_len_set_is_left) = if step.right {
-            (c.left, c.right, self.len_l, self.len_r, true)
+        // Moving right, the left n-gram moves away from the head and a new cell enters the
+        // right context at its far end; moving left, the other way round.
+        let (behind, ahead, len_b, len_a, behind_set, ahead_set) = if step.right {
+            (
+                c.left,
+                c.right,
+                self.len_l,
+                self.len_r,
+                &mut self.lefts,
+                &self.rights,
+            )
         } else {
-            (c.right, c.left, self.len_r, self.len_l, false)
+            (
+                c.right,
+                c.left,
+                self.len_r,
+                self.len_l,
+                &mut self.rights,
+                &self.lefts,
+            )
         };
-        // The n-gram behind the head moves away and is recorded.
-        let present = if behind_len_set_is_left {
-            self.lefts.insert(&behind, len_b)
-        } else {
-            self.rights.insert(&behind, len_b)
-        };
+        let mut unchanged = behind_set.insert(&behind, len_b);
         let mut new_behind = [0; MAX_NGRAM];
         new_behind[0] = step.write;
         new_behind[1..len_b].copy_from_slice(&behind[..len_b - 1]);
         let mut prefix = [0; MAX_NGRAM];
         prefix[..len_a - 1].copy_from_slice(&ahead[1..len_a]);
-        let lasts: Vec<Sym> = if behind_len_set_is_left {
-            self.rights.lasts(&prefix).collect()
-        } else {
-            self.lefts.lasts(&prefix).collect()
-        };
-        let mut unchanged = present;
-        for x in lasts {
+        for x in ahead_set.lasts(&prefix) {
             let mut new_ahead = prefix;
             new_ahead[len_a - 1] = x;
             let (left, right) = if step.right {
@@ -255,7 +280,7 @@ impl<M: AbstractMachine> NGramCps<M> {
             } else {
                 (new_ahead, new_behind)
             };
-            unchanged &= self.insert_context(Context {
+            unchanged &= self.contexts.insert(Context {
                 state: step.next,
                 mid: ahead[0],
                 left,
@@ -270,10 +295,8 @@ impl<M: AbstractMachine> NGramCps<M> {
     fn closed(&mut self, tm: &CompactTm) -> bool {
         self.machine.reset(tm);
         self.contexts.clear();
-        self.seen.clear();
         self.lefts.clear();
         self.rights.clear();
-        self.stack.clear();
         let blank = [0; MAX_NGRAM];
         self.lefts.insert(&blank, self.len_l);
         self.rights.insert(&blank, self.len_r);
@@ -283,21 +306,20 @@ impl<M: AbstractMachine> NGramCps<M> {
             left: blank,
             right: blank,
         };
-        self.insert_context(init);
+        self.contexts.insert(init);
         let mut gas = self.gas;
         // Every pass costs at least one unit of gas, so `gas` passes are enough (Coq bounds
         // the passes by the same number).
         for _ in 0..self.gas {
             // A pass visits every known context, most recent first (Coq: `update_AES`).
-            self.stack.clear();
-            self.stack.extend_from_slice(&self.contexts);
+            self.contexts.start_pass();
             let mut unchanged = true;
             loop {
                 if gas == 0 {
                     return false;
                 }
                 gas -= 1;
-                let Some(context) = self.stack.pop() else {
+                let Some(context) = self.contexts.stack.pop() else {
                     break;
                 };
                 match self.process(context) {
@@ -307,7 +329,7 @@ impl<M: AbstractMachine> NGramCps<M> {
             }
             if unchanged {
                 // `check_InitES_InAES`: true by construction, checked for faithfulness.
-                return self.seen.contains(&init);
+                return self.contexts.seen.contains(&init);
             }
         }
         false
