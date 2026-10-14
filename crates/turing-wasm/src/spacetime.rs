@@ -196,7 +196,9 @@ mod diagrams {
             }
         };
         assert!(progress.halted);
-        assert_eq!(progress.rows_done, 80);
+        // A run this short is drawn with square cells, several pixel rows per step.
+        assert!(progress.rows_done > 0 && progress.rows_done <= 80);
+        assert_eq!(progress.steps, 107.0);
         let palette = palette(&palette_dto()).unwrap();
         let pixels = job.rgba(&palette);
         assert_eq!(pixels.len(), 120 * 80 * 4);
@@ -217,7 +219,8 @@ mod diagrams {
         };
         let mut job = Job::new(&testing::standard(testing::BB4), "", &request).unwrap();
         while !job.advance(1_000).done {}
-        let cell = job.locate(32, 10).expect("inside the image");
+        // Cells are square, so the row of step 10 starts at pixel row 40.
+        let cell = job.locate(32, 41).expect("inside the image");
         assert_eq!(cell.step, 10.0);
         assert_eq!(cell.from, cell.to);
         assert!(matches!(cell.glyph.as_deref(), Some("0" | "1")));

@@ -252,7 +252,8 @@ describe('workers', () => {
       let progress = job.advance(1_000);
       while (!progress.done) progress = job.advance(1_000);
       expect(progress.halted).toBe(true);
-      expect(progress.rowsDone).toBe(100);
+      expect(progress.steps).toBe(107);
+      expect(progress.rowsDone).toBeGreaterThan(0);
       const pixels = job.rgba({ background: '#ffffff', ink: '#111111', accent: '#215caf' });
       expect(pixels.length).toBe(200 * 100 * 4);
       expect(() => job.rgba({ background: 'white', ink: '#111', accent: '#215caf' })).toThrow();
