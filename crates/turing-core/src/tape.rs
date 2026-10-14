@@ -157,7 +157,7 @@ impl Tape {
 
     /// The position of the cell at `index`.
     #[inline]
-    fn position(&self, index: usize) -> i64 {
+    pub(crate) fn position(&self, index: usize) -> i64 {
         signed(index) - signed(self.origin)
     }
 

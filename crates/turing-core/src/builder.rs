@@ -8,7 +8,7 @@ use alloc::vec::Vec;
 use core::fmt;
 
 use crate::alphabet::Alphabet;
-use crate::machine::{Action, Decoder, Kind, Machine, StateInfo};
+use crate::machine::{Action, Decoder, Kind, Machine, Packed, StateInfo};
 use crate::symbol::{Dir, MAX_STATES, MAX_SYMBOLS, MAX_TAPES, State, Symbol};
 
 /// The largest transition table, in entries: |Q| × |Γ|^k must not exceed it.
@@ -553,6 +553,15 @@ impl MachineBuilder {
             origin[slot] = u32::try_from(index).unwrap_or(u32::MAX);
         }
 
+        let packed = if self.tapes == 1 {
+            table
+                .iter()
+                .map(|&entry| Packed::new(entry, stride))
+                .collect()
+        } else {
+            Box::default()
+        };
+
         let finals: BTreeSet<&str> = self.finals.iter().map(String::as_str).collect();
         let start = self
             .start
@@ -578,6 +587,7 @@ impl MachineBuilder {
             stride,
             table,
             origin,
+            packed,
             decoder: self.decoder,
             input: self.input.clone(),
         })

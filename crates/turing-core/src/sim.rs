@@ -3,7 +3,7 @@
 use alloc::vec::Vec;
 use core::borrow::Borrow;
 
-use crate::machine::{Action, Machine};
+use crate::machine::{Action, Machine, Packed};
 use crate::outcome::{NonHaltProof, Outcome, Status};
 use crate::symbol::{Dir, MAX_TAPES, State, Symbol};
 use crate::tape::{Tape, TapeView};
@@ -174,6 +174,10 @@ impl<M: Borrow<Machine>> Simulator<M> {
     }
 
     /// [`Simulator::run_inner`] for single-tape machines.
+    ///
+    /// Alternates between [`Simulator::burst`], which makes most of the steps, and
+    /// [`Simulator::careful_step`], which makes the steps the burst leaves out. Both apply the
+    /// same checks in the same order, so the split does not change the result.
     fn run_single(
         &mut self,
         fuel: u64,
@@ -182,43 +186,145 @@ impl<M: Borrow<Machine>> Simulator<M> {
     ) -> Outcome {
         let limit = self.steps.saturating_add(fuel);
         loop {
-            let from = self.state;
-            let read = self.tapes[0].read();
-            let Some(action) = self.machine.borrow().action1(from, read) else {
-                return Outcome::Halted {
-                    steps: self.steps,
-                    state: from,
-                };
-            };
-            // Only steps that stay in their state can loop on their own.
-            if prove
-                && action.next == from
-                && (action.dir[0] == Dir::N || read.is_blank())
-                && let Some(proof) = self.non_halt_proof(&[read], action)
-            {
-                return Outcome::NeverHalts {
-                    steps: self.steps,
-                    proof,
-                };
+            if let Some(outcome) = self.burst(limit, stop, prove) {
+                return outcome;
             }
-            if self.steps == limit {
-                return Outcome::OutOfFuel { steps: self.steps };
-            }
-            let tape = &mut self.tapes[0];
-            tape.write(action.write[0]);
-            tape.shift(action.dir[0]);
-            self.state = action.next;
-            self.steps += 1;
-            let event = StepEvent {
-                steps: self.steps,
-                from,
-                read: [read, Symbol::BLANK, Symbol::BLANK],
-                action,
-            };
-            if stop(&event) {
-                return Outcome::Stopped { steps: self.steps };
+            if let Some(outcome) = self.careful_step(limit, stop, prove) {
+                return outcome;
             }
         }
+    }
+
+    /// The hot loop: makes single-tape steps until the run ends or the next step needs
+    /// [`Simulator::careful_step`], which is the case if the head would leave the allocated
+    /// cells (the tape has to grow) or if the step could start a provable loop.
+    ///
+    /// Head, state and step count live in locals while the loop runs. The tape cells are a
+    /// plain slice, so writing a cell cannot invalidate them and nothing is reloaded from
+    /// memory between steps. The loop reads δ from the packed table of the machine, whose
+    /// entries hold the next state's row, so a step costs two dependent loads (cell and
+    /// entry) and an addition.
+    #[inline]
+    fn burst(
+        &mut self,
+        limit: u64,
+        stop: &mut impl FnMut(&StepEvent) -> bool,
+        prove: bool,
+    ) -> Option<Outcome> {
+        let machine: &Machine = self.machine.borrow();
+        let packed = &*machine.packed;
+        let tape = &mut self.tapes[0];
+        let cells = tape.cells.as_mut_slice();
+        let mut head = tape.head;
+        let (mut lowest, mut highest) = (head, head);
+        let mut state = self.state;
+        let mut row = state.index() * machine.stride;
+        let mut steps = self.steps;
+        let outcome = loop {
+            let read = cells[head];
+            let entry = packed
+                .get(row + read.index())
+                .copied()
+                .unwrap_or(Packed::UNDEFINED);
+            if !entry.is_defined() {
+                break Some(Outcome::Halted { steps, state });
+            }
+            let dir = entry.dir();
+            if prove && entry.next() == state && (dir == Dir::N || read.is_blank()) {
+                break None;
+            }
+            if steps == limit {
+                break Some(Outcome::OutOfFuel { steps });
+            }
+            // Each arm branches out at the edge of the allocation, which keeps the move a
+            // predicted branch: the processor can fetch the next cell before the table entry
+            // has arrived, where a conditional select would have to wait for it.
+            let next = match dir {
+                Dir::L => {
+                    let Some(next) = head.checked_sub(1) else {
+                        break None;
+                    };
+                    lowest = lowest.min(next);
+                    next
+                }
+                Dir::R => {
+                    let next = head + 1;
+                    if next == cells.len() {
+                        break None;
+                    }
+                    highest = highest.max(next);
+                    next
+                }
+                Dir::N => head,
+            };
+            cells[head] = entry.write();
+            head = next;
+            let from = state;
+            state = entry.next();
+            row = entry.row();
+            steps += 1;
+            let event = StepEvent {
+                steps,
+                from,
+                read: [read, Symbol::BLANK, Symbol::BLANK],
+                action: entry.action(),
+            };
+            if stop(&event) {
+                break Some(Outcome::Stopped { steps });
+            }
+        };
+        tape.head = head;
+        tape.touched = (
+            tape.touched.0.min(tape.position(lowest)),
+            tape.touched.1.max(tape.position(highest)),
+        );
+        self.state = state;
+        self.steps = steps;
+        outcome
+    }
+
+    /// Makes one single-tape step with every check, growing the tape if needed, or ends the
+    /// run.
+    fn careful_step(
+        &mut self,
+        limit: u64,
+        stop: &mut impl FnMut(&StepEvent) -> bool,
+        prove: bool,
+    ) -> Option<Outcome> {
+        let from = self.state;
+        let read = self.tapes[0].read();
+        let Some(action) = self.machine.borrow().action1(from, read) else {
+            return Some(Outcome::Halted {
+                steps: self.steps,
+                state: from,
+            });
+        };
+        // Only steps that stay in their state can loop on their own.
+        if prove
+            && action.next == from
+            && (action.dir[0] == Dir::N || read.is_blank())
+            && let Some(proof) = self.non_halt_proof(&[read], action)
+        {
+            return Some(Outcome::NeverHalts {
+                steps: self.steps,
+                proof,
+            });
+        }
+        if self.steps == limit {
+            return Some(Outcome::OutOfFuel { steps: self.steps });
+        }
+        let tape = &mut self.tapes[0];
+        tape.write(action.write[0]);
+        tape.shift(action.dir[0]);
+        self.state = action.next;
+        self.steps += 1;
+        let event = StepEvent {
+            steps: self.steps,
+            from,
+            read: [read, Symbol::BLANK, Symbol::BLANK],
+            action,
+        };
+        stop(&event).then_some(Outcome::Stopped { steps: self.steps })
     }
 
     /// [`Simulator::run_inner`] for machines with several tapes.
