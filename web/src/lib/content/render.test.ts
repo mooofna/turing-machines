@@ -169,6 +169,13 @@ describe('facts', () => {
     expect(section?.html).toContain('less than 3 \u00d7 10<sup>\u221228,723,042,565</sup>');
   });
 
+  it('sets values in up-arrow notation as mathematics', () => {
+    const [section] = sections('## F\n\nThe bound is {{fact:bb6-lower-bound-value}}.');
+    expect(section?.html).toContain(
+      '<span class="fact short" data-fact="bb6-lower-bound-value"><math><mrow><mn>10</mn><mo stretchy'
+    );
+  });
+
   it('fails on unknown facts and unknown directives', () => {
     expect(() => sections('## F\n\n{{fact:no-such-fact}}')).toThrow(/unknown fact/);
     expect(() => sections('## F\n\n{{bibliography}}')).toThrow(/unknown directive/);
@@ -291,7 +298,10 @@ describe('house style', () => {
 
   it('marks numeric table cells', () => {
     const [section] = sections('## T\n\n| $n$ | name |\n|---|---|\n| 12 | x |');
-    expect(section?.html).toMatch(/<th scope="col" class="num"><math>/);
+    expect(section?.html).toContain(
+      '<th scope="col" class="num"><math aria-hidden="true"><mi>n</mi></math>' +
+        '<span class="visually-hidden">n</span></th>'
+    );
     expect(section?.html).toContain('<td class="num">12</td>');
     expect(section?.html).toContain('<div class="table-wrap"><table class="table">');
   });

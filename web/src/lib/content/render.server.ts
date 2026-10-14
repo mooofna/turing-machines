@@ -261,6 +261,12 @@ function renderMath(ctx: Context, tex: string, display: boolean, line?: number):
 }
 
 function factHtml(fact: LedgerFact): string {
+  // Values in up-arrow notation are set as mathematics, like the arrows in the text around them.
+  if (/^[0-9\u2191 ]+$/.test(fact.display) && fact.display.includes('\u2191')) {
+    const tex = fact.display.replaceAll('\u2191', ' \\uparrow ');
+    const mathml = temml.renderToString(tex, { throwOnError: true });
+    return `<span class="fact short" data-fact="${escapeHtml(fact.id)}">${mathml}</span>`;
+  }
   const text = powers(escapeHtml(fact.display));
   const mono = !isDate(fact.display) && !isPhrase(fact.display);
   // Short values stay on one line; long ones (lists, phrases) may wrap.
@@ -532,11 +538,18 @@ function renderBlock(ctx: Context, text: string, firstLine: number): string {
 }
 
 /**
- * Last touches on the HTML: an inline formula stays on one line with the punctuation that
- * follows it, and a machine in the text format may break after each underscore.
+ * Last touches on the HTML: a table header that is only a formula gets a text equivalent, an
+ * inline formula stays on one line with the punctuation that follows it, and a machine in the
+ * text format may break after each underscore.
  */
 function finish(html: string): string {
   return html
+    .replace(
+      /<th([^>]*)><math>((?:(?!<\/math>)[\s\S])*)<\/math><\/th>/g,
+      (_, attrs: string, inner: string) =>
+        `<th${attrs}><math aria-hidden="true">${inner}</math>` +
+        `<span class="visually-hidden">${stripTags(inner)}</span></th>`
+    )
     .replace(/(<math>(?:(?!<\/math>)[\s\S])*<\/math>)([.,;:)]+)/g, '<span class="nobr">$1$2</span>')
     .replace(/<code>([^<]*_[^<]*)<\/code>/g, (_, code: string) =>
       code
