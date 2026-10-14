@@ -80,7 +80,7 @@ pub enum BuildError {
         /// The glyph.
         glyph: char,
     },
-    /// The tape count is 0 or larger than [`MAX_TAPES`](crate::MAX_TAPES).
+    /// The tape count is 0 or larger than [`MAX_TAPES`].
     #[error("a machine has 1 to {max} tapes")]
     TapeCount {
         /// The largest supported count.
@@ -220,7 +220,7 @@ impl MachineBuilder {
         self
     }
 
-    /// Sets the number of tapes (1 to [`MAX_TAPES`](crate::MAX_TAPES)).
+    /// Sets the number of tapes (1 to [`MAX_TAPES`]).
     #[must_use]
     pub fn tapes(mut self, tapes: usize) -> Self {
         self.tapes = tapes;
