@@ -170,7 +170,7 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
         let end = if progress.halted {
             "the machine halted"
         } else {
-            "the machine did not halt"
+            "the machine had not halted by the last row"
         };
         writeln!(
             out,
