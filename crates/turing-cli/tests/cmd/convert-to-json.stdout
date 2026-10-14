@@ -1,0 +1,109 @@
+{
+  "name": "",
+  "kind": "beaver",
+  "tapes": 1,
+  "blank": "0",
+  "inputAlphabet": [
+    "1"
+  ],
+  "tapeAlphabet": [
+    "0",
+    "1"
+  ],
+  "states": [
+    {
+      "name": "A",
+      "isFinal": false
+    },
+    {
+      "name": "B",
+      "isFinal": false
+    },
+    {
+      "name": "Z",
+      "isFinal": true
+    }
+  ],
+  "start": "A",
+  "transitions": [
+    {
+      "from": "A",
+      "read": [
+        "0"
+      ],
+      "to": "B",
+      "write": [
+        "1"
+      ],
+      "dir": [
+        "R"
+      ],
+      "comment": null,
+      "leading": [],
+      "span": null
+    },
+    {
+      "from": "A",
+      "read": [
+        "1"
+      ],
+      "to": "B",
+      "write": [
+        "1"
+      ],
+      "dir": [
+        "L"
+      ],
+      "comment": null,
+      "leading": [],
+      "span": null
+    },
+    {
+      "from": "B",
+      "read": [
+        "0"
+      ],
+      "to": "A",
+      "write": [
+        "1"
+      ],
+      "dir": [
+        "L"
+      ],
+      "comment": null,
+      "leading": [],
+      "span": null
+    },
+    {
+      "from": "B",
+      "read": [
+        "1"
+      ],
+      "to": "Z",
+      "write": [
+        "1"
+      ],
+      "dir": [
+        "R"
+      ],
+      "comment": null,
+      "leading": [],
+      "span": null
+    }
+  ],
+  "input": "",
+  "output": {
+    "kind": "word"
+  },
+  "declared": {
+    "states": true,
+    "inputAlphabet": false,
+    "tapeAlphabet": true,
+    "start": false,
+    "blank": true
+  },
+  "comments": {
+    "header": [],
+    "trailing": []
+  }
+}

@@ -8,6 +8,7 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 publish.workspace = true
+readme = "README.md"
 keywords = ["turing-machine", "busy-beaver", "cli"]
 categories = ["command-line-utilities", "science"]
 
@@ -19,11 +20,13 @@ path = "src/main.rs"
 turing-core = { workspace = true, features = ["serde"] }
 turing-bb.workspace = true
 turing-render.workspace = true
-clap.workspace = true
+clap = { workspace = true, features = ["wrap_help"] }
 annotate-snippets.workspace = true
 anstream.workspace = true
+anstyle = "1.0"
 png.workspace = true
 serde_json.workspace = true
+thiserror = { workspace = true, features = ["std"] }
 
 [dev-dependencies]
 trycmd.workspace = true

@@ -1,0 +1,6 @@
+// Replaces every x by X.
+machine "walk"
+input "xxx"
+F={q1}
+δ(q0,{x, X})=(q0,X,R) // read sets are expanded
+δ(q0,␣)=(q1,␣,L)

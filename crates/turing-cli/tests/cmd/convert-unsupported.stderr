@@ -1,0 +1,1 @@
+error: cannot convert `machines/course/binary-increment.tm`: this machine cannot be written in the standard format: its symbols must be the digits 0 to 2 with blank 0, but they are ␣, 0, 1

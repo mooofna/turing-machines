@@ -1,0 +1,7 @@
+machine   A_mul
+          transducer, 1 tape, 13 states, 4 symbols, 24 transitions
+input     #xxx#xxxx#
+outcome   halted after 276 steps in state q12
+output    xxxxxxxxxxxx (12)
+tape      q12 xxxxxxxxxxxx
+non-blank 12

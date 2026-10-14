@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run no-such-machine.tm"
+status.code = 2

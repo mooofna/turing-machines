@@ -1,0 +1,12 @@
+machine   Multiples of three
+          enumerator, 1 tape, 3 states, 2 symbols, 3 transitions
+input     ε
+outcome   printed 5 words in 12 steps (raise --max-words for more)
+printed   ε
+          xxx
+          xxxxxx
+          xxxxxxxxx
+          xxxxxxxxxxxx
+          ...
+tape      xxxxxxxxxxxx q0 ␣
+non-blank 12

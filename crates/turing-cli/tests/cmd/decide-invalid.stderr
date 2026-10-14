@@ -1,0 +1,7 @@
+error: invalid machine: expected a symbol digit or `---`
+  ╭▸ STANDARD:1:1
+  │
+1 │ 1RB_1LZ
+  ╰╴━
+
+error: could not load `1RB_1LZ` due to 1 error

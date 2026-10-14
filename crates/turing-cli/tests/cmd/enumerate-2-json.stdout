@@ -1,0 +1,42 @@
+{
+  "deciders": [
+    {
+      "count": 29,
+      "key": "loops",
+      "label": "Cyclers and translated cyclers"
+    },
+    {
+      "count": 13,
+      "key": "ngram-cps",
+      "label": "n-gram closed position sets"
+    },
+    {
+      "count": 0,
+      "key": "ngram-cps-history",
+      "label": "n-gram CPS with history"
+    },
+    {
+      "count": 0,
+      "key": "ngram-cps-lru",
+      "label": "n-gram CPS with LRU"
+    },
+    {
+      "count": 0,
+      "key": "repwl",
+      "label": "Repeated word lists"
+    }
+  ],
+  "halting": 19,
+  "holdouts": 0,
+  "maxOnes": {
+    "machine": "1RB1LB_1LA1RZ",
+    "value": 4
+  },
+  "maxSteps": {
+    "machine": "0RB1RZ_1LA1RB",
+    "value": 6
+  },
+  "nodes": 61,
+  "states": 2,
+  "symbols": 2
+}

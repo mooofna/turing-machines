@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/course/an-bn.tm --max-words 4 --format value"
+fs.cwd = "../../../.."

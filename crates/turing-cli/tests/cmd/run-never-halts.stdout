@@ -1,0 +1,5 @@
+machine   1RA---
+          beaver, 1 tape, 1 state, 2 symbols, 1 transition
+outcome   never halts: in state A the head moves right over blank tape forever (proved at step 0)
+tape      A 0
+non-blank 0

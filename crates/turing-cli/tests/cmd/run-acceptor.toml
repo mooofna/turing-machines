@@ -1,0 +1,3 @@
+bin.name = "tm"
+args = "run machines/classic/palindromes.tm --input abba"
+fs.cwd = "../../../.."

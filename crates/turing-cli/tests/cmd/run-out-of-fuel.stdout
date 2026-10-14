@@ -1,0 +1,5 @@
+machine   1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA
+          beaver, 1 tape, 6 states, 2 symbols, 11 transitions
+outcome   did not halt within 1,000,000 steps (raise --max-steps to run longer)
+tape      …11111111111111111111111111111 A 1111111111111111111111111111111…
+non-blank 1,381
