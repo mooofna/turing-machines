@@ -130,7 +130,7 @@
   </div>
   <div class="field result">
     <dt>Status</dt>
-    <dd>{outcome}</dd>
+    <dd class="mono">{outcome}</dd>
   </div>
 </dl>
 

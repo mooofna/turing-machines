@@ -74,6 +74,19 @@ test('keyboard shortcuts step, run and reset', async ({ page }) => {
   await expect(status(page)).toContainText('Halted');
 });
 
+test('the tape slides only without reduced motion', async ({ page }) => {
+  await open(page);
+  const strip = page.locator('.strip').first();
+  await page.getByRole('button', { name: 'Step', exact: true }).click();
+  await expect(strip).toHaveAttribute('style', /transition/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  await expect(status(page)).toContainText(/Step\s+0/);
+  await page.getByRole('button', { name: 'Step', exact: true }).click();
+  await expect(status(page)).toContainText(/Step\s+1/);
+  await expect(strip).not.toHaveAttribute('style', /transition/);
+});
+
 test('opens each view of the machine', async ({ page }) => {
   await open(page);
   await page.getByRole('tab', { name: 'Diagram' }).click();
@@ -172,6 +185,47 @@ test('the diagram adds a state on double-click', async ({ page, isMobile }) => {
   await page.getByRole('button', { name: 'Create' }).click();
   await page.getByRole('tab', { name: 'Text' }).click();
   await expect(page.locator('.cm-content')).toContainText('δ(q3, 0) = (q3, 0, R)');
+});
+
+test('dragging from a state to empty space adds a state and a transition', async ({
+  page,
+  isMobile
+}) => {
+  test.skip(isMobile, 'the diagram is view-only on phones');
+  await open(page);
+  await page.getByRole('tab', { name: 'Diagram' }).click();
+  const node = page.locator('[data-node="done"]');
+  await node.scrollIntoViewIfNeeded();
+  await node.hover();
+  const handle = node.locator('.handle');
+  const box = (await handle.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 40, box.y + 90, { steps: 5 });
+  await page.mouse.move(box.x + 60, box.y + 120, { steps: 5 });
+  await page.mouse.up();
+  const form = page.getByRole('dialog');
+  await expect(form).toContainText('New transition from done');
+  await expect(form).toContainText('δ(done, 0) = (q3, 0, R)');
+  await form.getByRole('radio', { name: /Left/ }).check();
+  await expect(form).toContainText('δ(done, 0) = (q3, 0, L)');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: /^State q3/ })).toBeVisible();
+  await page.getByRole('tab', { name: 'Text' }).click();
+  await expect(page.locator('.cm-content')).toContainText('δ(done, 0) = (q3, 0, L)');
+});
+
+test('a run stops at a breakpoint', async ({ page }) => {
+  await open(page);
+  await page.getByText('More controls').click();
+  await page.getByRole('combobox', { name: /^State/ }).selectOption('carry');
+  await page.getByRole('button', { name: 'Add breakpoint' }).click();
+  await expect(page.getByText('entering carry')).toBeVisible();
+  await page.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status(page)).toContainText('Stopped at a breakpoint');
+  await expect(status(page)).toContainText(/Step\s+5/);
+  await page.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status(page)).toContainText(/Step\s+6/);
 });
 
 test('a share link reproduces the machine and the input', async ({ page, context, browser }) => {
