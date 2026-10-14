@@ -107,7 +107,7 @@ pub(crate) struct Analysis {
 }
 
 impl Analysis {
-    /// Whether any diagnostic is an error.
+    /// Whether the machine could not be built: some diagnostic is an error.
     pub(crate) fn has_errors(&self) -> bool {
         self.machine.is_none() || self.diagnostics.iter().any(Diagnostic::is_error)
     }
