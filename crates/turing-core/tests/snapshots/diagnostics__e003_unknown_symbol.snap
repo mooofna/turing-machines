@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Γ = {x, ␣}\\nδ(q0, X) = (q0, x, R)\", & [\"E003\"])"
+---
+error[E003]: the symbol `X` is not in the tape alphabet Γ
+  --> 2:7
+  2 | δ(q0, X) = (q0, x, R)
+    |       ^
+    = help: did you mean `x`?

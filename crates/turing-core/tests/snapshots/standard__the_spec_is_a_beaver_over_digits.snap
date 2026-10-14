@@ -1,0 +1,17 @@
+---
+source: crates/turing-core/tests/standard.rs
+expression: "dsl::format(&spec, FormatStyle::Unicode)"
+---
+kind beaver
+
+Q = {A, B, Z}
+Γ = {0, 1, 2}
+blank = 0
+F = {Z}
+
+δ(A, 0) = (B, 1, R)
+δ(A, 1) = (B, 2, L)
+δ(A, 2) = (Z, 1, R)
+δ(B, 0) = (A, 2, L)
+δ(B, 1) = (B, 2, R)
+δ(B, 2) = (B, 1, L)

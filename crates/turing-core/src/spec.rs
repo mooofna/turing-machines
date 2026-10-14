@@ -25,7 +25,7 @@ pub struct MachineSpec {
     pub name: String,
     /// What the machine is used for.
     pub kind: Kind,
-    /// The number of tapes, 1 to [`MAX_TAPES`](crate::MAX_TAPES).
+    /// The number of tapes, 1 to [`MAX_TAPES`].
     pub tapes: u8,
     /// The blank glyph.
     pub blank: char,
@@ -449,14 +449,16 @@ pub(crate) fn edit_distance(a: &str, b: &str) -> usize {
 }
 
 /// The candidate closest to `name` within two edits, preferring earlier candidates on ties.
+/// A candidate that would replace every character of `name` is no suggestion.
 pub(crate) fn closest<'a>(
     name: &str,
     candidates: impl IntoIterator<Item = &'a str>,
 ) -> Option<&'a str> {
+    let length = name.chars().count();
     candidates
         .into_iter()
         .map(|c| (edit_distance(name, c), c))
-        .filter(|&(distance, _)| (1..=2).contains(&distance))
+        .filter(|&(distance, _)| (1..=2).contains(&distance) && distance < length)
         .min_by_key(|&(distance, _)| distance)
         .map(|(_, c)| c)
 }
@@ -531,6 +533,12 @@ impl Checker<'_> {
         self.transition_spans(index)
             .and_then(part)
             .or_else(|| self.spec.transition_span(index))
+    }
+
+    /// The span covering the read symbols of transition `index` in the source.
+    fn read_span(&self, index: usize) -> Option<Span> {
+        let spans = &self.transition_spans(index)?.read;
+        Some(spans.first()?.join(*spans.last()?))
     }
 
     fn state_decl_span(&self, index: usize) -> Option<Span> {
@@ -837,10 +845,17 @@ impl Checker<'_> {
                     .with_help(
                         "a deterministic machine has at most one transition per state and symbol",
                     );
-                    if let Some(span) = spec.transition_span(j) {
-                        d = d.with_related(span, "first defined here");
+                    let (mut span, mut first_span) =
+                        (spec.transition_span(i), spec.transition_span(j));
+                    if span == first_span {
+                        // Both come from one line with a read set: point at the symbols.
+                        span = self.read_span(i).or(span);
+                        first_span = self.read_span(j).or(first_span);
                     }
-                    self.push(d, spec.transition_span(i));
+                    if let Some(first_span) = first_span {
+                        d = d.with_related(first_span, "first defined here");
+                    }
+                    self.push(d, span);
                 }
                 None => {
                     first.insert((t.from.as_str(), t.read.as_slice()), i);
@@ -975,7 +990,9 @@ impl Checker<'_> {
         let declared_sigma = spec.declared.input_alphabet.then_some(&spec.input_alphabet);
         let mut reported = BTreeSet::new();
         for &glyph in declared_gamma.into_iter().chain(declared_sigma).flatten() {
-            if glyph != spec.blank && !used.contains(&glyph) && reported.insert(glyph) {
+            // A glyph outside Γ already has an error (E007).
+            let in_gamma = spec.tape_alphabet.contains(&glyph);
+            if glyph != spec.blank && in_gamma && !used.contains(&glyph) && reported.insert(glyph) {
                 let d = Diagnostic::warning(
                     codes::UNUSED_SYMBOL,
                     format!("the symbol {} is never read or written", show_glyph(glyph)),
