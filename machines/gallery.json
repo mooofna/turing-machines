@@ -1,26 +1,11 @@
 {
   "version": 1,
   "groups": [
-    {
-      "id": "course",
-      "title": "From the course"
-    },
-    {
-      "id": "classic",
-      "title": "Classic machines"
-    },
-    {
-      "id": "beavers",
-      "title": "Busy beaver champions"
-    },
-    {
-      "id": "cryptids",
-      "title": "Cryptids"
-    },
-    {
-      "id": "universal",
-      "title": "Universal machines"
-    }
+    { "id": "course", "title": "From the course" },
+    { "id": "classic", "title": "Classic machines" },
+    { "id": "beavers", "title": "Busy beaver champions" },
+    { "id": "cryptids", "title": "Cryptids" },
+    { "id": "universal", "title": "Universal machines" }
   ],
   "machines": [
     {
@@ -30,36 +15,12 @@
       "file": "course/binary-increment.tm",
       "provenance": "TheoLog 2024 simulator, first test machine",
       "source": "theolog2024",
-      "description": "Adds one to a binary number written with the least significant bit first, so that the carry moves in the same direction as the head. It comes from the original 2024 course project and is the example of Fig. 1.1.",
+      "description": "Adds one to a binary number written with the least significant bit first, so that the carry moves in the same direction as the head. It is the first example in the lecture of the course and the first machine of the 2024 simulator; Fig. 1.1 steps through it.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "1101",
-          "expect": {
-            "halts": true,
-            "steps": 3,
-            "output": "0011",
-            "value": "12"
-          }
-        },
-        {
-          "input": "111",
-          "expect": {
-            "halts": true,
-            "steps": 4,
-            "output": "0001",
-            "value": "8"
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 1,
-            "output": "1",
-            "value": "1"
-          }
-        }
+        { "input": "1101", "expect": { "halts": true, "steps": 3, "output": "0011", "value": "12" } },
+        { "input": "111", "expect": { "halts": true, "steps": 4, "output": "0001", "value": "8" } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "output": "1", "value": "1" } }
       ]
     },
     {
@@ -69,21 +30,10 @@
       "file": "course/multiples-of-three.tm",
       "provenance": "TheoLog 2024, exercise sheet 1, task 2a",
       "source": "theolog2024",
-      "description": "An enumerator for the multiples of three in unary, from task 2a of the first exercise sheet. Each time the machine enters its output state, the tape holds the next word of the list.",
+      "description": "An enumerator for the multiples of three in unary, from task 2a of the first exercise sheet. Each time the machine enters its output state, the tape holds the next word of the list, starting with the empty word.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "",
-          "expect": {
-            "emitted": [
-              "",
-              "xxx",
-              "xxxxxx",
-              "xxxxxxxxx",
-              "xxxxxxxxxxxx"
-            ]
-          }
-        }
+        { "input": "", "expect": { "emitted": ["", "xxx", "xxxxxx", "xxxxxxxxx", "xxxxxxxxxxxx"] } }
       ]
     },
     {
@@ -93,21 +43,10 @@
       "file": "course/an-bn.tm",
       "provenance": "TheoLog 2024, exercise sheet 1, task 2b",
       "source": "theolog2024",
-      "description": "An enumerator for the language {aⁿbⁿ | n ∈ ℕ}, from task 2b of the first exercise sheet. It lists the words in order of increasing n, obtaining each from the previous one by adding one a and one b.",
+      "description": "An enumerator for the language of the words aⁿbⁿ, from task 2b of the first exercise sheet. It lists the words in order of increasing n, obtaining each from the previous one by adding one a in front and one b at the end.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "",
-          "expect": {
-            "emitted": [
-              "",
-              "ab",
-              "aabb",
-              "aaabbb",
-              "aaaabbbb"
-            ]
-          }
-        }
+        { "input": "", "expect": { "emitted": ["", "ab", "aabb", "aaabbb", "aaaabbbb"] } }
       ]
     },
     {
@@ -120,42 +59,10 @@
       "description": "The machine A_mul from task 3 of the first exercise sheet, which multiplies two numbers in unary by repeated addition. This exercise is the origin of the project; Fig. 1.2 runs the machine with decimal input and output.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "#xxx#xx#",
-          "expect": {
-            "halts": true,
-            "steps": 106,
-            "output": "xxxxxx",
-            "value": "6"
-          }
-        },
-        {
-          "input": "#xxxx#xxxx#",
-          "expect": {
-            "halts": true,
-            "steps": 433,
-            "output": "xxxxxxxxxxxxxxxx",
-            "value": "16"
-          }
-        },
-        {
-          "input": "##xx#",
-          "expect": {
-            "halts": true,
-            "steps": 7,
-            "output": "",
-            "value": "0"
-          }
-        },
-        {
-          "input": "#x#x#",
-          "expect": {
-            "halts": true,
-            "steps": 19,
-            "output": "x",
-            "value": "1"
-          }
-        }
+        { "input": "#xxx#xx#", "expect": { "halts": true, "steps": 106, "output": "xxxxxx", "value": "6" } },
+        { "input": "#xxxx#xxxx#", "expect": { "halts": true, "steps": 433, "output": "xxxxxxxxxxxxxxxx", "value": "16" } },
+        { "input": "##xx#", "expect": { "halts": true, "steps": 7, "output": "", "value": "0" } },
+        { "input": "#x#x#", "expect": { "halts": true, "steps": 19, "output": "x", "value": "1" } }
       ]
     },
     {
@@ -165,36 +72,12 @@
       "file": "course/doubling.tm",
       "provenance": "TheoLog 2024, exercise sheet 1, task 4b",
       "source": "theolog2024",
-      "description": "The machine M*2 on a single tape, computing xⁿ ↦ x²ⁿ (task 4b of the first exercise sheet). It walks back and forth across the growing block for every input symbol, so its number of steps grows quadratically in n.",
+      "description": "The machine M*2 on a single tape, computing xⁿ ↦ x²ⁿ (task 4b of the first exercise sheet). It moves one x at a time and walks across the growing output for every input symbol, so its number of steps grows quadratically in n.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "xxx",
-          "expect": {
-            "halts": true,
-            "steps": 32,
-            "output": "xxxxxx",
-            "value": "6"
-          }
-        },
-        {
-          "input": "xxxxx",
-          "expect": {
-            "halts": true,
-            "steps": 72,
-            "output": "xxxxxxxxxx",
-            "value": "10"
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 2,
-            "output": "",
-            "value": "0"
-          }
-        }
+        { "input": "xxx", "expect": { "halts": true, "steps": 32, "output": "xxxxxx", "value": "6" } },
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 72, "output": "xxxxxxxxxx", "value": "10" } },
+        { "input": "", "expect": { "halts": true, "steps": 2, "output": "", "value": "0" } }
       ]
     },
     {
@@ -204,36 +87,12 @@
       "file": "course/doubling-two-tapes.tm",
       "provenance": "TheoLog 2024, exercise sheet 1, task 4a",
       "source": "theolog2024",
-      "description": "The machine M*2 with two tapes (task 4a of the first exercise sheet). With the second tape it copies the input in a single pass, so its number of steps grows linearly in n; Fig. 1.3 compares both versions.",
+      "description": "The machine M*2 with two tapes (task 4a of the first exercise sheet). It copies the input to the second tape while reading it and then writes one x for each copied x, so its number of steps grows linearly in n; Fig. 1.3 compares both versions.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "xxx",
-          "expect": {
-            "halts": true,
-            "steps": 7,
-            "output": "xxxxxx",
-            "value": "6"
-          }
-        },
-        {
-          "input": "xxxxx",
-          "expect": {
-            "halts": true,
-            "steps": 11,
-            "output": "xxxxxxxxxx",
-            "value": "10"
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 1,
-            "output": "",
-            "value": "0"
-          }
-        }
+        { "input": "xxx", "expect": { "halts": true, "steps": 7, "output": "xxxxxx", "value": "6" } },
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 11, "output": "xxxxxxxxxx", "value": "10" } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "output": "", "value": "0" } }
       ]
     },
     {
@@ -243,36 +102,12 @@
       "file": "course/mod-two.tm",
       "provenance": "TheoLog 2024, exercise sheet 3, task E",
       "source": "theolog2024",
-      "description": "The machine A_mod2 from task E of the third exercise sheet, computing xⁿ ↦ x^(n mod 2) in unary. It removes the symbols of the input two at a time until at most one is left.",
+      "description": "The machine A_mod2 from task E of the third exercise sheet, computing xⁿ ↦ x^(n mod 2) in unary. It erases the input from the right, keeps the parity of the number of erased symbols in its state, and writes a single x at the end if that number is odd.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "xxxxx",
-          "expect": {
-            "halts": true,
-            "steps": 12,
-            "output": "x",
-            "value": "1"
-          }
-        },
-        {
-          "input": "xxxx",
-          "expect": {
-            "halts": true,
-            "steps": 10,
-            "output": "",
-            "value": "0"
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 2,
-            "output": "",
-            "value": "0"
-          }
-        }
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 12, "output": "x", "value": "1" } },
+        { "input": "xxxx", "expect": { "halts": true, "steps": 10, "output": "", "value": "0" } },
+        { "input": "", "expect": { "halts": true, "steps": 2, "output": "", "value": "0" } }
       ]
     },
     {
@@ -282,49 +117,14 @@
       "file": "classic/palindromes.tm",
       "provenance": "Classic exercise, written for this project",
       "source": "original",
-      "description": "An acceptor for palindromes, the words that read the same from left to right and from right to left. It compares the first and the last remaining symbol, erases both and repeats, so its number of steps grows quadratically with the length of the input.",
+      "description": "An acceptor for the palindromes over a and b. It compares the first and the last remaining symbol, erases both and repeats, so its number of steps grows quadratically with the length of the input.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "abba",
-          "expect": {
-            "halts": true,
-            "steps": 15,
-            "accepted": true
-          }
-        },
-        {
-          "input": "abaaba",
-          "expect": {
-            "halts": true,
-            "steps": 28,
-            "accepted": true
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 1,
-            "accepted": true
-          }
-        },
-        {
-          "input": "abab",
-          "expect": {
-            "halts": true,
-            "steps": 5,
-            "accepted": false
-          }
-        },
-        {
-          "input": "aab",
-          "expect": {
-            "halts": true,
-            "steps": 4,
-            "accepted": false
-          }
-        }
+        { "input": "abba", "expect": { "halts": true, "steps": 15, "accepted": true } },
+        { "input": "abaaba", "expect": { "halts": true, "steps": 28, "accepted": true } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "accepted": true } },
+        { "input": "abab", "expect": { "halts": true, "steps": 5, "accepted": false } },
+        { "input": "aab", "expect": { "halts": true, "steps": 4, "accepted": false } }
       ]
     },
     {
@@ -334,41 +134,13 @@
       "file": "classic/anbncn.tm",
       "provenance": "Classic exercise, written for this project",
       "source": "original",
-      "description": "An acceptor for the language {aⁿbⁿcⁿ | n ≥ 0}, which is not context-free. In each pass over the input it marks one a, one b and one c, and it accepts when all symbols are marked at the same time.",
+      "description": "An acceptor for the words aⁿbⁿcⁿ, a language that is not context-free. In each round it marks one a, one b and one c, and it accepts when all symbols are marked at the same time.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "aabbcc",
-          "expect": {
-            "halts": true,
-            "steps": 23,
-            "accepted": true
-          }
-        },
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 1,
-            "accepted": true
-          }
-        },
-        {
-          "input": "aabcc",
-          "expect": {
-            "halts": true,
-            "steps": 9,
-            "accepted": false
-          }
-        },
-        {
-          "input": "abcabc",
-          "expect": {
-            "halts": true,
-            "steps": 7,
-            "accepted": false
-          }
-        }
+        { "input": "aabbcc", "expect": { "halts": true, "steps": 23, "accepted": true } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "accepted": true } },
+        { "input": "aabcc", "expect": { "halts": true, "steps": 9, "accepted": false } },
+        { "input": "abcabc", "expect": { "halts": true, "steps": 7, "accepted": false } }
       ]
     },
     {
@@ -378,36 +150,12 @@
       "file": "classic/binary-addition.tm",
       "provenance": "Classic exercise, written for this project",
       "source": "original",
-      "description": "A transducer that adds two binary numbers and leaves their sum on the tape.",
+      "description": "A transducer that adds two binary numbers, written with the most significant bit first and separated by +. It adds the bits of the second number to the first one at a time, from the right, and lets carries run to the left.",
       "budget": 1000000,
       "examples": [
-        {
-          "input": "101+11",
-          "expect": {
-            "halts": true,
-            "steps": 33,
-            "output": "1000",
-            "value": "8"
-          }
-        },
-        {
-          "input": "110+1011",
-          "expect": {
-            "halts": true,
-            "steps": 66,
-            "output": "10001",
-            "value": "17"
-          }
-        },
-        {
-          "input": "1+1111",
-          "expect": {
-            "halts": true,
-            "steps": 66,
-            "output": "10000",
-            "value": "16"
-          }
-        }
+        { "input": "101+11", "expect": { "halts": true, "steps": 33, "output": "1000", "value": "8" } },
+        { "input": "110+1011", "expect": { "halts": true, "steps": 66, "output": "10001", "value": "17" } },
+        { "input": "1+1111", "expect": { "halts": true, "steps": 66, "output": "10000", "value": "16" } }
       ]
     },
     {
@@ -417,18 +165,9 @@
       "standard": "1RZ---",
       "provenance": "bbchallenge wiki, BB(1)",
       "source": "bbchallenge",
-      "description": "The busy beaver champion for one state: it writes a 1, moves and halts. Steps: 1; ones: 1.",
+      "description": "The busy beaver champion for one state: it writes a 1, moves and halts after 1 step, leaving 1 one.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 1,
-            "ones": 1
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 1, "ones": 1 } }]
     },
     {
       "id": "bb2",
@@ -437,18 +176,9 @@
       "standard": "1RB1LB_1LA1RZ",
       "provenance": "bbchallenge wiki, BB(2)",
       "source": "bbchallenge",
-      "description": "The two-state champion 1RB1LB_1LA1RZ, which attains both S(2) and Σ(2). Steps: 6; ones: 4.",
+      "description": "The two-state champion, which attains both S(2) = 6 and Σ(2) = 4. Lecture 2 of the course uses it, without its halting transition, to show Σ(2) = 4.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 6,
-            "ones": 4
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 6, "ones": 4 } }]
     },
     {
       "id": "bb3",
@@ -457,18 +187,9 @@
       "standard": "1RB1RZ_1LB0RC_1LC1LA",
       "provenance": "bbchallenge wiki, BB(3), the champion for the number of steps S(3)",
       "source": "bbchallenge",
-      "description": "The three-state machine 1RB1RZ_1LB0RC_1LC1LA, which attains S(3) = 21. No three-state machine attains both maxima: this one leaves fewer than Σ(3) = 6 ones, and the machines that leave Σ(3) ones halt earlier.",
+      "description": "A three-state machine that attains S(3) = 21. It leaves 5 ones, fewer than Σ(3) = 6: no three-state machine attains both maxima.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 21,
-            "ones": 5
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 21, "ones": 5 } }]
     },
     {
       "id": "sigma3",
@@ -477,18 +198,9 @@
       "standard": "1RB1RZ_0RC1RB_1LC1LA",
       "provenance": "bbchallenge wiki, BB(3), a champion for the number of ones Σ(3)",
       "source": "bbchallenge",
-      "description": "A three-state machine that leaves Σ(3) = 6 ones, the most any three-state machine can leave, and halts after 14 steps. The machines that run longest leave fewer ones, so S(3) and Σ(3) are attained by different machines.",
+      "description": "A three-state machine that leaves Σ(3) = 6 ones. It halts after 14 steps, earlier than the machines that attain S(3) = 21.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 14,
-            "ones": 6
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 14, "ones": 6 } }]
     },
     {
       "id": "bb4",
@@ -497,18 +209,9 @@
       "standard": "1RB1LB_1LA0LC_1RZ1LD_1RD0RA",
       "provenance": "bbchallenge wiki, BB(4)",
       "source": "bbchallenge",
-      "description": "The four-state champion 1RB1LB_1LA0LC_1RZ1LD_1RD0RA, which attains both S(4) and Σ(4). Steps: 107; ones: 13.",
+      "description": "The four-state champion, which attains both S(4) = 107 and Σ(4) = 13, as Brady proved.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 107,
-            "ones": 13
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 107, "ones": 13 } }]
     },
     {
       "id": "bb5",
@@ -517,18 +220,9 @@
       "standard": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
       "provenance": "bbchallenge wiki, BB(5)",
       "source": "bbchallenge",
-      "description": "The five-state champion 1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA, found by Marxen and Buntrock and proved optimal by the bbchallenge collaboration. Steps: 47,176,870; ones: 4,098.",
+      "description": "The five-state champion found by Marxen and Buntrock. It halts after 47,176,870 steps with 4,098 ones, and the bbchallenge collaboration proved in Coq that no five-state machine runs longer.",
       "budget": 50000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 47176870,
-            "ones": 4098
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 47176870, "ones": 4098 } }]
     },
     {
       "id": "bb2x3",
@@ -537,18 +231,9 @@
       "standard": "1RB2LB1RZ_2LA2RB1LB",
       "provenance": "bbchallenge wiki, BB(2,3)",
       "source": "bbchallenge",
-      "description": "The champion for two states and three symbols, 1RB2LB1RZ_2LA2RB1LB. It halts after 38 steps, the largest number possible for this class.",
+      "description": "The champion for two states and three symbols. It halts after 38 steps, the largest number possible for this class.",
       "budget": 1000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 38,
-            "ones": 9
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 38, "ones": 9 } }]
     },
     {
       "id": "bb2x4",
@@ -557,18 +242,9 @@
       "standard": "1RB2LA1RA1RA_1LB1LA3RB1RZ",
       "provenance": "bbchallenge wiki, BB(2,4)",
       "source": "bbchallenge",
-      "description": "The champion for two states and four symbols, 1RB2LA1RA1RA_1LB1LA3RB1RZ. It halts after 3,932,964 steps, the largest number possible for this class.",
+      "description": "The champion for two states and four symbols. It halts after 3,932,964 steps, the largest number possible for this class.",
       "budget": 5000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": true,
-            "steps": 3932964,
-            "ones": 2050
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 3932964, "ones": 2050 } }]
     },
     {
       "id": "bb6",
@@ -577,14 +253,9 @@
       "standard": "1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE",
       "provenance": "bbchallenge wiki, BB(6), the champion found by mxdys in June 2025",
       "source": "bbchallenge",
-      "description": "The current champion for six states, 1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE. It is known to halt, and its running time establishes the bound S(6) > Σ(6) > 10↑↑10↑↑10↑↑8. That is far more than can be simulated step by step, so the gallery shows the beginning of its run.",
+      "description": "The current champion for six states, found by mxdys in June 2025. It is known to halt, and its running time establishes S(6) > 10↑↑10↑↑10↑↑8, far more than can be simulated step by step, so the gallery shows the beginning of its run.",
       "budget": 10000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {}
-        }
-      ]
+      "examples": [{ "input": "", "expect": {} }]
     },
     {
       "id": "antihydra",
@@ -595,12 +266,7 @@
       "source": "bbchallenge",
       "description": "A six-state cryptid whose halting problem is a Collatz-like question about the map h ↦ ⌊3h/2⌋ started at 8. Whether it halts is open; chapter 6 explains the rule.",
       "budget": 10000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {}
-        }
-      ]
+      "examples": [{ "input": "", "expect": {} }]
     },
     {
       "id": "hydra",
@@ -611,12 +277,7 @@
       "source": "bbchallenge",
       "description": "A cryptid with two states and five symbols that follows the same map as Antihydra from a different starting value, with the roles of even and odd values exchanged. Whether it halts is open.",
       "budget": 10000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {}
-        }
-      ]
+      "examples": [{ "input": "", "expect": {} }]
     },
     {
       "id": "bigfoot",
@@ -627,12 +288,7 @@
       "source": "bbchallenge",
       "description": "A cryptid with three states and three symbols whose behaviour follows a Collatz-like rule. Whether it halts is open.",
       "budget": 10000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {}
-        }
-      ]
+      "examples": [{ "input": "", "expect": {} }]
     },
     {
       "id": "wolfram-2-3",
@@ -641,16 +297,9 @@
       "standard": "1RB2LA1LA_2LA2RB0RA",
       "provenance": "Wolfram's 2-state 3-symbol machine, rule 596440, as published for the Wolfram 2,3 Turing Machine Research Prize",
       "source": "wolframscience",
-      "description": "Wolfram's machine with two states and three symbols, 1RB2LA1LA_2LA2RB0RA, which has no halting transition. Smith proved it universal in an extended sense that requires an infinite, non-periodic initial tape; whether this counts as universality has been debated, and chapter 2 discusses the caveat.",
+      "description": "Wolfram's machine with two states and three symbols, which has no halting transition. Smith proved it universal in an extended sense that requires an infinite, non-periodic initial tape; whether this counts as universality has been debated, as chapter 2 explains.",
       "budget": 1000000,
-      "examples": [
-        {
-          "input": "",
-          "expect": {
-            "halts": false
-          }
-        }
-      ]
+      "examples": [{ "input": "", "expect": { "halts": false } }]
     }
   ]
 }

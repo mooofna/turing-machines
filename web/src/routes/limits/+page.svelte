@@ -1,4 +1,7 @@
-<section class="page section">
-  <h1>Limits</h1>
-  <p class="muted">This page is being written.</p>
-</section>
+<script lang="ts">
+  import Chapter from '#lib/components/Chapter.svelte';
+
+  let { data } = $props();
+</script>
+
+<Chapter chapter={data.chapter} content={data.content} />

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "zf-history",
+    "caption": "Smallest known machines whose behaviour ZF cannot settle, assuming that ZF is consistent",
+    "columns": ["States", "Date", "By", "Published as"],
+    "rows": [
+      {
+        "fact": "zf-tm-7910",
+        "cells": [
+          "May 2016",
+          "Adam Yedidia and Scott Aaronson",
+          "Paper (ZFC; relies on an unpublished result of Harvey Friedman)"
+        ]
+      },
+      {
+        "fact": "zf-tm-1919",
+        "cells": ["May 2016", "Stefan O'Rear", "Repository"]
+      },
+      {
+        "fact": "zf-tm-748",
+        "cells": ["August 2017", "Stefan O'Rear", "Repository"]
+      },
+      {
+        "fact": "zf-tm-745",
+        "cells": ["March 2023", "Johannes Riebel", "Bachelor's thesis"]
+      },
+      {
+        "fact": "zf-tm-643",
+        "cells": ["July 2024", "Rohan Ridenour", "Blog post"]
+      },
+      {
+        "fact": "zf-tm-636",
+        "cells": ["August 2024", "Rohan Ridenour", "Repository"]
+      },
+      {
+        "fact": "zf-tm-588",
+        "cells": ["July 2025", "Andrew J. Wade", "Repository"]
+      },
+      {
+        "fact": "zf-tm-549",
+        "cells": ["July 2025", "Andrew J. Wade", "Repository"]
+      },
+      {
+        "fact": "zf-tm-432",
+        "cells": ["August 2025", "Andrew J. Wade", "Repository"]
+      },
+      {
+        "fact": "zf-tm-254",
+        "cells": [
+          "October 2026",
+          "Mira-Cult and Jeff Ketchersid",
+          "Repository with a Coq formalisation; announced, awaiting review"
+        ]
+      }
+    ],
+    "note": "Dates, names and forms of publication from the notes of the zf-tm-* facts and the venues of their sources (fact check of 2026-10-14). The 1,919-state machine was the first to search for a contradiction in ZF directly."
+  }
+]
