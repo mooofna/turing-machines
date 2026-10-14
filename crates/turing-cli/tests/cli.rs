@@ -37,9 +37,22 @@ fn render_writes_png_and_svg() {
     let png = dir.join("bb3.png");
     let svg = dir.join("bb3.svg");
     let output = Command::new(tm())
-        .args(["render", "--standard", "1RB1RZ_0RC1RB_1LC1LA", "--spacetime"])
+        .args([
+            "render",
+            "--standard",
+            "1RB1RZ_0RC1RB_1LC1LA",
+            "--spacetime",
+        ])
         .arg(&png)
-        .args(["--width", "64", "--height", "48", "--exact", "0", "--diagram"])
+        .args([
+            "--width",
+            "64",
+            "--height",
+            "48",
+            "--exact",
+            "0",
+            "--diagram",
+        ])
         .arg(&svg)
         .env("TM_NO_TIMING", "1")
         .output()
@@ -130,8 +143,14 @@ fn colours_follow_the_color_flag() {
     let always = run("always");
     let never = run("never");
     assert!(always.status.success() && never.status.success());
-    assert!(always.stdout.contains(&0x1b), "no escape codes with --color always");
-    assert!(!never.stdout.contains(&0x1b), "escape codes with --color never");
+    assert!(
+        always.stdout.contains(&0x1b),
+        "no escape codes with --color always"
+    );
+    assert!(
+        !never.stdout.contains(&0x1b),
+        "escape codes with --color never"
+    );
 }
 
 #[test]

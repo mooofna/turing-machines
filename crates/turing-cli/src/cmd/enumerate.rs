@@ -137,6 +137,14 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// The label with a lower-case first letter, for use inside a sentence.
+pub(crate) fn lower_first(label: &str) -> String {
+    let mut chars = label.chars();
+    chars
+        .next()
+        .map_or_else(String::new, |c| c.to_lowercase().chain(chars).collect())
+}
+
 /// `S(4)` for two symbols, `S(2, 3)` otherwise.
 fn function(name: &str, states: u8, symbols: u8) -> String {
     if symbols == 2 {
@@ -174,20 +182,20 @@ fn write_text(
     ]);
     let mut remaining = stats.nodes;
     table.row([
-        Cell::from("machines in tree normal form"),
+        Cell::from("nodes of the tree normal form"),
         Cell::default(),
         Cell::from(text::num(remaining)),
     ]);
     remaining = remaining.saturating_sub(stats.halting);
     table.row([
-        Cell::from("halt (and are extended or counted)"),
+        Cell::from("halting"),
         Cell::from(text::num(stats.halting)),
         Cell::from(text::num(remaining)),
     ]);
     for &(id, count) in &stats.by_decider {
         remaining = remaining.saturating_sub(count);
         table.row([
-            Cell::from(format!("never halt: {}", id.label())),
+            Cell::from(format!("non-halting: {}", lower_first(id.label()))),
             Cell::from(text::num(count)),
             Cell::from(text::num(remaining)),
         ]);
@@ -206,20 +214,27 @@ fn write_text(
     writeln!(out)?;
 
     let relation = if stats.holdouts == 0 { "=" } else { "≥" };
-    let champion = |name: &str, best: Option<&(u64, CompactTm)>| -> String {
-        let f = function(name, args.states, args.symbols);
+    let best = [
+        ("S", stats.max_steps.as_ref()),
+        ("Σ", stats.max_ones.as_ref()),
+    ];
+    let width = best
+        .iter()
+        .filter_map(|(_, b)| b.map(|(v, _)| text::num(*v).len()))
+        .max()
+        .unwrap_or(0);
+    for (name, best) in best {
+        let f = paint(style::KEY, function(name, args.states, args.symbols));
         match best {
-            Some((value, tm)) => format!(
-                "{} {relation} {}   {}",
-                paint(style::KEY, f),
+            Some((value, tm)) => writeln!(
+                out,
+                "{f} {relation} {:<width$}   {}",
                 text::num(*value),
-                paint(style::DIM, tm.to_string())
-            ),
-            None => format!("{} {}", paint(style::KEY, f), "no halting machine found"),
+                paint(style::DIM, tm)
+            )?,
+            None => writeln!(out, "{f}: no halting machine found")?,
         }
-    };
-    writeln!(out, "{}", champion("S", stats.max_steps.as_ref()))?;
-    writeln!(out, "{}", champion("Σ", stats.max_ones.as_ref()))?;
+    }
     if stats.holdouts > 0 {
         writeln!(
             out,
