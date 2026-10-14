@@ -1,0 +1,1927 @@
+[
+  {
+    "id": "bb-convention",
+    "value": "S(n) = max steps of a halting n-state 2-symbol TM from blank tape, halting transition counted as a step; Sigma(n) = max number of 1s left on the tape at halt",
+    "display": "S(n) counts every step including the final halting transition; Σ(n) counts the 1s left on the tape",
+    "source": [
+      "wiki-bb-functions",
+      "aaronson2020",
+      "rado1962"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Busy_Beaver_Functions",
+    "verified": true,
+    "note": "Wiki: 'the halting transition counts as a step, so the TM with rule A0 -> 1RZ halts in 1 step'. Aaronson 2020 also counts 'the final Halt step'. Radó's original 'busy beaver' function was Σ (score); S is the 'shift function'. arXiv:2509.12337 avoids 'BB(n)' because it historically meant Σ and later shifted to mean S; bbchallenge and Aaronson use BB(n) = S(n)."
+  },
+  {
+    "id": "bb1-steps",
+    "value": 1,
+    "display": "1",
+    "source": [
+      "wiki-bb1m",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(1,m)",
+    "verified": true,
+    "note": "S(1) = 1. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb1-ones",
+    "value": 1,
+    "display": "1",
+    "source": [
+      "wiki-bb1m",
+      "rado1962"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(1,m)",
+    "verified": true,
+    "note": "Σ(1) = 1; Radó 1962: 'evidently Σ(1) = 1'."
+  },
+  {
+    "id": "champion-bb1",
+    "value": "1RZ---",
+    "display": "1RZ---",
+    "source": [
+      "wiki-bb1m"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(1,m)",
+    "verified": true,
+    "note": "Only champion in TNF (A0 -> 1RZ). 3 TNF machines in total: 1RZ (halts) and two trivial translated cyclers 0RA, 1RA."
+  },
+  {
+    "id": "bb2-steps",
+    "value": 6,
+    "display": "6",
+    "source": [
+      "wiki-bb2",
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2)",
+    "verified": true,
+    "note": "S(2) = 6. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb2-ones",
+    "value": 4,
+    "display": "4",
+    "source": [
+      "wiki-bb2",
+      "rado1962"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2)",
+    "verified": true,
+    "note": "Σ(2) = 4."
+  },
+  {
+    "id": "champion-bb2",
+    "value": "1RB1LB_1LA1RZ",
+    "display": "1RB1LB_1LA1RZ",
+    "source": [
+      "wiki-bb2"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2)",
+    "verified": true,
+    "note": "Both the S(2) and the Σ(2) champion: 6 steps, 4 ones. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb2-proved-by",
+    "value": "Radó (1962) for Σ(2) = 4; Lin (1963 PhD thesis, published by Lin & Radó 1965) for S(2) = 6",
+    "display": "Σ(2) = 4 was announced by Radó in 1962; S(2) = 6 is credited to Shen Lin (1963), published with Radó in 1965",
+    "source": [
+      "rado1962",
+      "michel-survey",
+      "linrado1965",
+      "wiki-bb2",
+      "aaronson2020"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "SOURCES DISAGREE on S(2). Radó 1962 (full text read) only says 'it has been proved that Σ(2) = 4'. Michel's survey: 'Rado (1963) claimed that Sigma(2,2) = 4, but that S(2,2) was yet unknown. The value S(2,2) = 6 was probably set by Lin in 1963.' Aaronson 2020 table credits BB(2)=6 to 'Lin 1963 (see Lin & Radó 1965)'. The bbchallenge wiki BB(2) page and Coq-BB5 README credit BB(2) to Radó 1962. Trust Radó's own text + Michel: say 'Radó (1962) for Σ, Lin & Radó (1965) for S'."
+  },
+  {
+    "id": "bb3-steps",
+    "value": 21,
+    "display": "21",
+    "source": [
+      "wiki-bb3",
+      "coqbb5",
+      "linrado1965"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3)",
+    "verified": true,
+    "note": "S(3) = 21. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb3-ones",
+    "value": 6,
+    "display": "6",
+    "source": [
+      "wiki-bb3",
+      "linrado1965"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3)",
+    "verified": true,
+    "note": "Σ(3) = 6. Radó 1962 already knew several 3-state machines scoring 6 and conjectured Σ(3) = 6."
+  },
+  {
+    "id": "champion-bb3",
+    "value": "1RB1RZ_1LB0RC_1LC1LA",
+    "display": "1RB1RZ_1LB0RC_1LC1LA",
+    "source": [
+      "wiki-bb3",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3)",
+    "verified": true,
+    "note": "S(3) champion: 21 steps but only 5 ones (it is NOT a Σ champion). Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "champion-sigma3",
+    "value": "1RB1RZ_0RC1RB_1LC1LA",
+    "display": "1RB1RZ_0RC1RB_1LC1LA",
+    "source": [
+      "wiki-bb3"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3)",
+    "verified": true,
+    "note": "The Σ(3) champion differs from the S(3) champion. There are 5 Σ(3) champions in TNF (all leave 6 ones): 1RB1RZ_0RC1RB_1LC1LA (14 steps), 1RB1RC_1LC1RZ_1RA0LB (13), 1RB1LC_1LA1RB_1LB1RZ (13), 1RB1RA_1LC1RZ_1RA1LB (12), 1RB1LC_1RC1RZ_1LA0LB (11); the one listed is the longest-running. Wiki: BB(3) is 'the only known size where none of the shift champions are also ones champions'. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb3-proved-by",
+    "value": "Shen Lin, 1963 PhD thesis (Ohio State); published as Lin & Radó, JACM 12(2), 1965",
+    "display": "Shen Lin proved S(3) = 21 and Σ(3) = 6 in his 1963 thesis, published with Tibor Radó in 1965",
+    "source": [
+      "lin1963",
+      "linrado1965",
+      "wiki-bb3",
+      "michel-survey",
+      "coqbb5"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3)",
+    "verified": true,
+    "note": "Wiki BB(3) also notes Allen Brady independently proved it in 1964."
+  },
+  {
+    "id": "bb4-steps",
+    "value": 107,
+    "display": "107",
+    "source": [
+      "wiki-bb4",
+      "brady1983",
+      "coqbb5"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(4)",
+    "verified": true,
+    "note": "S(4) = 107. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb4-ones",
+    "value": 13,
+    "display": "13",
+    "source": [
+      "wiki-bb4",
+      "brady1983"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(4)",
+    "verified": true,
+    "note": "Σ(4) = 13."
+  },
+  {
+    "id": "champion-bb4",
+    "value": "1RB1LB_1LA0LC_1RZ1LD_1RD0RA",
+    "display": "1RB1LB_1LA0LC_1RZ1LD_1RD0RA",
+    "source": [
+      "wiki-bb4",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(4)",
+    "verified": true,
+    "note": "S(4) champion and also a Σ(4) champion (107 steps, 13 ones). Found by Allen Brady (Oct 1966 per wiki BB(5) history table; Michel says 1965/1966). Second Σ(4) champion: 1RB0RC_1LA1RA_1RZ1RD_1LD0LB (96 steps, 13 ones; C. Y. Lee 1965). Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb4-proved-by",
+    "value": "Allen H. Brady (proof 1974/75, published Math. Comp. 1983); independently Machlin & Stout (Physica D, 1990, first reported in Kopp's 1981 MA thesis); formalised in Coq (Coq-BB5, May 2024)",
+    "display": "Allen Brady proved S(4) = 107 and Σ(4) = 13 (published 1983); Rona Machlin and Quentin Stout gave an independent proof in 1990",
+    "source": [
+      "brady1983",
+      "machlinstout1990",
+      "michel-survey",
+      "wiki-bb4",
+      "coqbb5"
+    ],
+    "url": "https://bbchallenge.org/~pascal.michel/ha",
+    "verified": true,
+    "note": "Michel: 'Brady (1974,1975) proved this conjecture, and the proof was eventually published in Brady (1983). Independently, Machlin and Stout (1990) published another proof of the same result, first reported by Kopp (1981) (Kopp is the maiden name of Machlin).' Wiki: Brady's informal proof contained some unrigorous holdout examinations. Coq-BB5 commit 'add BB(4)' on 2024-05-21."
+  },
+  {
+    "id": "bb5-steps",
+    "value": 47176870,
+    "display": "47,176,870",
+    "source": [
+      "wiki-bb5",
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(5)",
+    "verified": true,
+    "note": "S(5) = 47,176,870 (Coq-BB5 lemma BB5_value). Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb5-ones",
+    "value": 4098,
+    "display": "4,098",
+    "source": [
+      "wiki-bb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(5)",
+    "verified": true,
+    "note": "Σ(5) = 4,098 (arXiv:2509.12337, Theorem 6.1)."
+  },
+  {
+    "id": "champion-bb5",
+    "value": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+    "display": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+    "source": [
+      "wiki-bb5",
+      "bbchallenge2025",
+      "marxenbuntrock1990"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(5)",
+    "verified": true,
+    "note": "Unique S(5) champion in TNF and also a Σ(5) champion (47,176,870 steps, 4,098 ones). Found by Heiner Marxen & Jürgen Buntrock in September 1989, published in Bulletin of the EATCS 40 (Feb 1990). Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "champion-sigma5-alt",
+    "value": "1RB1RA_1LC1LB_1RA1LD_1RA1LE_1RZ0LC",
+    "display": "1RB1RA_1LC1LB_1RA1LD_1RA1LE_1RZ0LC",
+    "source": [
+      "wiki-bb5"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(5)",
+    "verified": true,
+    "note": "Second Σ(5) champion (Marxen & Buntrock, Aug 1989): 11,798,826 steps, 4,098 ones. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb5-proved-by",
+    "value": "The bbchallenge Collaboration (Coq-BB5 by mxdys, 2024)",
+    "display": "proved in 2024 by the bbchallenge collaboration; the formal Coq proof Coq-BB5 was written by mxdys",
+    "source": [
+      "bbchallenge-announcement-2024",
+      "coqbb5",
+      "bbchallenge2025",
+      "wiki-bb5"
+    ],
+    "url": "https://discuss.bbchallenge.org/t/july-2nd-2024-we-have-proved-bb-5-47-176-870/237",
+    "verified": true,
+    "note": "Announcement: proof 'formally written in Coq by collaborator mxdys whose work improves on and/or uses the contributions of more than 10 other bbchallenge contributors'. Skelet #17 non-halting proof by Chris Xu (arXiv:2407.02426)."
+  },
+  {
+    "id": "bb5-announcement-date",
+    "value": "2024-07-02",
+    "display": "2 July 2024",
+    "source": [
+      "bbchallenge-announcement-2024"
+    ],
+    "url": "https://discuss.bbchallenge.org/t/july-2nd-2024-we-have-proved-bb-5-47-176-870/237",
+    "verified": true,
+    "note": "Forum post by cosmo (Tristan Stérin) at 2024-07-02T13:59:58Z. Note: the wiki BB(5) history table lists the result under 'June 2024' (date the Coq proof was finished), see bb5-coq-timeline."
+  },
+  {
+    "id": "bb5-coq-timeline",
+    "value": "Coq-BB5 initial commit 2024-04-25; BB(5) proved modulo 13 holdout axioms 2024-04-30; Skelet #17 proof added 2024-05-10; final statement fix 'BB(5)=47,176,870 now' 2024-06-07; public announcement 2024-07-02",
+    "display": "The Coq proof was assembled between April and June 2024 and announced on 2 July 2024",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/commits/main",
+    "verified": true,
+    "note": "From the GitHub commit history (API). Announcement said the proof compiled 'in roughly 10 hours on a standard laptop' at the time; current README: ~45 min on 13 cores with coq-native."
+  },
+  {
+    "id": "bb5-coq-version",
+    "value": "Coq 8.20.1",
+    "display": "Coq 8.20.1 (Coq has since been renamed the Rocq Prover)",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5",
+    "verified": true,
+    "note": "arXiv:2509.12337 footnote: 'Now renamed the Rocq Prover'. Only axiom used: functional_extensionality_dep (Coq stdlib)."
+  },
+  {
+    "id": "bb5-paper-arxiv",
+    "value": "2509.12337",
+    "display": "arXiv:2509.12337",
+    "source": [
+      "bbchallenge2025"
+    ],
+    "url": "https://arxiv.org/abs/2509.12337",
+    "verified": true,
+    "note": "Title 'Determination of the fifth Busy Beaver value', authors 'The bbchallenge Collaboration' + 19 named contributors. v1 15 Sep 2025; v2 23 Mar 2026. No journal publication listed on arXiv as of 14 Oct 2026."
+  },
+  {
+    "id": "bb5-enumerated-machines",
+    "value": 181385789,
+    "display": "181,385,789",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Number of machines enumerated in Tree Normal Form by the Coq proof (includes machines starting 0RB as well as 1RB). Same number in the arXiv abstract."
+  },
+  {
+    "id": "bb5-tnf-halting",
+    "value": 48379894,
+    "display": "48,379,894",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Halting machines in the BB(5) TNF tree."
+  },
+  {
+    "id": "bb5-tnf-nonhalting",
+    "value": 133005895,
+    "display": "133,005,895",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Non-halting machines in the BB(5) TNF tree."
+  },
+  {
+    "id": "bb2-tnf-count",
+    "value": 61,
+    "display": "61",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025",
+      "wiki-tnf"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB2",
+    "verified": true,
+    "note": "42 non-halting + 19 halting. TNF-1RB variant (bbchallenge wiki) has 41 machines (15 halt, 26 never halt)."
+  },
+  {
+    "id": "bb2-tnf-halting",
+    "value": 19,
+    "display": "19",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB2",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb2-tnf-nonhalting",
+    "value": 42,
+    "display": "42",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB2",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb3-tnf-count",
+    "value": 5417,
+    "display": "5,417",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025",
+      "wiki-tnf"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB3",
+    "verified": true,
+    "note": "3,645 non-halting + 1,772 halting. TNF-1RB variant: 4,057 (1,379 halt, 2,678 do not)."
+  },
+  {
+    "id": "bb3-tnf-halting",
+    "value": 1772,
+    "display": "1,772",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB3",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb3-tnf-nonhalting",
+    "value": 3645,
+    "display": "3,645",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB3",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb4-tnf-count",
+    "value": 858909,
+    "display": "858,909",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025",
+      "wiki-tnf"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB4",
+    "verified": true,
+    "note": "TNF-1RB variant: 620,261 (183,983 halt)."
+  },
+  {
+    "id": "bb4-tnf-halting",
+    "value": 249693,
+    "display": "249,693",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB4",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb4-tnf-nonhalting",
+    "value": 609216,
+    "display": "609,216",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB4",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "tnf1rb-counts",
+    "value": "BB(2): 41; BB(3): 4,057; BB(4): 620,261; BB(5): 126,891,605; BB(6): ~33,436,000,000",
+    "display": "41 / 4,057 / 620,261 / 126,891,605 / about 33.4 billion",
+    "source": [
+      "wiki-tnf"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Tree_Normal_Form",
+    "verified": true,
+    "note": "TNF-1RB (first transition forced to 1RB, as used by bbchallenge.org) gives smaller counts than Coq-BB5's TNF (which also enumerates 0RB starts). Do not mix the two series. arXiv:2509.12337 says the 6-state TNF enumeration has 'about 33 billion machines'."
+  },
+  {
+    "id": "tnf-origin",
+    "value": "Allen Brady's PhD dissertation (Oregon State University), 1964",
+    "display": "Tree Normal Form goes back to Allen Brady's 1964 dissertation (also called Brady's algorithm)",
+    "source": [
+      "wiki-tnf",
+      "brady1964thesis"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Tree_Normal_Form",
+    "verified": false,
+    "note": "Year inconsistent across sources: wiki TNF page 1964; arXiv:2509.12337 text says 'introduced by Brady in 1963 in his PhD thesis [10]' while its ref [10] says 1964; wiki BB(5) reference gives 1965. Could not open the Oregon State record (bot protection)."
+  },
+  {
+    "id": "bb5-sporadic-machines",
+    "value": 13,
+    "display": "13",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025",
+      "wiki-bb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Machines needing individual non-halting proofs: Skelet #1, #10, #17, five shift-overflow counters (Skelet #15, #26, #33, #34, #35) and five 'Finned' machines. 12 of 13 proofs imported from busycoq (Maja Kądziołka); Skelet #17 proved in Coq-BB5 itself (after Chris Xu's paper). BB(4) and BB(2,4) needed no sporadic machines."
+  },
+  {
+    "id": "bb5-decider-pipeline",
+    "value": "Loops; n-gram Closed Position Set (n-gram CPS); Repeated Word List (RepWL); Halt Max (run up to 47,176,870 steps); Finite Automata Reduction (FAR, verifier); Weighted Finite Automata Reduction (WFAR, verifier); plus 13 sporadic machines and a 1RB-reduction step",
+    "display": "Loops, n-gram CPS, RepWL, Halt Max, FAR and WFAR",
+    "source": [
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Order as in BB5_Deciders_Pipeline.v. Decider IDs in the code: LOOP1, NGRAM_CPS_IMPL1/IMPL2/LRU, REPWL, HALT_MAX, FAR/WFAR certificates, TABLE_BASED, NORMAL_FORM_TABLE_BASED. FAR and WFAR only check 30 given certificates (23 + 17 = 40 machines incl. 1RB-reduction). The wiki BB(5) page lists the classes as Cycler/Translated Cycler, n-Gram CPS, RepWL, FAR, WFAR."
+  },
+  {
+    "id": "bb5-decided-loops",
+    "value": 175373810,
+    "display": "175,373,810",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "126,994,099 non-halting + 48,379,711 halting."
+  },
+  {
+    "id": "bb5-decided-ngramcps",
+    "value": 6005142,
+    "display": "6,005,142",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "All non-halting."
+  },
+  {
+    "id": "bb5-decided-repwl",
+    "value": 6577,
+    "display": "6,577",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "All non-halting; all with hard-coded parameters."
+  },
+  {
+    "id": "bb5-decided-haltmax",
+    "value": 183,
+    "display": "183",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Halting machines detected by simulating up to 47,176,870 steps."
+  },
+  {
+    "id": "bb5-decided-far",
+    "value": 23,
+    "display": "23",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb5-decided-wfar",
+    "value": 17,
+    "display": "17",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "bb5-decided-1rb-reduction",
+    "value": 24,
+    "display": "24",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Machines starting with 0RB reduced to their 1RB form (9 FAR, 14 WFAR, 1 sporadic Finned3)."
+  },
+  {
+    "id": "bb5-hardcoded-parameters",
+    "value": 8032,
+    "display": "8,032",
+    "source": [
+      "coqbb5"
+    ],
+    "url": "https://github.com/ccz181078/Coq-BB5/tree/main/CoqBB5/BB5",
+    "verified": true,
+    "note": "Machines whose decider parameters/certificates are hard-coded rather than generic."
+  },
+  {
+    "id": "bb5-seed-database-holdouts",
+    "value": 88664064,
+    "display": "88,664,064",
+    "source": [
+      "bbchallenge2025"
+    ],
+    "url": "https://arxiv.org/abs/2509.12337",
+    "verified": true,
+    "note": "2022 bbchallenge seed database (TNF-1RB, 47,176,870-step limit, no deciders) left 88,664,064 undecided machines; obsolete since Coq-BB5. Wiki says proving BB(5) 'requires deciding the behavior of ~100 million 5-state machines'."
+  },
+  {
+    "id": "bbchallenge-founded",
+    "value": 2022,
+    "display": "2022",
+    "source": [
+      "bbchallenge-announcement-2024",
+      "bbchallenge-zenodo"
+    ],
+    "url": "https://discuss.bbchallenge.org/t/july-2nd-2024-we-have-proved-bb-5-47-176-870/237",
+    "verified": true,
+    "note": "bbchallenge.org initial release March 2022 (Zenodo record by Tristan Stérin)."
+  },
+  {
+    "id": "aaronson-bb5-conjecture",
+    "value": 2020,
+    "display": "2020",
+    "source": [
+      "aaronson2020",
+      "bbchallenge2025"
+    ],
+    "url": "https://www.scottaaronson.com/papers/bb.pdf",
+    "verified": true,
+    "note": "Aaronson formally conjectured BB(5) = 47,176,870 in 'The Busy Beaver Frontier' (2020)."
+  },
+  {
+    "id": "champion-bb6",
+    "value": "1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE",
+    "display": "1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE",
+    "source": [
+      "wiki-bb6",
+      "wiki-bb6-champion",
+      "bbchallenge2025",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Discovered by mxdys on 25 June 2025 (wiki champion page; Discord). Halting proved in Coq (busycoq BB6 branch, SOBCv5.v). Same machine listed as record holder by Michel and by arXiv:2509.12337 Appendix B."
+  },
+  {
+    "id": "bb6-lower-bound",
+    "value": "S(6) > Σ(6) > 10↑↑10↑↑10↑↑8",
+    "display": "S(6) > Σ(6) > 10↑↑10↑↑10↑↑8",
+    "source": [
+      "wiki-bb6",
+      "wiki-bb6-champion"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Exact wiki statement: 'S(6) > Σ(6) > 10 ↑↑ 10 ↑↑ 10 ↑↑ 8'; history table gives > 10↑↑10↑↑10↑↑8.10 for both S and Σ; champion page: Peacemaker II (Oct 2025) computed Σ ≈ 10↑↑10↑↑10↑↑8.10237, and mxdys's analysis puts time/score between 2↑↑2↑↑2↑↑10 and 2↑↑2↑↑2↑↑11. Arrows are right-associative: 10↑↑(10↑↑(10↑↑8))."
+  },
+  {
+    "id": "bb6-lower-bound-conservative",
+    "value": "S(6) > 2↑↑↑5",
+    "display": "S(6) > 2↑↑↑5",
+    "source": [
+      "bbchallenge2025",
+      "michel-survey"
+    ],
+    "url": "https://arxiv.org/abs/2509.12337",
+    "verified": true,
+    "note": "The peer-review-track paper states the weaker, simpler bound S(6) > 2↑↑↑5 = 2↑↑2↑↑2↑↑2↑↑2 for the same champion; Michel states s > sigma > 2↑↑(2↑↑(2↑↑10)). All three statements are consistent (2↑↑↑5 < 2↑↑2↑↑2↑↑10 < 10↑↑10↑↑10↑↑8). Use either; the wiki's is the sharpest."
+  },
+  {
+    "id": "bb6-record-1964-green",
+    "value": 436,
+    "display": "S(6) ≥ 436",
+    "source": [
+      "wiki-bb6",
+      "michel-survey",
+      "green1964"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1LB1RZ_0LC1LC_0LD0LC_1LE1RA_0LF0LE_1RF1RD; discoverer: Milton W. Green; date: November 1964; Σ(6) bound at the time: ≥ 35. Michel lists only Σ = 35 for Green; S = 436 is the step count of Green's machine. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1972-lynn",
+    "value": 521,
+    "display": "S(6) ≥ 521",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LB_1LC1RZ_0LD0LC_1LE0RA_0LF0LE_1RF1RD; discoverer: Donald Lynn; date: August 1972; Σ(6) bound at the time: ≥ 42. Lynn reported 522 steps (other stopping convention); 521 under the modern convention. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1973-weimann",
+    "value": 992,
+    "display": "S(6) ≥ 992",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LD_1RC0RB_1LA0RA_0LC0LE_1LC1RZ (a 5-state machine); discoverer: B. Weimann; date: November 1973; Σ(6) bound at the time: ≥ 23 (not a Σ record). Inherited from the BB(5) hunt. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1974-lynn",
+    "value": 7707,
+    "display": "S(6) ≥ 7,707",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 0RB1RZ_1RC0LD_1RD0RE_1LB0LD_1RE1RA (a 5-state machine); discoverer: Donald Lynn; date: 1974 (published April 1983); Σ(6) bound at the time: ≥ 88 (Σ record ≥ 112 by 1RB0LE_1RC0RA_1LD1RZ_1LE1LD_1LA0LC). Inherited from the BB(5) hunt. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1982-schult-a",
+    "value": 134467,
+    "display": "S(6) ≥ 134,467",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LC_1RC1RD_1LA0RB_0RE1RZ_1LC1RA (a 5-state machine); discoverer: Uwe Schult; date: August 1982 (published January 1983); Σ(6) bound at the time: ≥ 501. Dortmund contest winner. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1982-schult-b",
+    "value": 4208824,
+    "display": "S(6) ≥ 4,208,824",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RZ_1RC1RC_1RD1LF_1RE1RA_1RF0RD_1LB0LC; discoverer: Uwe Schult; date: December 1982 (published January 1983); Σ(6) bound at the time: ≥ 2,075. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1989-mb-a",
+    "value": 11798826,
+    "display": "S(6) ≥ 11,798,826",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RA_1LC1LB_1RA1LD_1RA1LE_1RZ0LC (5-state); discoverer: Heiner Marxen & Jürgen Buntrock; date: August 1989; Σ(6) bound at the time: ≥ 4,098. Inherited from the BB(5) hunt."
+  },
+  {
+    "id": "bb6-record-1989-mb-b",
+    "value": 47176870,
+    "display": "S(6) ≥ 47,176,870",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA (the BB(5) champion); discoverer: Heiner Marxen & Jürgen Buntrock; date: September 1989; Σ(6) bound at the time: ≥ 4,098 (not a Σ record). Inherited from the BB(5) hunt; an intermediate 23,554,764-step 5-state machine also dates from Sept 1989."
+  },
+  {
+    "id": "bb6-record-1990-mb-a",
+    "value": 13122572797,
+    "display": "S(6) ≥ 13,122,572,797",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RA_1LC1LB_0LF1LD_1RA0LE_0RA1LC_1RE1RZ; discoverer: Heiner Marxen & Jürgen Buntrock; date: January 1990; Σ(6) bound at the time: ≥ 136,612. Michel's chronological summary dates it February 1990 (publication). Independently re-verified by direct simulation (C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb6-record-1990-mb-b",
+    "value": 8690333381690951,
+    "display": "S(6) ≥ 8,690,333,381,690,951",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RA_1LC1LB_0RF1LD_1RA0LE_1LZ1LF_0LA0LC; discoverer: Heiner Marxen & Jürgen Buntrock; date: January 1990 (posted on the web 3 September 1997); Σ(6) bound at the time: ≥ 95,524,079. Michel's chronological summary lists it under September 1997 (posting date). Not re-simulated."
+  },
+  {
+    "id": "bb6-record-2000-mb-a",
+    "value": "> 5.36 × 10^42",
+    "display": "S(6) > 5.36 × 10^42",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0RC_0LA0RD_1RD1RZ_1LE0LD_1RF1LB_1RA1RE; discoverer: Heiner Marxen & Jürgen Buntrock; date: July 2000; Σ(6) bound at the time: > 2.53 × 10^21. Michel's summary: August 2000 (posting date 5 Aug 2000)."
+  },
+  {
+    "id": "bb6-record-2000-mb-b",
+    "value": "> 6.12 × 10^119",
+    "display": "S(6) > 6.12 × 10^119",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LC_1LA1RC_1RA0LD_1LE1LC_1RF1RZ_1RA1RE; discoverer: Heiner Marxen & Jürgen Buntrock; date: August 2000; Σ(6) bound at the time: > 1.42 × 10^60. Posted 23 Oct 2000."
+  },
+  {
+    "id": "bb6-record-2000-mb-c",
+    "value": "> 6.19 × 10^925",
+    "display": "S(6) > 6.19 × 10^925",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LB_0RC1LB_1RD0LA_1LE1LF_1LA0LD_1RH1LE; discoverer: Heiner Marxen & Jürgen Buntrock; date: August 2000; Σ(6) bound at the time: > 6.42 × 10^462. Posted 23 Oct 2000; Michel's summary: October 2000. (Wiki writes the halt as 1RH here.)"
+  },
+  {
+    "id": "bb6-record-2001-mb",
+    "value": "> 3.00 × 10^1,730",
+    "display": "S(6) > 3.00 × 10^1,730",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LF_0RC0RD_1LD1RE_0LE0LD_0RA1RC_1LA1RZ; discoverer: Heiner Marxen & Jürgen Buntrock; date: February 2001; Σ(6) bound at the time: > 1.29 × 10^865 (Michel: > 1.2 × 10^865). Posted 5 Mar 2001."
+  },
+  {
+    "id": "bb6-record-2007-ligocki-a",
+    "value": "> 8.92 × 10^1,762",
+    "display": "S(6) > 8.92 × 10^1,762",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0RF_0LB1LC_1LD0RC_1LE1RZ_1LF0LD_1RA0LE; discoverer: Terry & Shawn Ligocki; date: November 2007; Σ(6) bound at the time: > 2.50 × 10^881. "
+  },
+  {
+    "id": "bb6-record-2007-ligocki-b",
+    "value": "> 2.58 × 10^2,879",
+    "display": "S(6) > 2.58 × 10^2,879",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LE_1LC0RA_1LD0RC_1LE0LF_1LA1LC_1LE1RZ; discoverer: Terry & Shawn Ligocki; date: December 2007; Σ(6) bound at the time: > 4.64 × 10^1,439. "
+  },
+  {
+    "id": "bb6-record-2010-kropitz-a",
+    "value": "> 3.80 × 10^21,132",
+    "display": "S(6) > 3.80 × 10^21,132",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LD_1RC0RF_1LC1LA_0LE1RZ_1LA0RB_0RC0RE; discoverer: Pavel Kropitz; date: May 2010; Σ(6) bound at the time: > 3.18 × 10^10,566. "
+  },
+  {
+    "id": "bb6-record-2010-kropitz-b",
+    "value": "> 7.41 × 10^36,534",
+    "display": "S(6) > 7.41 × 10^36,534",
+    "source": [
+      "wiki-bb6",
+      "michel-survey",
+      "aaronson2020"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1LE_1RC1RF_1LD0RB_1RE0LC_1LA0RD_1RZ1RC; discoverer: Pavel Kropitz; date: June 2010; Σ(6) bound at the time: > 3.51 × 10^18,267. Record for 12 years; Aaronson 2020 table: 'BB(6) > 7.4 × 10^36,534 (Kropitz 2010)'."
+  },
+  {
+    "id": "bb6-record-2022-ligocki-e78k",
+    "value": "> 9.66 × 10^78,913",
+    "display": "S(6) > 9.66 × 10^78,913",
+    "source": [
+      "wiki-bb6",
+      "ligocki2022t15",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RC_1LC0RF_1RA0LD_0LC0LE_1LD0RA_1RE1RZ; discoverer: Shawn Ligocki; date: 13 May 2022; Σ(6) bound at the time: > 6.02 × 10^39,456. Exact date from Ligocki's blog table."
+  },
+  {
+    "id": "bb6-record-2022-kropitz-e197k",
+    "value": "> 5.42 × 10^197,282",
+    "display": "S(6) > 5.42 × 10^197,282",
+    "source": [
+      "wiki-bb6",
+      "ligocki2022t15",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RZ_1RC1RA_1RD0RB_1LE0RC_0LF0LD_0LB1LA; discoverer: Pavel Kropitz; date: 15 May 2022; Σ(6) bound at the time: > 2.01 × 10^98,641. "
+  },
+  {
+    "id": "bb6-record-2022-kropitz-e1b",
+    "value": "> 8.27 × 10^1,292,913,985",
+    "display": "S(6) > 8.27 × 10^1,292,913,985",
+    "source": [
+      "wiki-bb6",
+      "ligocki2022t15",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RZ_0LC0LD_1LD1LC_1RE1LB_1RF1RD_0LD0RA; discoverer: Pavel Kropitz; date: 22 May 2022; Σ(6) bound at the time: > 1.76 × 10^646,456,993. "
+  },
+  {
+    "id": "bb6-record-2022-ligocki-t5",
+    "value": "> 10↑↑5.63",
+    "display": "S(6) > 10↑↑5.63",
+    "source": [
+      "wiki-bb6",
+      "ligocki2022t15",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LA_1LC1LF_0LD0LC_0LE0LB_1RE0RA_1RZ1LD; discoverer: Shawn Ligocki; date: 27 May 2022; Σ(6) bound at the time: same as S (> 10↑↑5.63; Michel: > 10^10^10^10^20823). "
+  },
+  {
+    "id": "bb6-record-2022-kropitz-t15",
+    "value": "> 10↑↑15.60",
+    "display": "S(6) > 10↑↑15",
+    "source": [
+      "wiki-bb6",
+      "ligocki2022t15",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB0LD_1RC0RF_1LC1LA_0LE1RZ_1LF0RB_0RC0RE; discoverer: Pavel Kropitz; date: 30 May 2022; Σ(6) bound at the time: same as S. CORRECTION to brief: the 10↑↑15 machine was found by Pavel Kropitz; Shawn Ligocki announced/analysed it on his blog ('BB(6, 2) > 10↑↑15', 21 June 2022). Ligocki's own May 2022 record was 10↑↑5."
+  },
+  {
+    "id": "bb6-record-2025-mxdys-a",
+    "value": "> 10↑↑11,010,000",
+    "display": "S(6) > 10↑↑11,010,000",
+    "source": [
+      "wiki-bb6",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1LC_1LA1RE_0RD0LA_1RZ1LB_1LD0RF_0RD1RB; discoverer: mxdys; date: June 2025; Σ(6) bound at the time: same as S. A second June 2025 machine (1RB1LE_1LC0RA_1RB1LD_1LC0LC_1RF0LB_1RZ1RE) exceeded the S bound by 2 steps only."
+  },
+  {
+    "id": "bb6-record-2025-mxdys-b",
+    "value": "> 10↑↑10↑↑10↑↑8.10",
+    "display": "S(6) > 10↑↑10↑↑10↑↑8",
+    "source": [
+      "wiki-bb6",
+      "wiki-bb6-champion",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Machine 1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE; discoverer: mxdys; date: 25 June 2025; Σ(6) bound at the time: same as S. Current champion (see champion-bb6)."
+  },
+  {
+    "id": "bb6-holdouts",
+    "value": 740,
+    "display": "740",
+    "source": [
+      "wiki-bb6"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Wiki (rev. 2026-10-13): '@mxdys's holdouts list has 740 machines up to equivalence and 1581 machines not considering equivalence as of 10 October 2026'; the informal holdout count (community spreadsheet) is 998. arXiv:2509.12337 v2 (Mar 2026) said 'about 1,214 holdouts remain'. Counts change weekly: always state the date and which list."
+  },
+  {
+    "id": "bb6-holdouts-no-equivalence",
+    "value": 1581,
+    "display": "1,581",
+    "source": [
+      "wiki-bb6"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Same list as bb6-holdouts without merging equivalent machines; as of 10 October 2026."
+  },
+  {
+    "id": "bb6-holdouts-informal",
+    "value": 998,
+    "display": "998",
+    "source": [
+      "wiki-bb6"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Informal count from the annotated community spreadsheet, per wiki rev. 2026-10-13."
+  },
+  {
+    "id": "bb6-requires-collatz-like",
+    "value": "Determining BB(6) requires settling Antihydra, whose halting problem is a Collatz-like open problem",
+    "display": "Solving BB(6) requires solving a Collatz-like problem (Antihydra)",
+    "source": [
+      "wiki-bb6",
+      "ligocki2024antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(6)",
+    "verified": true,
+    "note": "Wiki: 'With the discovery of the Cryptid machine Antihydra in June 2024, we now know that we must solve a Collatz-like problem in order to solve BB(6)'. Strictly: to know BB(6) one must know whether Antihydra halts (it is believed not to). Wiki also lists a dozen further BB(6) Cryptids."
+  },
+  {
+    "id": "cryptid-definition",
+    "value": "Turing machines whose behaviour from a blank tape can be described completely by a relatively simple mathematical rule, where that rule falls into a class of unsolved (and presumed hard) mathematical problems",
+    "display": "a Turing machine whose blank-tape behaviour reduces to a simple rule that is an unsolved, presumably hard, mathematical problem",
+    "source": [
+      "wiki-cryptids"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Cryptids",
+    "verified": true,
+    "note": "Wiki adds: the definition is somewhat subjective; most known small Cryptids are Collatz-like; 'If there exists a Cryptid with n states and m symbols, then BB(n, m) cannot be solved without solving this hard math problem.' The name was proposed by Shawn Ligocki in his Oct 2023 Bigfoot blog post."
+  },
+  {
+    "id": "antihydra-machine",
+    "value": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+    "display": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+    "source": [
+      "wiki-antihydra",
+      "ligocki2024antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "F0 is undefined ('---'); reaching it is the halt. Michel's table writes it as 1RH."
+  },
+  {
+    "id": "antihydra-discovery",
+    "value": "2024-06-28",
+    "display": "28 June 2024",
+    "source": [
+      "wiki-antihydra",
+      "ligocki2024antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "First reported on Discord by mxdys on 28 June 2024 ('This TM looks like a random [walk] like hydra'); Racheline (@rae) found the high-level rules shortly after. Named after Hydra."
+  },
+  {
+    "id": "antihydra-config",
+    "value": "A(a, b) = 0^∞ 1^a 0 1^b E> 0^∞",
+    "display": "A(a, b) = 0^∞ 1^a 0 1^b E> 0^∞",
+    "source": [
+      "wiki-antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Head in state E, on the blank cell just right of the 1s. Ligocki's blog names the same configuration E(a,b) with the roles of a and b swapped (0^∞ 1^b 0 1^a E> 0^∞); use the wiki/paper convention."
+  },
+  {
+    "id": "antihydra-rule-even",
+    "value": "A(a, 2b) → A(a+2, 3b+2) in 2a + 3b² + 12b + 11 steps",
+    "display": "A(a, 2b) → A(a + 2, 3b + 2), taking 2a + 3b² + 12b + 11 steps",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Verified against simulation: e.g. A(0,4)→A(2,8) in 47 steps, A(2,8)→A(4,14) in 111, A(4,14)→A(6,23) in 250."
+  },
+  {
+    "id": "antihydra-rule-odd",
+    "value": "A(a+1, 2b+1) → A(a, 3b+3) in 3b² + 12b + 5 steps",
+    "display": "A(a + 1, 2b + 1) → A(a, 3b + 3), taking 3b² + 12b + 5 steps",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Verified against simulation: A(6,23)→A(5,36) in 500 steps."
+  },
+  {
+    "id": "antihydra-rule-halt",
+    "value": "A(0, 2b+1) → 0^∞ <F 110 1^(3b) 0^∞ in 3b² + 9b − 1 steps, then halts on the undefined F0 transition",
+    "display": "A(0, 2b + 1) halts (after 3b² + 9b − 1 steps it reaches the undefined transition)",
+    "source": [
+      "wiki-antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Under the 'halting transition counts as a step' convention add 1 step for the halt itself."
+  },
+  {
+    "id": "antihydra-start",
+    "value": "A(0, 4) after 11 steps",
+    "display": "Antihydra reaches A(0, 4) after 11 steps",
+    "source": [
+      "wiki-antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Verified by simulation (4 consecutive 1s, head in E just right of them, at step 11)."
+  },
+  {
+    "id": "antihydra-trajectory",
+    "value": "A(0,4) →47 A(2,8) →111 A(4,14) →250 A(6,23) →500 A(5,36) →1209 A(7,56) →2713 A(9,86)",
+    "display": "A(0,4) → A(2,8) → A(4,14) → A(6,23) → A(5,36) → A(7,56) → A(9,86) → …",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Step counts per rule application from the wiki; all reproduced by simulation (absolute steps 11, 58, 169, 419, 919, 2,128, 4,841; next: A(11,131), A(10,198), A(12,299), A(11,450))."
+  },
+  {
+    "id": "antihydra-collatz-statement",
+    "value": "Iterate H(n) = floor(3n/2) starting from n = 8; Antihydra halts iff at some point the number of odd values seen exceeds twice the number of even values",
+    "display": "Starting at 8 and repeatedly applying n ↦ ⌊3n/2⌋, will the odd numbers ever outnumber twice the even numbers?",
+    "source": [
+      "wiki-antihydra",
+      "ligocki2024antihydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Equivalent formulations: f(n) = ⌊3n/2⌋ + 2 from 4 (H^i(8) = f^i(4) + 4); paper Conjecture 1.1 uses H(x)=3x/2 (x even), (3x−1)/2 (x odd) from 8. Hydra uses the same map from 3 with the opposite condition (E > 2O). OEIS A386792 (values) and A385902 (counter)."
+  },
+  {
+    "id": "antihydra-program",
+    "value": "h = 8\nc = 0\nwhile c != -1:\n    if h % 2 == 0:\n        c += 2\n    else:\n        c -= 1\n    h += h // 2",
+    "display": "h = 8; c = 0; while c ≠ −1: (c += 2 if h is even else c −= 1); h += h // 2",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Python program from the wiki 'Code' section; 'Proving whether it halts or not would also solve the Antihydra problem'. Checked: h runs 8, 12, 18, 27, 40, 60, 90, 135, … = b + 4 and c equals a in A(a,b) after each rule, matching the simulation."
+  },
+  {
+    "id": "antihydra-simulated",
+    "value": "2^38 rule steps; a exceeds 2^37",
+    "display": "simulated for 2^38 rule applications, by which point a > 2^37",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Source: Discord message cited on the wiki (Aug 2024)."
+  },
+  {
+    "id": "antihydra-random-walk",
+    "value": "a behaves like a random walk with steps +2 or −1 with equal probability; probability of ever reaching −1 from position n is ((√5 − 1)/2)^(n+1)",
+    "display": "a behaves like a random walk that moves +2 or −1 with equal probability",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Derived from P(n) = ½P(n−1) + ½P(n+2). Expected position after k steps is k/2, so the walk drifts away from −1."
+  },
+  {
+    "id": "antihydra-halting-probability",
+    "value": "≈ 2.884 × 10^−28,723,042,565",
+    "display": "less than 10^−28,723,042,565",
+    "source": [
+      "wiki-antihydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "((√5−1)/2)^(2^37); recomputed: 2.8847 × 10^−28,723,042,565. Heuristic only ('probviously' non-halting). arXiv:2509.12337 quotes an older, weaker figure (exponent 1,073,720,885, i.e. ~10^−224,394,395; the mantissa printed there, 4.84, does not reproduce; I get 9.05) and in Appendix C 'less than 10^−200 000 000'."
+  },
+  {
+    "id": "antihydra-mahler-relation",
+    "value": "The Antihydra recurrence equals D(n+1) = ceil(3D(n)/2), D(0) = 7, and by Odlyzko and Wilf D(n) = floor(K (3/2)^n) for some constant K; halting depends on the parities of these values, a question of the same type as Mahler's 3/2 (Z-number) problem",
+    "display": "Antihydra's behaviour depends on the parity pattern of ⌊K (3/2)ⁿ⌋, closely related to Mahler's unsolved 3/2 problem",
+    "source": [
+      "wiki-antihydra",
+      "mahler1968",
+      "odlyzkowilf1991"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": "Wiki 'More Analysis' section (Lean formalisations by rwst). Mahler (1968) asked whether there are Z-numbers ξ > 0 with all fractional parts {ξ(3/2)^n} in [0, 1/2); equidistribution of {ξ(3/2)^n} would answer it. Present as 'related to', not 'equivalent to'."
+  },
+  {
+    "id": "antihydra-not-sturmian",
+    "value": "Antihydra (and Hydra) are known not to generate Sturmian words (Dubickas 2009, Corollary 4)",
+    "display": "Antihydra does not generate Sturmian words (Dubickas 2009)",
+    "source": [
+      "wiki-antihydra",
+      "dubickas2009"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Antihydra",
+    "verified": true,
+    "note": ""
+  },
+  {
+    "id": "hydra-machine",
+    "value": "1RB3RB---3LA1RA_2LA3RA4LB0LB0LA",
+    "display": "1RB3RB---3LA1RA_2LA3RA4LB0LB0LA",
+    "source": [
+      "wiki-hydra",
+      "ligocki2024hydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Hydra",
+    "verified": true,
+    "note": "2-state, 5-symbol Cryptid (BB(2,5)). A2 undefined."
+  },
+  {
+    "id": "hydra-discovery",
+    "value": "2024-04-20",
+    "display": "20 April 2024",
+    "source": [
+      "wiki-hydra",
+      "ligocki2024hydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Hydra",
+    "verified": true,
+    "note": "Daniel Yuan (@dyuan01) first reported it (with high-level rules) on Discord on 20 Apr 2024 and named it. Ligocki's blog post: 10 May 2024. The wiki Cryptids table says 'May 2024' (blog/announcement date); prefer 20 April 2024."
+  },
+  {
+    "id": "hydra-rules",
+    "value": "C(a,b) = 0^∞ <A 2 0^a 3^b 2 0^∞: C(2a,0) → halt; C(2a,b+1) → C(3a+3,b) in 6a²+23a+10 steps; C(2a+1,b) → C(3a+3,b+2) in 4b+6a²+23a+26 steps; start reaches C(3,0) after 20 steps",
+    "display": "Hydra applies the map n ↦ ⌊3n/2⌋ from 3 and halts if the even values ever exceed twice the odd values",
+    "source": [
+      "wiki-hydra",
+      "ligocki2024hydra",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Hydra",
+    "verified": true,
+    "note": "Start step count verified by simulation (C(3,0) at step 20; next C(6,2) at step 75). Ligocki and the paper use an equivalent configuration one step earlier (0^∞ <B 0^a 3^b 2 0^∞, reached after 19 steps). Heuristic halting probability ≈ 4.168 × 10^−419,099 (wiki, recomputed)."
+  },
+  {
+    "id": "bigfoot-machine",
+    "value": "1RB2RA1LC_2LC1RB2RB_---2LA1LA",
+    "display": "1RB2RA1LC_2LC1RB2RB_---2LA1LA",
+    "source": [
+      "wiki-bigfoot",
+      "ligocki2023bigfoot",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Bigfoot",
+    "verified": true,
+    "note": "3-state, 3-symbol Cryptid (BB(3,3)). C0 undefined. Enters B(2,1,2) at step 69 (paper); halts iff it reaches B(0, 6k+2, c)."
+  },
+  {
+    "id": "bigfoot-discovery",
+    "value": "October 2023",
+    "display": "October 2023",
+    "source": [
+      "wiki-bigfoot",
+      "ligocki2023bigfoot",
+      "wiki-bb33"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Bigfoot",
+    "verified": true,
+    "note": "Low-level behaviour first shared on Discord by savask on 14 Oct 2023; Shawn Ligocki described the high-level rules within two days and published 'BB(3, 3) is Hard (Bigfoot)' on 16 Oct 2023. The wiki Cryptids table says 'Nov 2023' with discoverer Shawn Ligocki, inconsistent with the Bigfoot and BB(3,3) pages and the dated blog post; trust October 2023."
+  },
+  {
+    "id": "bigfoot-compiled-7state",
+    "value": "0RB1RB_1LC0RA_1RE1LF_1LF1RE_0RD1RD_1LG0LG_---1LB",
+    "display": "Bigfoot compiled into a 7-state, 2-symbol machine (Iijil, 2024)",
+    "source": [
+      "wiki-bigfoot",
+      "wiki-cryptids"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Bigfoot",
+    "verified": true,
+    "note": "Compiled by Iijil (May/June 2024). Implies BB(7) also requires solving Bigfoot's problem."
+  },
+  {
+    "id": "bb23-steps",
+    "value": 38,
+    "display": "38",
+    "source": [
+      "wiki-bb23",
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,3)",
+    "verified": true,
+    "note": "S(2,3) = 38. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb23-ones",
+    "value": 9,
+    "display": "9",
+    "source": [
+      "wiki-bb23"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,3)",
+    "verified": true,
+    "note": "Σ(2,3) = 9."
+  },
+  {
+    "id": "champion-bb23",
+    "value": "1RB2LB1RZ_2LA2RB1LB",
+    "display": "1RB2LB1RZ_2LA2RB1LB",
+    "source": [
+      "wiki-bb23"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,3)",
+    "verified": true,
+    "note": "Unique champion (TNF) for both S and Σ. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb23-proved-by",
+    "value": "Found by Allen Brady (1988; independently Michel 2004); proved by Lafitte & Papazian (2007); formalised in Coq-BB5",
+    "display": "S(2,3) = 38 was proved by Grégory Lafitte and Christophe Papazian in 2007",
+    "source": [
+      "wiki-bb23",
+      "michel-survey",
+      "lafittepapazian2007",
+      "coqbb5"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,3)",
+    "verified": true,
+    "note": "Michel: 'June 2007 Lafitte, Papazian S(2,3) = 38, Sigma(2,3) = 9'. Coq-BB5 TNF count 6,019 (4,203 non-halting, 1,816 halting)."
+  },
+  {
+    "id": "bb24-steps",
+    "value": 3932964,
+    "display": "3,932,964",
+    "source": [
+      "wiki-bb24",
+      "coqbb5",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,4)",
+    "verified": true,
+    "note": "S(2,4) = 3,932,964 (Coq-BB5 lemma BB2x4_value). Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb24-ones",
+    "value": 2050,
+    "display": "2,050",
+    "source": [
+      "wiki-bb24",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,4)",
+    "verified": true,
+    "note": "Σ(2,4) = 2,050."
+  },
+  {
+    "id": "champion-bb24",
+    "value": "1RB2LA1RA1RA_1LB1LA3RB1RZ",
+    "display": "1RB2LA1RA1RA_1LB1LA3RB1RZ",
+    "source": [
+      "wiki-bb24",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,4)",
+    "verified": true,
+    "note": "Found by Terry and Shawn Ligocki in February 2005; unique champion for S and Σ. Independently re-verified by direct simulation (Python/C simulator, blank tape, halting transition counted as a step)."
+  },
+  {
+    "id": "bb24-proved-by",
+    "value": "Informally: Shawn Ligocki & Iijil (April 2023, per Michel); formally: Coq-BB5 by mxdys, added 22 August 2024 (commit 2024-08-23 00:16 UTC)",
+    "display": "BB(2,4) = 3,932,964 was formally proved in Coq by the bbchallenge project in August 2024",
+    "source": [
+      "wiki-bb24",
+      "coqbb5",
+      "michel-survey",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,4)",
+    "verified": true,
+    "note": "Coq-BB5 README and arXiv:2509.12337 present S(2,4) as an original result of the project; Michel's survey credits an April 2023 (informal) determination to S. Ligocki and 'Iijil'. Coq-BB5 TNF count 2,154,217 (1,432,880 non-halting, 721,337 halting); no sporadic machines needed. Previous champion: Brady 1988, S ≥ 7,195, Σ ≥ 90."
+  },
+  {
+    "id": "bb33-steps-lower-bound",
+    "value": "119112334170342541",
+    "display": "119,112,334,170,342,541",
+    "source": [
+      "wiki-bb33",
+      "michel-survey",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3,3)",
+    "verified": true,
+    "note": "S(3,3) ≥ 119,112,334,170,342,541 (> 10^17). Exact step count of the champion; three sources agree. Not re-simulated (too long for direct simulation). [value stored as string: exceeds JavaScript Number.MAX_SAFE_INTEGER]"
+  },
+  {
+    "id": "bb33-ones-lower-bound",
+    "value": 374676383,
+    "display": "374,676,383",
+    "source": [
+      "wiki-bb33",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3,3)",
+    "verified": true,
+    "note": "Σ(3,3) ≥ 374,676,383."
+  },
+  {
+    "id": "champion-bb33",
+    "value": "0RB2LA1RA_1LA2RB1RC_1RZ1LB1LC",
+    "display": "0RB2LA1RA_1LA2RB1RC_1RZ1LB1LC",
+    "source": [
+      "wiki-bb33",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3,3)",
+    "verified": true,
+    "note": "Found by Terry and Shawn Ligocki, November 2007. A 'probviously halting' machine 1RB2LC1RC_2LC---2RB_2LA0LB0RA is believed to beat it but is unproven."
+  },
+  {
+    "id": "bb33-holdouts",
+    "value": 6,
+    "display": "6 (effectively 4)",
+    "source": [
+      "wiki-bb33",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(3,3)",
+    "verified": true,
+    "note": "Wiki: six unknown machines remain, two pairs equivalent, so effectively four holdouts (one of them is Bigfoot)."
+  },
+  {
+    "id": "bb25-status",
+    "value": "unsolved",
+    "display": "unsolved; Hydra shows it requires a Collatz-like problem",
+    "source": [
+      "wiki-bb25",
+      "ligocki2024hydra"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,5)",
+    "verified": true,
+    "note": "arXiv:2509.12337 (v2) mentions 60 remaining S(2,5) holdouts."
+  },
+  {
+    "id": "bb25-lower-bound",
+    "value": "S(2,5) > Σ(2,5) > 10^10^10^3,314,360 (≈ 10↑↑4.81)",
+    "display": "S(2,5) > 10↑↑4",
+    "source": [
+      "wiki-bb25",
+      "bbchallenge2025",
+      "michel-survey"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,5)",
+    "verified": true,
+    "note": "Champion 1RB3LA4RB0RB2LA_1LB2LA3LA1RA1RZ by Daniel Yuan, June 2024. Paper states the simplified bound S(2,5) > 10↑↑4."
+  },
+  {
+    "id": "champion-bb25",
+    "value": "1RB3LA4RB0RB2LA_1LB2LA3LA1RA1RZ",
+    "display": "1RB3LA4RB0RB2LA_1LB2LA3LA1RA1RZ",
+    "source": [
+      "wiki-bb25",
+      "bbchallenge2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/BB(2,5)",
+    "verified": true,
+    "note": "Daniel Yuan, June 2024."
+  },
+  {
+    "id": "zf-tm-7910",
+    "value": 7910,
+    "display": "7,910",
+    "source": [
+      "yedidiaaaronson2016",
+      "wiki-logical-independence"
+    ],
+    "url": "https://arxiv.org/abs/1605.04343",
+    "verified": true,
+    "note": "Date: May 2016 (arXiv 13 May 2016); by: Adam Yedidia & Scott Aaronson. Halts iff a Friedman statement holds; independence relies on an unpublished result of Harvey Friedman (equiconsistent with SRP), so it is a ZFC-independence result only under that assumption. Laconic compiler."
+  },
+  {
+    "id": "zf-tm-1919",
+    "value": 1919,
+    "display": "1,919",
+    "source": [
+      "sorear-mtm",
+      "wiki-logical-independence"
+    ],
+    "url": "https://github.com/sorear/metamath-turing-machines",
+    "verified": true,
+    "note": "Date: 15 May 2016; by: Stefan O'Rear. First machine searching directly for a ZF contradiction (NQL compiler). Peter Taylor (pjt33) briefly reduced it to 1,879 in May 2016 (machine 2016-zf-pjt33-1879 in the repo)."
+  },
+  {
+    "id": "zf-tm-748",
+    "value": 748,
+    "display": "748",
+    "source": [
+      "sorear-mtm",
+      "aaronson2020",
+      "wiki-logical-independence"
+    ],
+    "url": "https://github.com/sorear/metamath-turing-machines/tree/master/machines/2017-zf-sorear-748",
+    "verified": true,
+    "note": "Date: August 2017 (last optimisation commit 8 Aug 2017); by: Stefan O'Rear. CORRECTION: the wiki table dates the 748-state machine to May 2016, and the brief groups it with 2016, but the repository stores it as '2017-zf-sorear-748' ('simply zf2.nql as of 530d545', a commit dated 2017-08-08). Trust the repository: 2017. Aaronson 2020, Theorem 7."
+  },
+  {
+    "id": "zf-tm-745",
+    "value": 745,
+    "display": "745",
+    "source": [
+      "riebel2023",
+      "wiki-logical-independence"
+    ],
+    "url": "https://www.ingo-blechschmidt.eu/assets/bachelor-thesis-undecidability-bb748.pdf",
+    "verified": true,
+    "note": "Date: March 2023 (thesis title page); wiki says July 2023; by: Johannes Riebel (bachelor thesis, University of Augsburg). Thesis: 'we successfully lowered the upper bound of undecidability from n = 748 to n = 745'."
+  },
+  {
+    "id": "zf-tm-643",
+    "value": 643,
+    "display": "643",
+    "source": [
+      "aaronson2024blog643",
+      "wiki-logical-independence"
+    ],
+    "url": "https://scottaaronson.blog/?p=8131",
+    "verified": true,
+    "note": "Date: July 2024 (Aaronson blog update 24 July 2024); by: Rohan Ridenour. "
+  },
+  {
+    "id": "zf-tm-636",
+    "value": 636,
+    "display": "636",
+    "source": [
+      "ridenour2024",
+      "wiki-logical-independence",
+      "bbchallenge2025"
+    ],
+    "url": "https://github.com/CatsAreFluffy/metamath-turing-machines/commit/6fc33bef6ba8885d26aed94c83e88bdabbedb0f1",
+    "verified": true,
+    "note": "Date: 30/31 August 2024 (commit 2024-08-30T22:13Z); by: Rohan Ridenour. "
+  },
+  {
+    "id": "zf-tm-588",
+    "value": 588,
+    "display": "588",
+    "source": [
+      "wade2025",
+      "wiki-logical-independence"
+    ],
+    "url": "https://github.com/andrew-j-wade/metamath-turing-machines/commit/30d2e3194866615f68dd2f5101cb300fb039adca",
+    "verified": true,
+    "note": "Date: 12 July 2025; by: Andrew J. Wade. Commit 'Skip noop transitions (ZFC 636 -> 588)'."
+  },
+  {
+    "id": "zf-tm-549",
+    "value": 549,
+    "display": "549",
+    "source": [
+      "wade2025",
+      "wiki-logical-independence"
+    ],
+    "url": "https://github.com/andrew-j-wade/metamath-turing-machines/commit/5d676aec074a94f598959cb3b7733a8f7781762f",
+    "verified": true,
+    "note": "Date: 16 July 2025; by: Andrew J. Wade. Commit 'Alignment shenanigans (ZFC -> 549)'."
+  },
+  {
+    "id": "zf-tm-432",
+    "value": 432,
+    "display": "432",
+    "source": [
+      "wade2025",
+      "wiki-logical-independence",
+      "bbchallenge2025"
+    ],
+    "url": "https://codeberg.org/ajwade/turing_machine_explorer/commit/33b30300054242201a95679aacf7e74312bd8803b0df9a85d2314095efd6804e",
+    "verified": true,
+    "note": "Date: 19 August 2025; by: Andrew J. Wade (based on work by Ridenour/CatIsFluffy and O'Rear). Last record established before Oct 2026; wiki intro still states 6 ≤ N_ZF ≤ 432. Omits the axiom of regularity (equiconsistent). arXiv:2509.12337 calls 636 and 432 'pending verification'. jeff87654's repo notes Wade's current compiler gives 393 states (not listed on the wiki)."
+  },
+  {
+    "id": "zf-tm-254",
+    "value": 254,
+    "display": "254",
+    "source": [
+      "wiki-logical-independence",
+      "ketchersid2026zf254"
+    ],
+    "url": "https://wiki.bbchallenge.org/w/index.php?title=Logical_independence&oldid=9079",
+    "verified": false,
+    "note": "Date: 13 October 2026 per wiki (Coq formalisation committed 2026-10-14 05:25 UTC; machine table dated 2026-09-30); by: Mira (GitHub: Mira-Cult), 'with use of ChatGPT'; Coq formalisation by Jeff Ketchersid (jeff87654) 'with Claude'. PROVISIONAL. Verified that (1) the wiki history table lists it (added 2026-10-14 06:12 UTC by user Tlonuqbar, comment 'new result'), and (2) the GitHub branch exists with zfc_254.tm (I counted 254 states; sha256 matches the README) and claims an axiom-free Coq proof of 'halts iff ZFC (and ZF) is inconsistent'. NOT verified: I did not compile the Coq proof; the original author's repo github.com/Mira-Cult/turing-machines returns 404; the claim is < 24 h old and the wiki's own intro still says N_ZF ≤ 432. The same repo also claims Coq-verified 354-, 336- and 335-state ZF machines (Oct 2026). Recommend wording: 'In October 2026 a 254-state machine was announced, with a computer-checked (Coq) proof; it awaits community review.'"
+  },
+  {
+    "id": "zf-record-established",
+    "value": 432,
+    "display": "432",
+    "source": [
+      "wiki-logical-independence",
+      "wade2025"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Logical_independence",
+    "verified": true,
+    "note": "Smallest ZF-independent machine accepted on the wiki before October 2026 (Wade, Aug 2025)."
+  },
+  {
+    "id": "nzf-range",
+    "value": "6 ≤ N_ZF ≤ 432",
+    "display": "6 ≤ N_ZF ≤ 432 (≤ 254 if the October 2026 machine is confirmed)",
+    "source": [
+      "wiki-logical-independence"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Logical_independence",
+    "verified": true,
+    "note": "N_ZF = smallest n such that ZF cannot prove the value of BB(n) (assuming ZF consistent and arithmetically sound). Lower bound 6 because BB(5) has been proved (in Coq/Rocq; wiki footnote: Rocq is stronger than ZF, but the BB(5) proof uses nothing beyond ZF). N_ZFC = N_ZF by Shoenfield absoluteness."
+  },
+  {
+    "id": "zfc-equals-zf",
+    "value": "N_ZFC = N_ZF",
+    "display": "Adding the axiom of choice changes nothing: N_ZFC = N_ZF",
+    "source": [
+      "wiki-logical-independence"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Logical_independence",
+    "verified": true,
+    "note": "Shoenfield's absoluteness theorem: any TM proven non-halting in ZFC is provably non-halting in ZF."
+  },
+  {
+    "id": "aaronson-independence-conjecture",
+    "value": "N_ZF ≤ 20 and N_PA ≤ 10",
+    "display": "Aaronson conjectures BB(20) is already beyond ZF and BB(10) beyond PA",
+    "source": [
+      "aaronson2020",
+      "wiki-logical-independence",
+      "bbchallenge2025"
+    ],
+    "url": "https://www.scottaaronson.com/papers/bb.pdf",
+    "verified": true,
+    "note": "Conjecture, not a result."
+  },
+  {
+    "id": "pa-tm-states",
+    "value": 372,
+    "display": "372",
+    "source": [
+      "house2026pa",
+      "wiki-logical-independence"
+    ],
+    "url": "https://github.com/LegionMammal978/turing_machine_explorer/blob/main/pa.py",
+    "verified": true,
+    "note": "Matthew House (@LegionMammal978), 11 February 2026: a 372-state machine that halts iff Peano Arithmetic is inconsistent (Wade's ZF machine with set axioms replaced by an 'adjunction + separation' schema that interprets PA). Commit 'Add pa.py (372 states)' 2026-02-11; pa.tm has 372 states (counted). Note: any ZF-independent machine is also PA-independent, so the provisional 254-state ZF machine would give a smaller upper bound for N_PA too."
+  },
+  {
+    "id": "subtle-cardinal-tm-states",
+    "value": 493,
+    "display": "493",
+    "source": [
+      "wiki-logical-independence"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Logical_independence",
+    "verified": true,
+    "note": "LegionMammal978, 25 February 2026: halts iff ZFC + 'there exist arbitrarily large subtle cardinals' is inconsistent. Optional detail."
+  },
+  {
+    "id": "goldbach-tm-states",
+    "value": 25,
+    "display": "25",
+    "source": [
+      "leng-goldbach",
+      "bbchallenge2025",
+      "wiki-cryptids"
+    ],
+    "url": "https://github.com/lengyijun/goldbach_tm",
+    "verified": true,
+    "note": "Smallest known machine that halts iff Goldbach's conjecture is false: 25 states, formally verified in Lean 4 (Yijun Leng, Nov 2024 commit '25 states is enough'). Derived from an anonymous 27-state gist (2016; Aaronson 2020 Theorem 8 says 27). Yedidia & Aaronson's original Goldbach machine was far larger."
+  },
+  {
+    "id": "riemann-tm-states",
+    "value": 744,
+    "display": "744",
+    "source": [
+      "aaronson2020",
+      "sorear-mtm",
+      "bbchallenge2025",
+      "wiki-cryptids"
+    ],
+    "url": "https://github.com/sorear/metamath-turing-machines",
+    "verified": true,
+    "note": "Halts iff the Riemann hypothesis is false; Matiyasevich, O'Rear & Aaronson, May 2016 (Aaronson 2020 Theorem 9). Last widely accepted record."
+  },
+  {
+    "id": "riemann-tm-claim-2026",
+    "value": 120,
+    "display": "120",
+    "source": [
+      "shunia2026",
+      "wiki-cryptids"
+    ],
+    "url": "https://arxiv.org/abs/2609.30306",
+    "verified": false,
+    "note": "Joseph M. Shunia, arXiv:2609.30306 (23 Sep 2026): 120 working states, same model and counting convention as the 744-state machine. The author writes 'Subject to independent end-to-end verification'; the wiki Cryptids table lists it as BB(120). Treat as claimed, not verified."
+  },
+  {
+    "id": "erdos-tm-states",
+    "value": 15,
+    "display": "15",
+    "source": [
+      "sterinwoods2024",
+      "wiki-cryptids",
+      "bbchallenge2025"
+    ],
+    "url": "https://arxiv.org/abs/2107.12475",
+    "verified": true,
+    "note": "Stérin & Woods: a 15-state 2-symbol machine (and a 5-state 4-symbol one) halts iff Erdős's conjecture 'for all n > 8, 2^n has at least one digit 2 in base 3' is false (arXiv July 2021; RP 2024, LNCS pp. 120-137)."
+  },
+  {
+    "id": "wolfram23-machine",
+    "value": "1RB2LA1LA_2LA2RB0RA",
+    "display": "1RB2LA1LA_2LA2RB0RA",
+    "source": [
+      "wolframprize2007",
+      "wolfram2002"
+    ],
+    "url": "https://www.wolframscience.com/prizes/tm23/technicaldetails.html",
+    "verified": true,
+    "note": "Converted from Wolfram's official rule list {1,0}->{2,1,1}, {1,1}->{1,2,-1}, {1,2}->{1,1,-1}, {2,0}->{1,2,-1}, {2,1}->{2,2,1}, {2,2}->{1,0,1} ({state,color}->{state,color,offset}; state 1 = A). No halt state. Machine number 596440 in Wolfram's numbering; NKS p. 709. Matches the Wikipedia table."
+  },
+  {
+    "id": "wolfram23-prize",
+    "value": "$25,000, announced 14 May 2007; awarded to Alex Smith (20, University of Birmingham) on 24 October 2007",
+    "display": "a $25,000 prize announced in May 2007 and won by Alex Smith in October 2007",
+    "source": [
+      "wolframprize2007",
+      "wolfram2007blog"
+    ],
+    "url": "https://writings.stephenwolfram.com/2007/10/the-prize-is-won-the-simplest-universal-turing-machine-is-proved/",
+    "verified": true,
+    "note": "Smith's 40-page proof was later published in Complex Systems 29(1):1-44 (2020)."
+  },
+  {
+    "id": "wolfram23-caveat",
+    "value": "Smith's construction needs an infinite, non-periodic initial tape; critics (Vaughan Pratt, Martin Davis on the FOM list, Oct-Nov 2007) questioned whether this counts as universality, and noted no prize-committee member had checked the proof",
+    "display": "the proof uses an infinite non-periodic initial tape, so its universality is in a weaker, debated sense",
+    "source": [
+      "pratt2007fom",
+      "smith2020",
+      "nearywoods2011survey"
+    ],
+    "url": "https://fomarchive.ugent.be/2007-October/012143.html",
+    "verified": true,
+    "note": "Pratt argued the encoding amounts to restarting a linear bounded automaton on ever longer inputs; Smith disputed this. Note Neary & Woods' survey tables do not list the 2,3 machine among universal machines; the smallest weakly universal machines they list are (6,2), (3,3), (2,4)."
+  },
+  {
+    "id": "utm-smallest-standard",
+    "value": "(15,2), (9,3), (6,4), (5,5), (4,6), (3,9), (2,18)",
+    "display": "smallest known standard universal machines (states, symbols): (15,2), (9,3), (6,4), (5,5), (4,6), (3,9), (2,18)",
+    "source": [
+      "wiki-utm",
+      "nearywoods2011survey",
+      "rogozhin1996",
+      "nearywoods2009",
+      "kudlekrogozhin2002"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Universal_Turing_Machine",
+    "verified": true,
+    "note": "(15,2), (9,3), (6,4): Neary & Woods 2009; (5,5), (4,6), (2,18): Rogozhin 1996; (3,9): Kudlek & Rogozhin 2002. Weakly universal (periodic background both sides): (6,2), (3,3), (2,4) by Neary & Woods (Rule 110 simulation)."
+  },
+  {
+    "id": "rogozhin1996-machines",
+    "value": "(24,2), (10,3), (7,4), (5,5), (4,6), (3,10), (2,18)",
+    "display": "Rogozhin (1996): universal machines with (24,2), (10,3), (7,4), (5,5), (4,6), (3,10) and (2,18) states × symbols",
+    "source": [
+      "rogozhin1996",
+      "nearywoods2011survey"
+    ],
+    "url": "https://doi.org/10.1016/S0304-3975(96)00077-1",
+    "verified": true,
+    "note": "From Table 1 of Neary & Woods' survey (entries marked [91] = Rogozhin TCS 1996)."
+  },
+  {
+    "id": "turing1936-publication",
+    "value": "Proc. London Math. Soc. (2) 42: 230-265; parts dated 30 Nov 1936 and 23 Dec 1936; volume imprint 1937; correction in vol. 43: 544-546",
+    "display": "Turing's paper appeared in the Proceedings of the London Mathematical Society in late 1936 (volume dated 1937)",
+    "source": [
+      "turing1936",
+      "turing1937correction"
+    ],
+    "url": "https://doi.org/10.1112/plms/s2-42.1.230",
+    "verified": true,
+    "note": "Crossref issue year 1937; part dates from rare-book/bibliographic sources. Say '1936' for the paper."
+  },
+  {
+    "id": "rado1962-publication",
+    "value": "Bell System Technical Journal 41(3): 877-884, May 1962",
+    "display": "Radó introduced the busy beaver game in 1962",
+    "source": [
+      "rado1962"
+    ],
+    "url": "https://doi.org/10.1002/j.1538-7305.1962.tb00480.x",
+    "verified": true,
+    "note": "Radó called states 'cards'; machines must move on every step (no 'center shift')."
+  },
+  {
+    "id": "count-formula-rado",
+    "value": "(4(n+1))^(2n)",
+    "display": "(4(n + 1))^(2n)",
+    "source": [
+      "rado1962",
+      "wiki-tnf"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "Radó 1962, eq. (1): N(n) = [4(n+1)]^(2n): each of the 2n (state, symbol) entries chooses a symbol (2), a direction (2) and a next card (n+1, card 0 = stop). The wiki TNF page generalises to (2m(n+1))^(mn) (OEIS A052200). CAVEAT: Aaronson 2020 and arXiv:2509.12337 instead use (4n+1)^(2n) (halt is a single option with no write/move); see count-bb5-aaronson."
+  },
+  {
+    "id": "count-bb5-rado",
+    "value": 63403380965376,
+    "display": "63,403,380,965,376",
+    "source": [
+      "wiki-tnf",
+      "rado1962"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Tree_Normal_Form",
+    "verified": true,
+    "note": "(4 × 6)^10 = 24^10; matches the wiki TNF table ('# Total TMs', OEIS A052200). Recomputed."
+  },
+  {
+    "id": "count-bb5-aaronson",
+    "value": 16679880978201,
+    "display": "16,679,880,978,201",
+    "source": [
+      "aaronson2020",
+      "bbchallenge2025",
+      "wiki-tnf"
+    ],
+    "url": "https://www.scottaaronson.com/papers/bb.pdf",
+    "verified": true,
+    "note": "(4n+1)^(2n) at n = 5 = 21^10; the paper's '16 trillion'. Wiki calls these 'Simple Halt TMs'. Recomputed."
+  },
+  {
+    "id": "count-bb6-rado",
+    "value": "232218265089212416",
+    "display": "232,218,265,089,212,416",
+    "source": [
+      "wiki-tnf"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Tree_Normal_Form",
+    "verified": true,
+    "note": "28^12. Recomputed. [value stored as string: exceeds JavaScript Number.MAX_SAFE_INTEGER]"
+  },
+  {
+    "id": "count-small-rado",
+    "value": "n=1: 64; n=2: 20,736; n=3: 16,777,216; n=4: 25,600,000,000",
+    "display": "64 / 20,736 / 16,777,216 / 25,600,000,000",
+    "source": [
+      "wiki-tnf",
+      "rado1962"
+    ],
+    "url": "https://wiki.bbchallenge.org/wiki/Tree_Normal_Form",
+    "verified": true,
+    "note": "(4(n+1))^(2n) for n = 1..4; recomputed and matching the wiki table for n = 2..4."
+  },
+  {
+    "id": "bb-grows-faster-than-computable",
+    "value": "For every computable f there is n0 with Σ(n) > f(n) for all n > n0; since S(n) ≥ Σ(n), the same holds for S",
+    "display": "Σ(n) and S(n) eventually exceed every computable function, so neither is computable",
+    "source": [
+      "rado1962",
+      "aaronson2020"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "Radó 1962, Section V Theorem and eq. (12); Radó notes this is 'equivalent to the undecidability of the so-called halting problem'."
+  },
+  {
+    "id": "rado-proof-idea",
+    "value": "Given computable f, set F(x) = sum over i ≤ x of (f(i) + i²) (computable, ≥ f, ≥ x², increasing). If a C-state machine computes F, then a machine with 1 + x + 2C states writes x+1 ones, then applies F twice, scoring 3 + x + F(x) + F(F(x)); for large x this exceeds F(1 + x + 2C) ≥ f(1 + x + 2C)",
+    "display": "Radó's proof: a machine that writes x ones and then runs an F-machine twice uses only about x + 2C states but leaves more than F(x + 2C + 1) ones",
+    "source": [
+      "rado1962"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "Read from the scanned paper (OCR garbles the Σ symbol as '2'); the definition of F is partially garbled in OCR ('F(x) = Σ[f(i) + i²]' is the standard reading). The TheoLog course version uses a doubling machine M*2 instead; not verified here (course material)."
+  },
+  {
+    "id": "rado-sigma100",
+    "value": "Σ(100) ≥ (((7!)!)!)!",
+    "display": "Radó noted Σ(100) is at least (((7!)!)!)!",
+    "source": [
+      "rado1962"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "Radó: a factorial machine needs ≤ 26 states, so a chain of four uses ≤ 100 states for x = 7. Fun fact."
+  },
+  {
+    "id": "s-ge-sigma",
+    "value": "S(n) ≥ Σ(n)",
+    "display": "S(n) ≥ Σ(n)",
+    "source": [
+      "rado1962"
+    ],
+    "url": "https://archive.org/details/bstj41-3-877",
+    "verified": true,
+    "note": "Radó eq. (11): each step writes at most one 1. Empirically S(n) ≈ Σ(n)² (Aaronson 2020)."
+  },
+  {
+    "id": "knuth-up-arrow",
+    "value": "Knuth's up-arrow notation (1976): a↑b = a^b, a↑↑b = tower of b copies of a, a↑↑↑b = iterated ↑↑",
+    "display": "a↑↑b is a power tower of b copies of a",
+    "source": [
+      "knuth1976"
+    ],
+    "url": "https://doi.org/10.1126/science.194.4271.1235",
+    "verified": true,
+    "note": "Arrows associate to the right: 10↑↑10↑↑10↑↑8 = 10↑↑(10↑↑(10↑↑8))."
+  }
+]
