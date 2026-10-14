@@ -1162,6 +1162,7 @@ dependencies = [
  "serde",
  "serde-wasm-bindgen",
  "serde_bytes",
+ "serde_json",
  "tsify",
  "turing-bb",
  "turing-core",
