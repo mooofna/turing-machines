@@ -2,7 +2,7 @@
  * Design tokens and base styles, taken from the author's homepage (mooofna.github.io) so that
  * both sites read as one. Every colour is light-dark(light, dark); the system setting picks the
  * theme and the toggle in the header overrides it with data-theme on <html>. Text colours keep at
- * least 4.5:1 contrast on the background.
+ * least 4.5:1 contrast on the background. The rules behind these choices are in docs/style.md.
  */
 
 @import '@fontsource-variable/schibsted-grotesk/wght.css';
@@ -44,6 +44,7 @@
   --rule: light-dark(#e4e4e4, #2a2a2a);
   /* ETH blue in the light theme, a lighter blue on dark backgrounds. */
   --accent: light-dark(#215caf, #7ba7f0);
+  --on-accent: light-dark(#ffffff, #0e0e0e);
   --plate: #ffffff;
 }
 
@@ -131,7 +132,7 @@ img {
 
 ::selection {
   background: var(--accent);
-  color: light-dark(#ffffff, #0e0e0e);
+  color: var(--on-accent);
 }
 
 .mono {
@@ -163,6 +164,7 @@ img {
 
 .content {
   grid-column: 4 / -1;
+  min-width: 0;
 }
 
 @media (max-width: 47.99rem) {
@@ -265,7 +267,7 @@ img {
 /* Additions for this site. */
 
 :root {
-  /* Space-time diagrams and tape cells. */
+  /* Tape cells and space-time diagrams. */
   --cell: 1.75rem;
   --ink-soft: light-dark(#8a8a8a, #6f6f6f);
   --head: var(--accent);
@@ -280,19 +282,36 @@ textarea {
   color: inherit;
 }
 
+/* The heading block of a page below the header: title and lede in the content column. */
+.page-head {
+  padding-block: var(--space-5) var(--space-4);
+  row-gap: var(--space-2);
+}
+
+.page-head h1 {
+  font-size: var(--text-xl);
+}
+
+.lede {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--muted);
+}
+
 /* Square buttons with a hairline border; the primary action is filled with the accent. */
 .button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.25rem;
-  padding: 0 0.9rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
   border: 1px solid var(--rule-strong);
   background: var(--bg);
   color: var(--text);
   font-size: var(--text-sm);
   line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -304,11 +323,11 @@ textarea {
 .button.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: light-dark(#ffffff, #0e0e0e);
+  color: var(--on-accent);
 }
 
 .button.primary:hover {
-  color: light-dark(#ffffff, #0e0e0e);
+  color: var(--on-accent);
   filter: brightness(1.08);
 }
 
@@ -317,11 +336,98 @@ textarea {
   cursor: default;
 }
 
+/* Tables: hairlines between rows, numbers in mono with tabular figures. */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 1rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 0;
+}
+
+.table thead th {
+  padding-top: 0;
+  border-bottom-color: var(--rule-strong);
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table .num {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* A plate for canvases and diagrams: a hairline, nothing else. */
+.frame {
+  border: 1px solid var(--rule);
+  background: var(--bg);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+code,
+kbd,
+samp {
+  font-size: 0.86em;
+}
+
+pre {
+  margin: 0 0 1em;
+  padding: var(--space-2) 0;
+  overflow-x: auto;
+  border-block: 1px solid var(--rule);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+pre code {
+  font-size: inherit;
+}
+
+sup {
+  line-height: 0;
+}
+
+math {
+  font-size: 1.05em;
+}
+
+math[display='block'] {
+  margin-block: var(--space-2);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
