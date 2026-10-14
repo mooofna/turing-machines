@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  binaries:
+    name: tm for ${{ matrix.target }}
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Build
+        run: |
+          rustup target add ${{ matrix.target }}
+          cargo build --release -p turing-cli --target ${{ matrix.target }}
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          archive="tm-${{ needs.release-please.outputs.tag }}-${{ matrix.target }}.tar.gz"
+          tar -czf "$archive" -C target/${{ matrix.target }}/release tm
+          gh release upload "${{ needs.release-please.outputs.tag }}" "$archive"

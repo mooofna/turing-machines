@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      # The wasm-bindgen crate and the pinned wasm-bindgen CLI must move together.
+      - dependency-name: wasm-bindgen
+    groups:
+      rust-dev:
+        patterns: ["proptest", "insta", "divan", "trycmd"]
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    ignore:
+      # SvelteKit 3 declares typescript ^6 as a peer dependency.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # Types follow the Node LTS used in CI (24).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    groups:
+      svelte:
+        patterns: ["svelte", "svelte-check", "@sveltejs/*", "vite"]
+      codemirror:
+        patterns: ["@codemirror/*", "@lezer/*"]
+      testing:
+        patterns: ["vitest", "@playwright/test", "@axe-core/playwright"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,11 @@
+name: Feature request
+description: Suggest an improvement to the simulator, the command-line tool or the website
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should change, and why.
+    validations:
+      required: true
