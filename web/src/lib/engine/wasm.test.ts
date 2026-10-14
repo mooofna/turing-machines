@@ -171,6 +171,58 @@ describe('editor services', () => {
     expect(machineCount(5, 2)).toBe('63403380965376');
   });
 
+  it('passes the probes of the playground for a real engine', () => {
+    const probe: MachineSpecDto = {
+      name: '',
+      kind: 'transducer',
+      tapes: 1,
+      blank: '␣',
+      inputAlphabet: [],
+      tapeAlphabet: ['␣', 'x'],
+      states: [
+        { name: 's', isFinal: false },
+        { name: 't', isFinal: false },
+        { name: 'u', isFinal: false }
+      ],
+      start: 's',
+      transitions: [
+        {
+          from: 's',
+          read: ['␣'],
+          to: 't',
+          write: ['x'],
+          dir: ['L'],
+          leading: [],
+          comment: 'probe'
+        },
+        { from: 't', read: ['␣'], to: 'u', write: ['x'], dir: ['L'], leading: [] },
+        { from: 'u', read: ['␣'], to: 's', write: ['x'], dir: ['L'], leading: [] },
+        { from: 'u', read: ['x'], to: 'u', write: ['x'], dir: ['R'], leading: [] }
+      ],
+      input: '',
+      output: { kind: 'word' },
+      declared: {
+        states: false,
+        inputAlphabet: false,
+        tapeAlphabet: false,
+        start: false,
+        blank: false
+      },
+      comments: { header: [], trailing: [] }
+    };
+    expect(parseSource('δ(s, a) = (t, b, L)').spec?.states.some((s) => s.name === 's')).toBe(true);
+    expect(formatSpec(probe, false)).toContain('probe');
+    expect(encodeShare(probe)).not.toBe('1.stub');
+    expect(fromStandard('1RB1LB_1LA1RZ').spec?.name).not.toBe('1RB1LB_1LA1RZ');
+    const routes = graphRoute(probe, new Float64Array([0, 100, 0]), new Float64Array([0, 0, 100]));
+    expect(routes.routes.find((r) => r.edge === 3)?.path).not.toBe(
+      'M -10 80 c -20 -50 20 -50 10 0'
+    );
+    const session = new Session(probe, '');
+    expect(session.step(1, 0).state).toBe('t');
+    session.free();
+  });
+
   it('turns malformed values into exceptions and keeps working', () => {
     expect(() => formatSpec({} as MachineSpecDto, false)).toThrow();
     expect(() => formatSpec(null as unknown as MachineSpecDto, false)).toThrow();
@@ -255,12 +307,21 @@ describe('sessions', () => {
     }
   }, 60_000);
 
-  it('stops at breakpoints', () => {
+  it('stops before breakpoint transitions, the first step included', () => {
     const session = new Session(standard(BB4), '');
     try {
-      const result = session.run(1_000, { transitions: [], states: ['C'], onOutput: false }, 0);
-      expect(result.reason).toBe('breakpoint');
-      expect(result.snapshot.state).toBe('C');
+      const atC = session.run(1_000, { transitions: [], states: ['C'], onOutput: false }, 0);
+      expect(atC.reason).toBe('breakpoint');
+      expect(atC.snapshot.state).toBe('C');
+      const next = atC.snapshot.nextTransition!;
+      const onIt = { transitions: [next], states: [], onOutput: false };
+      const immediately = session.run(1_000, onIt, 0);
+      expect(immediately.reason).toBe('breakpoint');
+      expect(immediately.stepsDone).toBe(0);
+      session.step(1, 0);
+      const later = session.run(1_000, onIt, 0);
+      expect(['breakpoint', 'halted']).toContain(later.reason);
+      expect(later.stepsDone).toBeGreaterThan(0);
     } finally {
       session.free();
     }

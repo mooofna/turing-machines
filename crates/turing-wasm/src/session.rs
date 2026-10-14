@@ -17,12 +17,12 @@
 //!
 //! # Breakpoints
 //!
-//! A run stops before applying a transition marked as a breakpoint, after a step that enters a
-//! state marked as a breakpoint from a different state (self-loops do not count, so a scan in
-//! that state does not stop at every cell), and, for enumerators with `onOutput`, after every
-//! step that prints a word. The first step of a run is never stopped by a transition
-//! breakpoint, so that running again after a breakpoint continues instead of stopping on the
-//! spot. Unknown states and transition indices are ignored.
+//! A run stops before every step that would apply a transition marked as a breakpoint, the
+//! first step of the run included: a run started on such a transition stops at once with reason
+//! `breakpoint` and no step made, and the caller steps past it with `step`. A run also stops
+//! after every step into a state marked as a breakpoint (a self-loop in that state too, also in
+//! the middle of a chain step) and, for enumerators with `onOutput`, after every step that
+//! prints a word. Unknown states and transition indices are ignored.
 //!
 //! A run with breakpoints first simulates a copy of the current position to find where it
 //! stops, then moves the timeline there; this doubles the cost of such runs, while runs without
@@ -219,9 +219,9 @@ impl Stops {
             .unwrap_or(false)
     }
 
-    /// Whether a step from `from` to `to` enters a breakpoint state.
-    fn enters(&self, from: State, to: State) -> bool {
-        from != to && self.states.get(to.index()).copied().unwrap_or(false)
+    /// Whether a step into `to` stops the run.
+    fn in_state(&self, to: State) -> bool {
+        self.states.get(to.index()).copied().unwrap_or(false)
     }
 }
 
@@ -758,56 +758,29 @@ fn probe_chain(
     stops: &Stops,
 ) -> Probe {
     let start = sim.steps();
-    let q = sim.state();
-    let a = sim.tape().read();
-    let Some(first) = machine.action1(q, a) else {
-        return Probe {
-            steps: start,
-            ..Probe::default()
-        };
-    };
-    // The first step on its own: it never stops at a transition breakpoint, and a partial
-    // chain of one step keeps it exact.
-    let first_origin = machine.origin(q, &[a]);
-    sim.run(1);
-    if sim.steps() == start {
-        return Probe {
-            steps: start,
-            ..Probe::default()
-        };
-    }
-    let mut probe = Probe {
-        steps: sim.steps(),
-        hit: stops.enters(q, first.next),
-        stepped: true,
-        last: first_origin,
-    };
-    if probe.hit || budget == 1 {
-        return probe;
-    }
     // The macro steps announced so far: (steps before, spec index), latest last.
     let mut seen: [Option<(u64, Option<usize>)>; 2] = [None, None];
-    let mut pending = false;
     let mut hit = false;
-    let outcome = sim.run_until(budget - 1, |event| {
-        if pending {
-            hit = true;
-            return true;
-        }
+    let mut enter = false;
+    sim.run_until(budget, |event| {
         let origin = machine.origin(event.from, &[event.read]);
         if stops.at_transition(origin) {
             hit = true;
             return true;
         }
-        pending = stops.enters(event.from, event.action.next);
+        if stops.in_state(event.action.next) {
+            // Stop before it and make exactly one of its steps below.
+            enter = true;
+            return true;
+        }
         seen = [seen[1], Some((event.steps_before, origin))];
         false
     });
-    if pending && !hit && matches!(outcome, Outcome::OutOfFuel { .. }) {
-        hit = true;
-    }
-    probe.steps = sim.steps();
-    probe.hit = hit;
+    let mut probe = Probe {
+        steps: sim.steps(),
+        hit,
+        ..Probe::default()
+    };
     // The latest announced macro step that was executed, at least partially.
     if let Some((_, origin)) = seen
         .iter()
@@ -815,7 +788,20 @@ fn probe_chain(
         .flatten()
         .find(|(before, _)| *before < probe.steps)
     {
+        probe.stepped = true;
         probe.last = *origin;
+    }
+    if enter && sim.steps() - start < budget {
+        let origin = machine.origin(sim.state(), &[sim.tape().read()]);
+        let before = sim.steps();
+        // A partial chain of one step keeps the stop exact.
+        sim.run(1);
+        if sim.steps() > before {
+            probe.steps = sim.steps();
+            probe.stepped = true;
+            probe.last = origin;
+            probe.hit = true;
+        }
     }
     probe
 }
@@ -847,7 +833,7 @@ fn probe_exact(
             break;
         }
         let origin = machine.origin(q, &read);
-        if done > 0 && stops.at_transition(origin) {
+        if stops.at_transition(origin) {
             probe.hit = true;
             break;
         }
@@ -863,7 +849,7 @@ fn probe_exact(
             let word = printed.then(|| printed_word(machine, sim.tapes().first()));
             emissions.observe(sim.steps(), word);
         }
-        if stops.enters(q, action.next) || (stops.on_output && printed) {
+        if stops.in_state(action.next) || (stops.on_output && printed) {
             probe.hit = true;
             break;
         }
@@ -1047,7 +1033,7 @@ mod tests {
         }
 
         #[test]
-        fn transition_breakpoints_stop_before_and_resume() {
+        fn transition_breakpoints_stop_before_every_step() {
             let mut s = open(&testing::standard(testing::BB4), "");
             let mut plain = open(&testing::standard(testing::BB4), "");
             let bp = BreakpointsDto {
@@ -1063,18 +1049,38 @@ mod tests {
                 }
                 assert_eq!(r.snapshot.next_transition, Some(3));
                 stops.push(r.snapshot.step);
+                // Running again on the breakpoint stops at once; a step goes past it.
+                let again = s.run(1_000, &bp, 0);
+                assert_eq!(again.reason, StopReasonDto::Breakpoint);
+                assert_eq!(again.steps_done, 0.0);
+                assert_eq!(again.snapshot, r.snapshot);
+                s.step(1);
             }
             assert_ne!(stops.len(), 0);
-            // Every stop is exactly a step before which transition 3 applies.
+            // Every stop is exactly a step before which transition 3 applies, and no such step
+            // was run over.
             for &step in &stops {
                 plain.seek(convert::count(step));
                 assert_eq!(plain.snapshot(0).next_transition, Some(3));
             }
+            plain.seek(0);
+            let mut expected = Vec::new();
+            loop {
+                let snap = plain.snapshot(0);
+                if snap.next_transition == Some(3) {
+                    expected.push(snap.step);
+                }
+                if snap.status != RunStatusDto::Running {
+                    break;
+                }
+                plain.step(1);
+            }
+            assert_eq!(stops, expected);
             assert_eq!(s.snapshot(0).step, 107.0);
         }
 
         #[test]
-        fn state_breakpoints_stop_after_entering() {
+        fn state_breakpoints_stop_after_each_step_into_the_state() {
             let mut s = open(&testing::standard(testing::BB4), "");
             let bp = BreakpointsDto {
                 states: vec!["C".into()],
@@ -1083,11 +1089,8 @@ mod tests {
             let r = s.run(1_000, &bp, 0);
             assert_eq!(r.reason, StopReasonDto::Breakpoint);
             assert_eq!(r.snapshot.state, "C");
-            let at = r.snapshot.step;
-            // The step before was in another state.
-            s.back(1);
-            assert_ne!(s.snapshot(0).state, "C");
-            s.seek(convert::count(at));
+            assert!(r.steps_done > 0.0);
+            // The next run makes at least one step.
             let again = s.run(1_000, &bp, 0);
             assert!(again.steps_done > 0.0);
         }
@@ -1103,17 +1106,31 @@ mod tests {
             );
             dto.input_alphabet = vec!["x".into()];
             let mut s = open(&dto, &"x".repeat(1_000));
-            let bp = BreakpointsDto {
+            let on_transition = BreakpointsDto {
                 transitions: vec![0],
                 ..BreakpointsDto::default()
             };
-            // The first step of a run passes the breakpoint; every next step stops at it.
+            let r = s.run(1_000_000, &on_transition, 0);
+            assert_eq!(r.reason, StopReasonDto::Breakpoint);
+            assert_eq!(r.steps_done, 0.0);
+            // A breakpoint on the scanning state stops after every single step of the chain.
+            let in_state = BreakpointsDto {
+                states: vec!["q0".into()],
+                ..BreakpointsDto::default()
+            };
             for expected in 1..=5 {
-                let r = s.run(1_000_000, &bp, 0);
+                let r = s.run(1_000_000, &in_state, 0);
                 assert_eq!(r.reason, StopReasonDto::Breakpoint);
                 assert_eq!(r.steps_done, 1.0);
                 assert_eq!(r.snapshot.step, f64::from(expected));
+                assert_eq!(r.snapshot.last_transition, Some(0));
             }
+            s.step(500);
+            let r = s.run(1_000_000, &on_transition, 0);
+            assert_eq!(
+                (r.reason, r.snapshot.step),
+                (StopReasonDto::Breakpoint, 505.0)
+            );
             let r = s.run(1_000_000, &no_breakpoints(), 0);
             assert_eq!(r.reason, StopReasonDto::Halted);
             assert_eq!(r.snapshot.step, 1_000.0);
