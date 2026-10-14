@@ -722,3 +722,58 @@ proptest! {
         }
     }
 }
+
+/// Hostile input must not make parsing slow: every check uses sets and maps, and "did you
+/// mean" searches are rationed. Each of these texts parses in well under a second; a quadratic
+/// check would take minutes.
+#[test]
+fn large_inputs_parse_quickly() {
+    let states: Vec<String> = (0..5_000).map(|i| format!("q{i}")).collect();
+    let mut text = format!("Q = {{{}}}\n", states.join(", "));
+    for i in 0..20_000 {
+        text.push_str(&format!("δ(q{i}, x) = (p{i}, x, R)\n"));
+    }
+    let codes: std::collections::BTreeSet<_> = dsl::parse(&text)
+        .diagnostics
+        .iter()
+        .map(|d| d.code)
+        .collect();
+    assert_eq!(codes, ["E003", "E009", "W001"].into());
+
+    let glyphs: String = ('\u{4e00}'..'\u{9000}').take(20_000).collect();
+    let mut text = String::new();
+    for (i, glyph) in glyphs.chars().enumerate() {
+        text.push_str(&format!("δ(q{i}, {glyph}) = (q{}, {glyph}, R)\n", i + 1));
+    }
+    let codes: std::collections::BTreeSet<_> = dsl::parse(&text)
+        .diagnostics
+        .iter()
+        .map(|d| d.code)
+        .collect();
+    assert_eq!(codes, ["E009"].into());
+
+    let finals: Vec<String> = (0..20_000).map(|i| format!("f{i}")).collect();
+    let text = format!(
+        "Q = {{{}}}\nF = {{{}}}\n",
+        states.join(", "),
+        finals.join(", ")
+    );
+    assert!(
+        dsl::parse(&text)
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "E003")
+    );
+
+    let set: Vec<String> = (0..100)
+        .map(|i| format!("'{}'", char::from_u32(0x100 + i).unwrap()))
+        .collect();
+    let set = format!("{{{}}}", set.join(", "));
+    let text = format!("tapes = 3\nδ(q, ({set}, {set}, {set})) = (q, (*, *, *), (R, R, R))\n");
+    let codes: Vec<_> = dsl::parse(&text)
+        .diagnostics
+        .iter()
+        .map(|d| d.code)
+        .collect();
+    assert_eq!(codes, ["E009"]);
+}
