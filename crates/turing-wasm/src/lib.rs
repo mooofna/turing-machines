@@ -7,6 +7,7 @@ mod cryptids;
 pub mod dto;
 mod editor;
 mod enumerate;
+mod read;
 mod session;
 mod share;
 mod spacetime;
@@ -17,7 +18,6 @@ mod testing;
 use std::fmt;
 
 use serde::Serialize;
-use serde::de::DeserializeOwned;
 use tsify::{Ts, Tsify};
 use turing_bb::cryptids::antihydra::{MachineCheck, RuleWalk};
 use wasm_bindgen::prelude::*;
@@ -63,14 +63,10 @@ fn out<T: Tsify + Serialize>(value: &T) -> Out<T> {
     Ts::from_rust(value).map_err(|e| JsError::new(&e.to_string()))
 }
 
-/// Deserialises a DTO from JavaScript inside the function, so a malformed value becomes an
-/// ordinary error instead of a leak at the ABI boundary.
-fn input<T>(value: &Ts<T>) -> Result<T, JsError>
-where
-    T: Tsify + DeserializeOwned,
-    <T as Tsify>::JsType: Clone,
-{
-    value.to_rust().map_err(|e| JsError::new(&e.to_string()))
+/// Reads a spec from JavaScript inside the function, so a malformed value becomes an ordinary
+/// error instead of a leak at the ABI boundary.
+fn spec_arg(spec: &Ts<MachineSpecDto>) -> Result<MachineSpecDto, JsError> {
+    Ok(read::spec(&spec.js_value())?)
 }
 
 /// Installs a panic hook that reports Rust panics on the browser console.
@@ -111,7 +107,7 @@ pub fn parse_source(source: &str) -> Out<ParseResultDto> {
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn format_spec(spec: Ts<MachineSpecDto>, ascii: bool) -> Result<String, JsError> {
-    Ok(editor::format_spec(&input(&spec)?, ascii)?)
+    Ok(editor::format_spec(&spec_arg(&spec)?, ascii)?)
 }
 
 /// Checks a spec and returns every error and warning.
@@ -128,7 +124,7 @@ pub fn format_spec(spec: Ts<MachineSpecDto>, ascii: bool) -> Result<String, JsEr
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn check_spec(spec: Ts<MachineSpecDto>) -> Out<DiagnosticsDto> {
-    out(&editor::check_spec(&input(&spec)?))
+    out(&editor::check_spec(&spec_arg(&spec)?))
 }
 
 /// Parses the bbchallenge standard format, for example `1RB1LB_1LA1RZ`.
@@ -152,7 +148,7 @@ pub fn from_standard(text: &str) -> Out<ParseResultDto> {
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn to_standard(spec: Ts<MachineSpecDto>) -> Result<Option<String>, JsError> {
-    Ok(editor::to_standard(&input(&spec)?)?)
+    Ok(editor::to_standard(&spec_arg(&spec)?)?)
 }
 
 /// Encodes a spec for a share link: `1.` followed by base64url of the deflated description.
@@ -166,7 +162,7 @@ pub fn to_standard(spec: Ts<MachineSpecDto>) -> Result<Option<String>, JsError> 
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn encode_share(spec: Ts<MachineSpecDto>) -> Result<String, JsError> {
-    Ok(share::encode(&input(&spec)?)?)
+    Ok(share::encode(&spec_arg(&spec)?)?)
 }
 
 /// Decodes a share link payload produced by [`encode_share`].
@@ -191,7 +187,7 @@ pub fn decode_share(payload: &str) -> Out<ParseResultDto> {
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn graph_layout(spec: Ts<MachineSpecDto>, kind: &str) -> Out<GraphLayoutDto> {
-    out(&editor::graph_layout(&input(&spec)?, kind)?)
+    out(&editor::graph_layout(&spec_arg(&spec)?, kind)?)
 }
 
 /// Routes the edges of a spec for node centres `xs` and `ys`.
@@ -206,7 +202,7 @@ pub fn graph_layout(spec: Ts<MachineSpecDto>, kind: &str) -> Out<GraphLayoutDto>
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn graph_route(spec: Ts<MachineSpecDto>, xs: &[f64], ys: &[f64]) -> Out<EdgeRoutesDto> {
-    out(&editor::graph_route(&input(&spec)?, xs, ys)?)
+    out(&editor::graph_route(&spec_arg(&spec)?, xs, ys)?)
 }
 
 /// Knuth's `base ↑↑ height`, exact up to `max_digits` digits (at most 100000).
@@ -243,7 +239,7 @@ pub fn machine_count(states: u32, symbols: u32) -> Option<String> {
     reason = "wasm-bindgen passes owned values"
 )]
 pub fn decide(spec: Ts<MachineSpecDto>) -> Out<VerdictDto> {
-    out(&enumerate::decide(&input(&spec)?))
+    out(&enumerate::decide(&spec_arg(&spec)?))
 }
 
 // Engines (worker, advanced in bounded chunks).
@@ -273,7 +269,7 @@ impl Session {
     )]
     pub fn new(spec: Ts<MachineSpecDto>, input_word: &str) -> Result<Session, JsError> {
         Ok(Self {
-            inner: session::Session::new(&input(&spec)?, input_word)?,
+            inner: session::Session::new(&spec_arg(&spec)?, input_word)?,
         })
     }
 
@@ -331,7 +327,7 @@ impl Session {
         breakpoints: Ts<BreakpointsDto>,
         radius: u32,
     ) -> Out<RunResultDto> {
-        let breakpoints = input(&breakpoints)?;
+        let breakpoints = read::breakpoints(&breakpoints.js_value())?;
         out(&self.inner.run(count(max_steps), &breakpoints, radius))
     }
 }
@@ -361,7 +357,11 @@ impl SpaceTimeJob {
         request: Ts<SpaceTimeRequestDto>,
     ) -> Result<SpaceTimeJob, JsError> {
         Ok(Self {
-            inner: spacetime::Job::new(&input(&spec)?, input_word, &input(&request)?)?,
+            inner: spacetime::Job::new(
+                &spec_arg(&spec)?,
+                input_word,
+                &read::spacetime_request(&request.js_value())?,
+            )?,
         })
     }
 
@@ -384,7 +384,7 @@ impl SpaceTimeJob {
         reason = "wasm-bindgen passes owned values"
     )]
     pub fn rgba(&self, palette: Ts<PaletteDto>) -> Result<Vec<u8>, JsError> {
-        let palette = spacetime::palette(&input(&palette)?)?;
+        let palette = spacetime::palette(&read::palette(&palette.js_value())?)?;
         Ok(self.inner.rgba(&palette))
     }
 

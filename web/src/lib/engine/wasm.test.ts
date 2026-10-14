@@ -29,7 +29,8 @@ import {
   type AntihydraRowDto,
   type BreakpointsDto,
   type MachineSpecDto,
-  type RunResultDto
+  type RunResultDto,
+  type SpaceTimeRequestDto
 } from './pkg/turing_wasm.js';
 
 const BB4 = '1RB1LB_1LA0LC_1RZ1LD_1RD0RA';
@@ -178,6 +179,31 @@ describe('editor services', () => {
     expect(() =>
       checkSpec({ ...parsed(SOURCE), kind: 'robot' } as unknown as MachineSpecDto)
     ).toThrow();
+    const spec = parsed(SOURCE);
+    const badRead = { ...spec, transitions: [{ ...spec.transitions[0]!, read: [1] }] };
+    expect(() => formatSpec(badRead as unknown as MachineSpecDto, false)).toThrow(
+      'spec.transitions[0].read[0] must be a string'
+    );
+    const noLeading = spec.transitions.map(({ leading: _, ...t }) => t);
+    expect(formatSpec({ ...spec, transitions: noLeading } as MachineSpecDto, false)).toBe(
+      formatSpec(spec, false)
+    );
+    expect(
+      () =>
+        new SpaceTimeJob(spec, '1', {
+          width: 10,
+          height: 10,
+          mode: { kind: 'spiral' }
+        } as unknown as SpaceTimeRequestDto)
+    ).toThrow('request.mode.kind must be one of `exact`, `overview`');
+    const session = new Session(spec, '1');
+    expect(() => session.run(10, { transitions: 'all' } as unknown as BreakpointsDto, 0)).toThrow(
+      'breakpoints.transitions must be an array'
+    );
+    expect(
+      session.run(10, { transitions: [], states: [] } as unknown as BreakpointsDto, 0).reason
+    ).toBe('halted');
+    session.free();
     expect(version()).toMatch(/^\d+\.\d+\.\d+/);
     expect(parseSource(SOURCE).spec).toBeDefined();
   });
