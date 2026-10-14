@@ -155,15 +155,31 @@ impl<M: Borrow<Machine>> Simulator<M> {
     /// [`Outcome::OutOfFuel`] if `fuel` steps have been made. So `run_until(0, ..)` reports
     /// the status of the current configuration without changing it.
     pub fn run_until(&mut self, fuel: u64, mut stop: impl FnMut(&StepEvent) -> bool) -> Outcome {
+        self.run_inner(fuel, &mut stop, true)
+    }
+
+    /// Runs like [`Simulator::run_until`]; with `prove == false` it does not look for proofs
+    /// of non-termination and executes looping steps like any other.
+    pub(crate) fn run_inner(
+        &mut self,
+        fuel: u64,
+        stop: &mut impl FnMut(&StepEvent) -> bool,
+        prove: bool,
+    ) -> Outcome {
         if self.tapes.len() == 1 {
-            self.run_single(fuel, &mut stop)
+            self.run_single(fuel, stop, prove)
         } else {
-            self.run_multi(fuel, &mut stop)
+            self.run_multi(fuel, stop, prove)
         }
     }
 
-    /// [`Simulator::run_until`] for single-tape machines.
-    fn run_single(&mut self, fuel: u64, stop: &mut impl FnMut(&StepEvent) -> bool) -> Outcome {
+    /// [`Simulator::run_inner`] for single-tape machines.
+    fn run_single(
+        &mut self,
+        fuel: u64,
+        stop: &mut impl FnMut(&StepEvent) -> bool,
+        prove: bool,
+    ) -> Outcome {
         let limit = self.steps.saturating_add(fuel);
         loop {
             let from = self.state;
@@ -175,7 +191,8 @@ impl<M: Borrow<Machine>> Simulator<M> {
                 };
             };
             // Only steps that stay in their state can loop on their own.
-            if action.next == from
+            if prove
+                && action.next == from
                 && (action.dir[0] == Dir::N || read.is_blank())
                 && let Some(proof) = self.non_halt_proof(&[read], action)
             {
@@ -204,8 +221,13 @@ impl<M: Borrow<Machine>> Simulator<M> {
         }
     }
 
-    /// [`Simulator::run_until`] for machines with several tapes.
-    fn run_multi(&mut self, fuel: u64, stop: &mut impl FnMut(&StepEvent) -> bool) -> Outcome {
+    /// [`Simulator::run_inner`] for machines with several tapes.
+    fn run_multi(
+        &mut self,
+        fuel: u64,
+        stop: &mut impl FnMut(&StepEvent) -> bool,
+        prove: bool,
+    ) -> Outcome {
         let limit = self.steps.saturating_add(fuel);
         let tapes = self.tapes.len();
         loop {
@@ -217,7 +239,8 @@ impl<M: Borrow<Machine>> Simulator<M> {
                     state: from,
                 };
             };
-            if action.next == from
+            if prove
+                && action.next == from
                 && let Some(proof) = self.non_halt_proof(&read[..tapes], action)
             {
                 return Outcome::NeverHalts {

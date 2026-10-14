@@ -123,10 +123,12 @@ impl RunTape {
         }
     }
 
-    /// The number of cells directly beyond the head in direction `dir` that hold `symbol`.
+    /// The number of cells directly beyond the head in direction `dir` that hold `symbol`;
+    /// `u64::MAX` for the infinite blank remainder.
     fn run_ahead(&self, dir: Dir, symbol: Symbol) -> u64 {
         match self.side(dir).last() {
             Some(run) if run.symbol == symbol => run.len,
+            None if symbol.is_blank() => u64::MAX,
             _ => 0,
         }
     }
@@ -135,18 +137,22 @@ impl RunTape {
     /// moves the head `n` cells in that direction.
     ///
     /// The `n - 1` cells must hold the symbol under the head, which is the case for
-    /// `n <= 1 + run_ahead(dir, read())`. With `Dir::N`, `n` must be 1.
+    /// `n <= 1 + run_ahead(dir, read())`. With `Dir::N`, the head stays and `n > 1` is only
+    /// allowed if `write` is the symbol under the head.
     fn apply(&mut self, write: Symbol, dir: Dir, n: u64) {
         debug_assert!(n >= 1, "a macro step makes at least one step");
         debug_assert!(
-            n <= 1 + self.run_ahead(dir, self.cur),
+            n <= self.run_ahead(dir, self.cur).saturating_add(1),
             "a chain may only cover the run ahead"
         );
         let (behind, ahead, delta) = match dir {
             Dir::L => (&mut self.right, &mut self.left, -1),
             Dir::R => (&mut self.left, &mut self.right, 1),
             Dir::N => {
-                debug_assert_eq!(n, 1, "a step that does not move cannot repeat");
+                debug_assert!(
+                    n == 1 || write == self.cur,
+                    "only a stay loop repeats in place"
+                );
                 self.cur = write;
                 return;
             }
@@ -451,6 +457,17 @@ impl<M: Borrow<Machine>> ChainSim<M> {
     /// assert_eq!(sim.macro_steps(), 2);
     /// ```
     pub fn run_until(&mut self, fuel: u64, mut stop: impl FnMut(&MacroEvent) -> bool) -> Outcome {
+        self.run_inner(fuel, &mut stop, true)
+    }
+
+    /// Runs like [`ChainSim::run_until`]; with `prove == false` it does not stop at proofs of
+    /// non-termination but executes the endless loop for the remaining fuel in one macro step.
+    pub(crate) fn run_inner(
+        &mut self,
+        fuel: u64,
+        stop: &mut impl FnMut(&MacroEvent) -> bool,
+        prove: bool,
+    ) -> Outcome {
         let mut fuel = fuel;
         loop {
             let from = self.state;
@@ -463,25 +480,29 @@ impl<M: Borrow<Machine>> ChainSim<M> {
             };
             let (write, dir) = (action.write[0], action.dir[0]);
             let chain = action.next == from && dir != Dir::N;
-            if action.next == from {
-                let proof = if dir == Dir::N && write == read {
-                    Some(NonHaltProof::StayLoop { state: from })
-                } else if chain && read.is_blank() && self.tape.side(dir).is_empty() {
-                    Some(NonHaltProof::ChainToInfinity { state: from, dir })
-                } else {
-                    None
+            let proof = if action.next != from {
+                None
+            } else if dir == Dir::N && write == read {
+                Some(NonHaltProof::StayLoop { state: from })
+            } else if chain && read.is_blank() && self.tape.side(dir).is_empty() {
+                Some(NonHaltProof::ChainToInfinity { state: from, dir })
+            } else {
+                None
+            };
+            if let (true, Some(proof)) = (prove, proof) {
+                return Outcome::NeverHalts {
+                    steps: self.steps,
+                    proof,
                 };
-                if let Some(proof) = proof {
-                    return Outcome::NeverHalts {
-                        steps: self.steps,
-                        proof,
-                    };
-                }
             }
             if fuel == 0 {
                 return Outcome::OutOfFuel { steps: self.steps };
             }
-            let repeats = if chain {
+            // A proved loop repeats for as long as the fuel lasts: a stay loop never changes
+            // the configuration, and a chain into blanks has an infinite run ahead.
+            let repeats = if proof.is_some() {
+                fuel
+            } else if chain {
                 self.tape.run_ahead(dir, read).saturating_add(1).min(fuel)
             } else {
                 1
