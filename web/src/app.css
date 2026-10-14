@@ -376,6 +376,11 @@ textarea {
   white-space: nowrap;
 }
 
+/* A figure right after a section belongs to it: less space between them. */
+.section:has(+ .figure) {
+  padding-bottom: var(--space-3);
+}
+
 /* A plate for canvases and diagrams: a hairline, nothing else. */
 .frame {
   border: 1px solid var(--rule);

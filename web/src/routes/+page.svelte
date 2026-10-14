@@ -97,7 +97,7 @@
       {#if spec && measured}
         <SpaceTime
           {spec}
-          mode={{ kind: 'overview', maxSteps: BUDGET }}
+          mode={{ kind: 'overview', maxSteps: steps && steps > 0 ? steps : BUDGET }}
           aspect={heroAspect}
           label="Space-time diagram of the five-state busy beaver champion, from the blank tape until it halts. Time runs downwards."
         />
