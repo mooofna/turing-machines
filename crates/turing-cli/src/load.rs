@@ -172,10 +172,14 @@ pub(crate) fn analyse(source: &Source) -> Analysis {
     }
 }
 
-/// Appends the diagnostics of `more` that are not already in `into`.
+/// Appends the diagnostics of `more` that `into` does not report yet. The parser and the
+/// checker may report the same problem at different spans; the first report wins.
 fn merge(into: &mut Vec<Diagnostic>, more: Vec<Diagnostic>) {
     for d in more {
-        if !into.contains(&d) {
+        let known = into
+            .iter()
+            .any(|e| e.severity == d.severity && e.code == d.code && e.message == d.message);
+        if !known {
             into.push(d);
         }
     }

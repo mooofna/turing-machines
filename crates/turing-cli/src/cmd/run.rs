@@ -141,7 +141,8 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
 
 fn write_text(out: &mut dyn Write, name: &str, run: &Run<'_>, args: &Args) -> Result<()> {
     let m = run.machine;
-    report::field(out, "machine", format!("{name} ({})", cmd::shape(m)))?;
+    report::field(out, "machine", name)?;
+    report::continuation(out, paint(style::DIM, cmd::shape(m)))?;
     if m.kind() != Kind::Beaver || !run.input.is_empty() {
         report::field(out, "input", text::word(&run.input))?;
     }
