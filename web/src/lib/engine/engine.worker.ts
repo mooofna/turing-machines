@@ -5,17 +5,16 @@
 import type {
   EnumerationJob,
   MachineSpecDto,
+  Session,
   SpaceTimeJob,
   SpaceTimeProgressDto
 } from './pkg/turing_wasm';
 import type { Envelope, Request, Response } from './protocol';
 import { loadWasm, type Wasm } from './wasm';
-// Development fallback while the WebAssembly session is the stub; inert with the real engine.
-import { FallbackSession, sessionIsStub, type SessionLike } from '#lib/machine/fallback/index.ts';
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
-const sessions = new Map<string, SessionLike>();
+const sessions = new Map<string, Session>();
 const spacetimes = new Map<number, SpaceTimeJob>();
 const cancelled = new Set<number>();
 
@@ -38,14 +37,11 @@ function adapt(size: number, elapsed: number, min: number, max: number): number 
   return Math.max(min, Math.min(max, Math.round(Math.min(scaled, size * 4))));
 }
 
-let stubSession: boolean | null = null;
-
-function openSession(w: Wasm, spec: MachineSpecDto, input: string): SessionLike {
-  stubSession ??= sessionIsStub(w);
-  return stubSession ? new FallbackSession(spec, input) : new w.Session(spec, input);
+function openSession(w: Wasm, spec: MachineSpecDto, input: string): Session {
+  return new w.Session(spec, input);
 }
 
-function session(name: string): SessionLike {
+function session(name: string): Session {
   const found = sessions.get(name);
   if (!found) throw new Error(`no session ${name}`);
   return found;

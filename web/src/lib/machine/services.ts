@@ -11,7 +11,6 @@ import type {
   ParseResultDto
 } from '#lib/engine/pkg/turing_wasm.js';
 import { editor, type Wasm } from '#lib/engine/wasm.ts';
-import { dsl, graph, stubbedServices } from './fallback';
 
 export type LayoutKind = 'auto' | 'layered' | 'circular';
 
@@ -53,11 +52,9 @@ function safe(run: () => ParseResultDto): ParseResultDto {
 }
 
 function build(w: Wasm): EditorServices {
-  const stub = stubbedServices(w);
   return {
-    parseSource: (source) => safe(() => (stub.has('parse') ? dsl.parse : w.parseSource)(source)),
-    formatSpec: (spec) =>
-      stub.has('format') ? dsl.format(spec, false) : w.formatSpec(spec, false),
+    parseSource: (source) => safe(() => w.parseSource(source)),
+    formatSpec: (spec) => w.formatSpec(spec, false),
     checkSpec: (spec) => {
       try {
         return w.checkSpec(spec).diagnostics;
@@ -65,18 +62,14 @@ function build(w: Wasm): EditorServices {
         return failure(error).diagnostics;
       }
     },
-    graphLayout: (spec, kind = 'auto') =>
-      stub.has('graph') ? graph.layout(spec) : w.graphLayout(spec, kind),
-    graphRoute: (spec, xs, ys) =>
-      (stub.has('graph') ? graph.route(spec, xs, ys) : w.graphRoute(spec, xs, ys)).routes,
-    encodeShare: (spec) => (stub.has('share') ? dsl.encodeShare(spec) : w.encodeShare(spec)),
-    decodeShare: (payload) =>
-      safe(() => (stub.has('share') ? dsl.decodeShare : w.decodeShare)(payload)),
-    fromStandard: (text) =>
-      safe(() => (stub.has('standard') ? dsl.fromStandard : w.fromStandard)(text)),
+    graphLayout: (spec, kind = 'auto') => w.graphLayout(spec, kind),
+    graphRoute: (spec, xs, ys) => w.graphRoute(spec, xs, ys).routes,
+    encodeShare: (spec) => w.encodeShare(spec),
+    decodeShare: (payload) => safe(() => w.decodeShare(payload)),
+    fromStandard: (text) => safe(() => w.fromStandard(text)),
     toStandard: (spec) => {
       try {
-        return stub.has('standard') ? dsl.toStandard(spec) : w.toStandard(spec);
+        return w.toStandard(spec);
       } catch {
         return undefined;
       }

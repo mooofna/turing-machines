@@ -51,11 +51,7 @@ fn assert_round_trip(spec: &MachineSpec) {
     for style in STYLES {
         let text = dsl::format(spec, style);
         let parsed = dsl::parse(&text);
-        let errors: Vec<_> = parsed
-            .diagnostics
-            .iter()
-            .filter(|d| d.is_error())
-            .collect();
+        let errors: Vec<_> = parsed.diagnostics.iter().filter(|d| d.is_error()).collect();
         assert!(errors.is_empty(), "{text}\n{errors:#?}");
         let again = without_spans(parsed.spec.expect("a spec"));
         assert_eq!(again, expected, "{text}");

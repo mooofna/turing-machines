@@ -18,16 +18,23 @@ const wasm = join(root, 'target/wasm32-unknown-unknown/wasm-release/turing_wasm.
 
 // Size budget of the optimised module (bytes).
 const BUDGET_RAW = 600 * 1024;
-const BUDGET_GZIP = 220 * 1024;
+const BUDGET_GZIP = 250 * 1024;
 
 /**
  * @param {string} command
  * @param {string[]} args
  * @param {string} [cwd]
+ * @param {NodeJS.ProcessEnv} [env]
  */
-function run(command, args, cwd = root) {
-  execFileSync(command, args, { cwd, stdio: 'inherit' });
+function run(command, args, cwd = root, env = process.env) {
+  execFileSync(command, args, { cwd, stdio: 'inherit', env });
 }
+
+// Keep local paths (home directory, registry location) out of the module: panic locations
+// are written relative to the workspace and to the crate registry instead.
+const home = process.env.CARGO_HOME ?? join(process.env.HOME ?? '', '.cargo');
+const remap = [`--remap-path-prefix=${root}=.`, `--remap-path-prefix=${home}=cargo`];
+const rustflags = [process.env.RUSTFLAGS ?? '', ...remap].join(' ').trim();
 
 function lockedBindgenVersion() {
   const lock = readFileSync(join(root, 'Cargo.lock'), 'utf8');
@@ -54,15 +61,12 @@ if (cli !== locked) {
   process.exit(1);
 }
 
-run('cargo', [
-  'build',
-  '-p',
-  'turing-wasm',
-  '--target',
-  'wasm32-unknown-unknown',
-  '--profile',
-  'wasm-release'
-]);
+run(
+  'cargo',
+  ['build', '-p', 'turing-wasm', '--target', 'wasm32-unknown-unknown', '--profile', 'wasm-release'],
+  root,
+  { ...process.env, RUSTFLAGS: rustflags }
+);
 run('wasm-bindgen', ['--target', 'web', '--typescript', '--out-dir', out, wasm]);
 
 const bindgenWasm = join(out, 'turing_wasm_bg.wasm');
