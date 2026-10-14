@@ -8,7 +8,7 @@ use alloc::vec::Vec;
 use core::fmt;
 
 use crate::alphabet::Alphabet;
-use crate::machine::{Action, Decoder, Kind, Machine, StateInfo};
+use crate::machine::{Action, Decoder, Kind, Machine, Packed, StateInfo};
 use crate::symbol::{Dir, MAX_STATES, MAX_SYMBOLS, MAX_TAPES, State, Symbol};
 
 /// The largest transition table, in entries: |Q| × |Γ|^k must not exceed it.
@@ -550,8 +550,18 @@ impl MachineBuilder {
                 .fold(0, |acc, s| acc * gamma.len() + s.index());
             let slot = r.from.index() * stride + column;
             table[slot] = Some(r.action);
+            // Distinct transitions fit into the table, which has at most 2^22 entries.
             origin[slot] = u32::try_from(index).unwrap_or(u32::MAX);
         }
+
+        let packed = if self.tapes == 1 {
+            table
+                .iter()
+                .map(|&entry| Packed::new(entry, stride))
+                .collect()
+        } else {
+            Box::default()
+        };
 
         let finals: BTreeSet<&str> = self.finals.iter().map(String::as_str).collect();
         let start = self
@@ -578,6 +588,7 @@ impl MachineBuilder {
             stride,
             table,
             origin,
+            packed,
             decoder: self.decoder,
             input: self.input.clone(),
         })
@@ -634,10 +645,12 @@ impl<T: Ord + Copy> Interner<T> {
         self.index.get(&item).copied()
     }
 
+    /// The number of distinct items.
     fn len(&self) -> usize {
         self.items.len()
     }
 
+    /// Whether nothing was inserted.
     fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
