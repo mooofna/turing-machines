@@ -182,6 +182,9 @@ impl Packed {
     pub(crate) const UNDEFINED: Self = Self(3);
 
     /// Packs an entry of a single-tape machine with `stride` table entries per state.
+    ///
+    /// The row always fits into 32 bits for a machine within the table size limit; an entry
+    /// that did not fit would be packed as undefined.
     pub(crate) fn new(action: Option<Action>, stride: usize) -> Self {
         let Some(action) = action else {
             return Self::UNDEFINED;
