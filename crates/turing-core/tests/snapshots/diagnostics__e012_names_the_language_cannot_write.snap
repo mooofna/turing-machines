@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "render(\"\", &diagnostics)"
+---
+error[E012]: `q 1` is not a valid state name
+    = help: a state name starts with a letter or `_` and continues with letters, digits, `_` and `'`
+
+error[E012]: a state has an empty name
+    = help: a state name starts with a letter or `_` and continues with letters, digits, `_` and `'`

@@ -1,0 +1,12 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, {x, y, x}) = (q1, *, R)\", & [\"E004\"])"
+---
+error[E004]: δ(q0, x) is defined twice
+  --> 1:14
+  1 | δ(q0, {x, y, x}) = (q1, *, R)
+    |              ^
+  --> 1:8
+  1 | δ(q0, {x, y, x}) = (q1, *, R)
+    |        - first defined here
+    = help: a deterministic machine has at most one transition per state and symbol

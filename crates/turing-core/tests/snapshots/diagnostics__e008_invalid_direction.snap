@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, x) = (q1, x, S)\", & [\"E008\"])"
+---
+error[E008]: `S` is not a direction
+  --> 1:20
+  1 | δ(q0, x) = (q1, x, S)
+    |                    ^
+    = help: use L, R or N

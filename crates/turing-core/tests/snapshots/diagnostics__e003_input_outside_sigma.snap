@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Σ = {x}\\ninput \\\"xyx\\\"\\nδ(q0, x) = (q0, x, R)\", & [\"E003\"])"
+---
+error[E003]: the input word contains `y`, which is not in the input alphabet Σ
+  --> 2:7
+  2 | input "xyx"
+    |       ^^^^^
+    = help: add `y` to Σ

@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0, q1}\\nstart = s\\nδ(q0, x) = (q1, x, R)\", & [\"E003\"])"
+---
+error[E003]: the state `s` is not declared in Q
+  --> 2:9
+  2 | start = s
+    |         ^
+    = help: add `s` to Q

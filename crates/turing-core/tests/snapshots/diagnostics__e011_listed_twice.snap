@@ -1,0 +1,19 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0, q1, q0}\\nF = {q1, q1}\\nδ(q0, x) = (q1, x, R)\", &\n[\"E011\", \"E011\"])"
+---
+error[E011]: the state `q0` is listed twice in Q
+  --> 1:14
+  1 | Q = {q0, q1, q0}
+    |              ^^
+  --> 1:6
+  1 | Q = {q0, q1, q0}
+    |      -- first listed here
+
+error[E011]: the state `q1` is listed twice in F
+  --> 2:10
+  2 | F = {q1, q1}
+    |          ^^
+  --> 2:6
+  2 | F = {q1, q1}
+    |      -- first listed here

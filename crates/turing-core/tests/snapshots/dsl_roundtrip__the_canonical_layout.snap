@@ -1,0 +1,20 @@
+---
+source: crates/turing-core/tests/dsl_roundtrip.rs
+expression: "dsl::format(&spec, FormatStyle::Unicode)"
+---
+// A machine with every kind of line.
+machine "layout"
+kind acceptor
+tapes = 2
+input "ab"
+
+F = {accept}
+
+δ(q0, (a, ␣)) = (q0, (a, a), (R, R))  // copy
+δ(q0, (b, ␣)) = (q0, (b, b), (R, R))
+
+// at the end
+δ(q0, (␣, ␣))       = (accept, (␣, ␣), (L, L))    // done
+δ(accept, ('*', ␣)) = (accept, (␣, '''), (N, N))
+
+// the end
