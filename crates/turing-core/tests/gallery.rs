@@ -8,7 +8,9 @@ use std::path::PathBuf;
 use serde_json::Value;
 use turing_core::dsl;
 use turing_core::standard::spec_from_standard;
-use turing_core::{ChainSim, Kind, Machine, MachineSpec, Outcome, Simulator, TapeView, decode};
+use turing_core::{
+    ChainSim, Dir, Kind, Machine, MachineSpec, Outcome, Simulator, TapeView, decode,
+};
 
 fn machines_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../machines")
@@ -35,7 +37,9 @@ fn spec_of(entry: &Value) -> MachineSpec {
         let text = entry["standard"]
             .as_str()
             .expect("a file or a standard string");
-        spec_from_standard(text).unwrap_or_else(|e| panic!("{id}: {e}"))
+        let spec = spec_from_standard(text).unwrap_or_else(|e| panic!("{id}: {e}"));
+        assert!(spec.check().is_empty(), "{id}: {:#?}", spec.check());
+        spec
     }
 }
 
@@ -152,6 +156,21 @@ fn the_gallery_is_well_formed() {
             let name = file.expect("an entry").file_name();
             let path = format!("{dir}/{}", name.to_string_lossy());
             assert!(files.contains(&path), "{path} is not in gallery.json");
+        }
+    }
+}
+
+#[test]
+fn course_and_classic_machines_move_left_or_right_only() {
+    let gallery = gallery_json();
+    for entry in gallery["machines"].as_array().expect("machines") {
+        if entry["file"].is_string() {
+            let spec = spec_of(entry);
+            assert!(
+                spec.transitions.iter().all(|t| !t.dir.contains(&Dir::N)),
+                "{}",
+                entry["id"]
+            );
         }
     }
 }
