@@ -64,11 +64,22 @@ assert_is_empty = "allow"
 lto = "fat"
 codegen-units = 1
 
+# The WebAssembly module is optimised for size, except where speed matters: the simulators'
+# hot loops are generic and instantiated in turing-wasm, and the deciders live in turing-bb.
+# Measured in Node on an M1 Pro against opt-level 3 everywhere: 560 KB instead of 635 KB (240 KB
+# instead of 264 KB gzipped); sessions and enumeration keep their speed, while parsing, layout
+# and space-time rendering take 15 % to 50 % longer (still well under a millisecond per edit).
 [profile.wasm-release]
 inherits = "release"
-opt-level = 3
+opt-level = "z"
 panic = "abort"
 strip = true
+
+[profile.wasm-release.package.turing-wasm]
+opt-level = 3
+
+[profile.wasm-release.package.turing-bb]
+opt-level = 3
 
 [profile.bench]
 debug = true
