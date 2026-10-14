@@ -27,7 +27,7 @@ fn snapshots() {
 fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("tm-cli-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::create_dir_all(&dir).expect("cannot create a scratch directory");
     dir
 }
 
@@ -170,5 +170,5 @@ fn closed_pipe_is_not_an_error() {
     drop(stdout);
     let output = child.wait_with_output().unwrap();
     assert!(output.status.code().is_some_and(|c| c == 0));
-    assert!(output.stderr.is_empty());
+    assert_eq!(String::from_utf8_lossy(&output.stderr), "");
 }
