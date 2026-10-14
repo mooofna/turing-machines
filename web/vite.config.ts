@@ -8,7 +8,9 @@ export default defineConfig({
       adapter: adapter({ fallback: '404.html' }),
       // GitHub Pages serves the site below /<repository>; CI sets BASE_PATH accordingly.
       paths: { base: (process.env.BASE_PATH ?? '') as '' | `/${string}` },
-      prerender: { handleHttpError: 'warn' },
+      // Links into the playground carry the machine in the hash (#g=, #tm=, #src=), which is
+      // read in the browser, so prerendering must not look for elements with those ids.
+      prerender: { handleHttpError: 'warn', handleMissingId: 'ignore' },
       csp: {
         mode: 'hash',
         directives: {

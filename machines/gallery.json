@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "groups": [
+    { "id": "course", "title": "Course machines" },
+    { "id": "beavers", "title": "Busy beavers" }
+  ],
+  "machines": [
+    {
+      "id": "binary-increment",
+      "title": "Binary increment",
+      "group": "course",
+      "file": "course/binary-increment.tm",
+      "input": "1011",
+      "provenance": "TheoLog 2024, TU Dresden",
+      "description": "Adds one to a binary number written with the most significant bit first.",
+      "examples": [
+        { "input": "1011", "expect": "1100" },
+        { "input": "111", "expect": "1000" }
+      ]
+    },
+    {
+      "id": "bb5",
+      "title": "BB(5) champion",
+      "group": "beavers",
+      "standard": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
+      "provenance": "Marxen and Buntrock, 1990",
+      "description": "The five-state machine that runs longest from a blank tape before it halts.",
+      "budget": 50000000,
+      "examples": [{ "input": "", "expect": "halts" }]
+    }
+  ]
+}

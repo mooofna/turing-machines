@@ -157,8 +157,101 @@ pub struct Machine {
     ///
     /// [`MachineSpec::transitions`]: crate::MachineSpec::transitions
     pub(crate) origin: Box<[u32]>,
+    /// For single-tape machines, `table` again in the form the dense simulator's hot loop
+    /// reads; empty for machines with several tapes.
+    pub(crate) packed: Box<[Packed]>,
     pub(crate) decoder: Decoder,
     pub(crate) input: String,
+}
+
+/// An entry of δ for a single-tape machine, packed into one `u64` so that the dense
+/// simulator reads it with a single load.
+///
+/// Besides the next state it holds the index of that state's first table entry, so that the
+/// next lookup is `row + read` and the multiplication `state × stride` drops out of the chain
+/// of dependent operations that bounds the speed of the dense simulator.
+///
+/// The little-endian bytes are: byte 0 the move (0 for `L`, 1 for `R`, 2 for `N`, 3 for an
+/// undefined entry), byte 1 the written symbol, bytes 2 and 3 the next state and bytes 4 to 7
+/// the row of the next state, which is below 2^22 by the table size limit.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub(crate) struct Packed(u64);
+
+impl Packed {
+    /// The entry of an undefined δ(q, a).
+    pub(crate) const UNDEFINED: Self = Self(3);
+
+    /// Packs an entry of a single-tape machine with `stride` table entries per state.
+    ///
+    /// The row always fits into 32 bits for a machine within the table size limit; an entry
+    /// that did not fit would be packed as undefined.
+    pub(crate) fn new(action: Option<Action>, stride: usize) -> Self {
+        let Some(action) = action else {
+            return Self::UNDEFINED;
+        };
+        let Ok(row) = u32::try_from(action.next.index() * stride) else {
+            return Self::UNDEFINED;
+        };
+        let dir: u8 = match action.dir[0] {
+            Dir::L => 0,
+            Dir::R => 1,
+            Dir::N => 2,
+        };
+        let [next_lo, next_hi] = action.next.get().to_le_bytes();
+        let [r0, r1, r2, r3] = row.to_le_bytes();
+        Self(u64::from_le_bytes([
+            dir,
+            action.write[0].get(),
+            next_lo,
+            next_hi,
+            r0,
+            r1,
+            r2,
+            r3,
+        ]))
+    }
+
+    /// Whether δ is defined here.
+    #[inline]
+    pub(crate) fn is_defined(self) -> bool {
+        self != Self::UNDEFINED
+    }
+
+    /// The move of the head.
+    #[inline]
+    pub(crate) fn dir(self) -> Dir {
+        match self.0.to_le_bytes()[0] {
+            0 => Dir::L,
+            1 => Dir::R,
+            _ => Dir::N,
+        }
+    }
+
+    /// The symbol written.
+    #[inline]
+    pub(crate) fn write(self) -> Symbol {
+        Symbol::new(self.0.to_le_bytes()[1])
+    }
+
+    /// The state entered after the step.
+    #[inline]
+    pub(crate) fn next(self) -> State {
+        let bytes = self.0.to_le_bytes();
+        State::new(u16::from_le_bytes([bytes[2], bytes[3]]))
+    }
+
+    /// The index of the next state's first table entry.
+    #[inline]
+    pub(crate) fn row(self) -> usize {
+        let bytes = self.0.to_le_bytes();
+        u32::from_le_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]) as usize
+    }
+
+    /// The step as an [`Action`].
+    #[inline]
+    pub(crate) fn action(self) -> Action {
+        Action::single(self.write(), self.dir(), self.next())
+    }
 }
 
 impl Machine {
@@ -318,5 +411,41 @@ impl Machine {
                     .ok_or(InputError { glyph, position })
             })
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn packed_entries_round_trip() {
+        for (dir, write, next) in [(Dir::L, 0, 0), (Dir::R, 63, 4095), (Dir::N, 7, 300)] {
+            let action = Action::single(Symbol::new(write), dir, State::new(next));
+            let packed = Packed::new(Some(action), 1024);
+            assert!(packed.is_defined());
+            assert_eq!(packed.dir(), dir);
+            assert_eq!(packed.write(), Symbol::new(write));
+            assert_eq!(packed.next(), State::new(next));
+            assert_eq!(packed.row(), usize::from(next) * 1024);
+            assert_eq!(packed.action(), action);
+        }
+        assert!(!Packed::new(None, 4).is_defined());
+        assert_eq!(Packed::new(None, 4), Packed::UNDEFINED);
+    }
+
+    #[test]
+    fn single_tape_machines_carry_a_packed_table() {
+        let m = Machine::builder("pair")
+            .transition("a", '␣', "b", '1', Dir::R)
+            .transition("b", '1', "a", '␣', Dir::L)
+            .build()
+            .unwrap();
+        assert_eq!(m.packed.len(), m.table.len());
+        for (packed, action) in m.packed.iter().zip(&m.table) {
+            assert_eq!(packed.is_defined().then(|| packed.action()), *action);
+        }
+        let two = Machine::builder("two").tapes(2).state("q").build().unwrap();
+        assert!(two.packed.is_empty());
     }
 }

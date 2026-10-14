@@ -21,6 +21,7 @@ impl Span {
     }
 
     /// The smallest span covering both.
+    #[must_use]
     pub fn join(self, other: Self) -> Self {
         Self {
             start: self.start.min(other.start),

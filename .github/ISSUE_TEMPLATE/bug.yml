@@ -1,0 +1,22 @@
+name: Bug report
+description: The simulator, the command-line tool or the website does not work as described
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: machine
+    attributes:
+      label: Machine
+      description: The machine in the description language or the standard format, or a share link from the playground.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `tm --version`, or the commit shown in the website footer.

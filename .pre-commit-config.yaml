@@ -1,0 +1,37 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=800"]
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: '\.snap$'
+      - id: trailing-whitespace
+        exclude: '\.snap$'
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --all --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: style-check
+        name: house style (no em dash, en dash or middle dot in prose)
+        entry: python3 scripts/check_style.py
+        language: system
+        types: [text]
+      - id: prettier-web
+        name: prettier (web)
+        entry: bash -c 'cd web && npx prettier --write --ignore-unknown "${@#web/}"' --
+        language: system
+        files: '^web/'
+        exclude: '^web/(package-lock.json|src/lib/engine/pkg/)'

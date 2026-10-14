@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Turing machines: a Rust simulator and busy beaver enumeration with a WebAssembly site"
+type: software
+authors:
+  - family-names: Heide
+    given-names: Maurice
+    affiliation: ETH Zurich
+version: 0.1.0 # x-release-please-version
+license: "MIT OR Apache-2.0"
+repository-code: "https://github.com/mooofna/turing-machines"
+url: "https://mooofna.github.io/turing-machines/"
+keywords:
+  - Turing machine
+  - busy beaver
+  - computability
+  - Rust
+  - WebAssembly
+references:
+  - type: article
+    title: "Determination of the fifth Busy Beaver value"
+    authors:
+      - name: "The bbchallenge Collaboration"
+    year: 2025
+    identifiers:
+      - type: other
+        value: "arXiv:2509.12337"
