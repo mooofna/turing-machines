@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"kind acceptor\\nδ(q0, a) = (q1, a, R)\", & [\"W002\"])"
+---
+warning[W002]: the acceptor has no final state, so it accepts no word
+  --> 1:1
+  1 | kind acceptor
+    | ^^^^^^^^^^^^^
+    = help: declare the final states with `F = {...}`

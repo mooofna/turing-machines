@@ -1,0 +1,8 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, x) = (q1, x R)\", & [\"E001\"])"
+---
+error[E001]: expected `,`, found `R`
+  --> 1:19
+  1 | δ(q0, x) = (q1, x R)
+    |                   ^

@@ -1,8 +1,11 @@
 {
   "version": 1,
   "groups": [
-    { "id": "course", "title": "Course machines" },
-    { "id": "beavers", "title": "Busy beavers" }
+    { "id": "course", "title": "From the course" },
+    { "id": "classic", "title": "Classic machines" },
+    { "id": "beavers", "title": "Busy beaver champions" },
+    { "id": "cryptids", "title": "Cryptids" },
+    { "id": "universal", "title": "Universal machines" }
   ],
   "machines": [
     {
@@ -10,23 +13,293 @@
       "title": "Binary increment",
       "group": "course",
       "file": "course/binary-increment.tm",
-      "input": "1011",
-      "provenance": "TheoLog 2024, TU Dresden",
-      "description": "Adds one to a binary number written with the most significant bit first.",
+      "provenance": "TheoLog 2024 simulator, first test machine",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
       "examples": [
-        { "input": "1011", "expect": "1100" },
-        { "input": "111", "expect": "1000" }
+        { "input": "1101", "expect": { "halts": true, "steps": 3, "output": "0011", "value": "12" } },
+        { "input": "111", "expect": { "halts": true, "steps": 4, "output": "0001", "value": "8" } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "output": "1", "value": "1" } }
       ]
+    },
+    {
+      "id": "multiples-of-three",
+      "title": "Multiples of three",
+      "group": "course",
+      "file": "course/multiples-of-three.tm",
+      "provenance": "TheoLog 2024, exercise sheet 1, task 2a",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "", "expect": { "emitted": ["", "xxx", "xxxxxx", "xxxxxxxxx", "xxxxxxxxxxxx"] } }
+      ]
+    },
+    {
+      "id": "an-bn",
+      "title": "aⁿbⁿ",
+      "group": "course",
+      "file": "course/an-bn.tm",
+      "provenance": "TheoLog 2024, exercise sheet 1, task 2b",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "", "expect": { "emitted": ["", "ab", "aabb", "aaabbb", "aaaabbbb"] } }
+      ]
+    },
+    {
+      "id": "unary-multiplication",
+      "title": "Unary multiplication",
+      "group": "course",
+      "file": "course/unary-multiplication.tm",
+      "provenance": "TheoLog 2024, exercise sheet 1, task 3",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "#xxx#xx#", "expect": { "halts": true, "steps": 106, "output": "xxxxxx", "value": "6" } },
+        { "input": "#xxxx#xxxx#", "expect": { "halts": true, "steps": 433, "output": "xxxxxxxxxxxxxxxx", "value": "16" } },
+        { "input": "##xx#", "expect": { "halts": true, "steps": 7, "output": "", "value": "0" } },
+        { "input": "#x#x#", "expect": { "halts": true, "steps": 19, "output": "x", "value": "1" } }
+      ]
+    },
+    {
+      "id": "doubling",
+      "title": "Doubling on one tape",
+      "group": "course",
+      "file": "course/doubling.tm",
+      "provenance": "TheoLog 2024, exercise sheet 1, task 4b",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "xxx", "expect": { "halts": true, "steps": 32, "output": "xxxxxx", "value": "6" } },
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 72, "output": "xxxxxxxxxx", "value": "10" } },
+        { "input": "", "expect": { "halts": true, "steps": 2, "output": "", "value": "0" } }
+      ]
+    },
+    {
+      "id": "doubling-two-tapes",
+      "title": "Doubling on two tapes",
+      "group": "course",
+      "file": "course/doubling-two-tapes.tm",
+      "provenance": "TheoLog 2024, exercise sheet 1, task 4a",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "xxx", "expect": { "halts": true, "steps": 7, "output": "xxxxxx", "value": "6" } },
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 11, "output": "xxxxxxxxxx", "value": "10" } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "output": "", "value": "0" } }
+      ]
+    },
+    {
+      "id": "mod-two",
+      "title": "Parity in unary",
+      "group": "course",
+      "file": "course/mod-two.tm",
+      "provenance": "TheoLog 2024, exercise sheet 3, task E",
+      "source": "theolog2024",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "xxxxx", "expect": { "halts": true, "steps": 12, "output": "x", "value": "1" } },
+        { "input": "xxxx", "expect": { "halts": true, "steps": 10, "output": "", "value": "0" } },
+        { "input": "", "expect": { "halts": true, "steps": 2, "output": "", "value": "0" } }
+      ]
+    },
+    {
+      "id": "palindromes",
+      "title": "Palindromes",
+      "group": "classic",
+      "file": "classic/palindromes.tm",
+      "provenance": "Classic exercise, written for this project",
+      "source": "original",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "abba", "expect": { "halts": true, "steps": 15, "accepted": true } },
+        { "input": "abaaba", "expect": { "halts": true, "steps": 28, "accepted": true } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "accepted": true } },
+        { "input": "abab", "expect": { "halts": true, "steps": 5, "accepted": false } },
+        { "input": "aab", "expect": { "halts": true, "steps": 4, "accepted": false } }
+      ]
+    },
+    {
+      "id": "anbncn",
+      "title": "aⁿbⁿcⁿ",
+      "group": "classic",
+      "file": "classic/anbncn.tm",
+      "provenance": "Classic exercise, written for this project",
+      "source": "original",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "aabbcc", "expect": { "halts": true, "steps": 23, "accepted": true } },
+        { "input": "", "expect": { "halts": true, "steps": 1, "accepted": true } },
+        { "input": "aabcc", "expect": { "halts": true, "steps": 9, "accepted": false } },
+        { "input": "abcabc", "expect": { "halts": true, "steps": 7, "accepted": false } }
+      ]
+    },
+    {
+      "id": "binary-addition",
+      "title": "Binary addition",
+      "group": "classic",
+      "file": "classic/binary-addition.tm",
+      "provenance": "Classic exercise, written for this project",
+      "source": "original",
+      "description": "",
+      "budget": 1000000,
+      "examples": [
+        { "input": "101+11", "expect": { "halts": true, "steps": 33, "output": "1000", "value": "8" } },
+        { "input": "110+1011", "expect": { "halts": true, "steps": 66, "output": "10001", "value": "17" } },
+        { "input": "1+1111", "expect": { "halts": true, "steps": 66, "output": "10000", "value": "16" } }
+      ]
+    },
+    {
+      "id": "bb1",
+      "title": "BB(1) champion",
+      "group": "beavers",
+      "standard": "1RZ---",
+      "provenance": "bbchallenge wiki, BB(1)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 1, "ones": 1 } }]
+    },
+    {
+      "id": "bb2",
+      "title": "BB(2) champion",
+      "group": "beavers",
+      "standard": "1RB1LB_1LA1RZ",
+      "provenance": "bbchallenge wiki, BB(2)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 6, "ones": 4 } }]
+    },
+    {
+      "id": "bb3",
+      "title": "BB(3) champion",
+      "group": "beavers",
+      "standard": "1RB1RZ_1LB0RC_1LC1LA",
+      "provenance": "bbchallenge wiki, BB(3), the champion for the number of steps S(3)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 21, "ones": 5 } }]
+    },
+    {
+      "id": "sigma3",
+      "title": "Σ(3) champion",
+      "group": "beavers",
+      "standard": "1RB1RZ_0RC1RB_1LC1LA",
+      "provenance": "bbchallenge wiki, BB(3), a champion for the number of ones Σ(3)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 14, "ones": 6 } }]
+    },
+    {
+      "id": "bb4",
+      "title": "BB(4) champion",
+      "group": "beavers",
+      "standard": "1RB1LB_1LA0LC_1RZ1LD_1RD0RA",
+      "provenance": "bbchallenge wiki, BB(4)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 107, "ones": 13 } }]
     },
     {
       "id": "bb5",
       "title": "BB(5) champion",
       "group": "beavers",
       "standard": "1RB1LC_1RC1RB_1RD0LE_1LA1LD_1RZ0LA",
-      "provenance": "Marxen and Buntrock, 1990",
-      "description": "The five-state machine that runs longest from a blank tape before it halts.",
+      "provenance": "bbchallenge wiki, BB(5)",
+      "source": "bbchallenge",
+      "description": "",
       "budget": 50000000,
-      "examples": [{ "input": "", "expect": "halts" }]
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 47176870, "ones": 4098 } }]
+    },
+    {
+      "id": "bb2x3",
+      "title": "BB(2,3) champion",
+      "group": "beavers",
+      "standard": "1RB2LB1RZ_2LA2RB1LB",
+      "provenance": "bbchallenge wiki, BB(2,3)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 1000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 38, "ones": 9 } }]
+    },
+    {
+      "id": "bb2x4",
+      "title": "BB(2,4) champion",
+      "group": "beavers",
+      "standard": "1RB2LA1RA1RA_1LB1LA3RB1RZ",
+      "provenance": "bbchallenge wiki, BB(2,4)",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 5000000,
+      "examples": [{ "input": "", "expect": { "halts": true, "steps": 3932964, "ones": 2050 } }]
+    },
+    {
+      "id": "bb6",
+      "title": "BB(6) champion",
+      "group": "beavers",
+      "standard": "1RB1RA_1RC1RZ_1LD0RF_1RA0LE_0LD1RC_1RA0RE",
+      "provenance": "bbchallenge wiki, BB(6), the champion found by mxdys in June 2025",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 10000000,
+      "examples": [{ "input": "", "expect": {} }]
+    },
+    {
+      "id": "antihydra",
+      "title": "Antihydra",
+      "group": "cryptids",
+      "standard": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+      "provenance": "bbchallenge wiki, Antihydra",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 10000000,
+      "examples": [{ "input": "", "expect": {} }]
+    },
+    {
+      "id": "hydra",
+      "title": "Hydra",
+      "group": "cryptids",
+      "standard": "1RB3RB---3LA1RA_2LA3RA4LB0LB0LA",
+      "provenance": "bbchallenge wiki, Hydra",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 10000000,
+      "examples": [{ "input": "", "expect": {} }]
+    },
+    {
+      "id": "bigfoot",
+      "title": "Bigfoot",
+      "group": "cryptids",
+      "standard": "1RB2RA1LC_2LC1RB2RB_---2LA1LA",
+      "provenance": "bbchallenge wiki, Bigfoot",
+      "source": "bbchallenge",
+      "description": "",
+      "budget": 10000000,
+      "examples": [{ "input": "", "expect": {} }]
+    },
+    {
+      "id": "wolfram-2-3",
+      "title": "Wolfram's (2,3) machine",
+      "group": "universal",
+      "standard": "1RB2LA1LA_2LA2RB0RA",
+      "provenance": "Wolfram's 2-state 3-symbol machine, rule 596440, as published for the Wolfram 2,3 Turing Machine Research Prize",
+      "source": "wolframscience",
+      "description": "",
+      "budget": 1000000,
+      "examples": [{ "input": "", "expect": { "halts": false } }]
     }
   ]
 }

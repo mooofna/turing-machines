@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"tapes = 2\\nδ(q0, (x, y)) = (q1, x, R)\", & [\"E010\"])"
+---
+error[E010]: the transition reads 2 symbols, writes 1 symbol and has 1 move
+  --> 2:1
+  2 | δ(q0, (x, y)) = (q1, x, R)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: give one read symbol, one written symbol and one move per tape

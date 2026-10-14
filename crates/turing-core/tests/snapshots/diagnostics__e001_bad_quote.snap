@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, 'ab') = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected a symbol, found an unterminated quote
+  --> 1:7
+  1 | δ(q0, 'ab') = (q1, x, R)
+    |       ^
+    = help: a quoted symbol is one character between two quotes, as in `'*'`
