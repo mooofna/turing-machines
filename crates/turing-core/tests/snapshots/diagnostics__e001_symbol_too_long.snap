@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, xy) = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected a symbol, found `xy`
+  --> 1:7
+  1 | δ(q0, xy) = (q1, x, R)
+    |       ^^
+    = help: a symbol is a single character, such as `x`, `#` or `'*'`

@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"machine \\\"A_mul\\ninput \\\"x\\\"\\nδ(q0, x) = (q1, x, R)\", & [\"E002\"])"
+---
+error[E002]: the string is not terminated
+  --> 1:9
+  1 | machine "A_mul
+    |         ^^^^^^
+    = help: add a closing `"` before the end of the line

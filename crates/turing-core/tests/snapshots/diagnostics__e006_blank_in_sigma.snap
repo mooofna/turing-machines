@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Σ = {x, ␣}\\nδ(q0, x) = (q0, x, R)\", & [\"E006\"])"
+---
+error[E006]: the blank `␣` cannot be part of the input alphabet Σ
+  --> 1:9
+  1 | Σ = {x, ␣}
+    |         ^
+    = help: Σ holds the symbols of input words; the blank belongs to Γ only

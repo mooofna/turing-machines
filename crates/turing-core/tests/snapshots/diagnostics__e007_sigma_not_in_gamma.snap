@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Σ = {x, y}\\nΓ = {x, ␣}\\nδ(q0, x) = (q0, x, R)\", & [\"E007\"])"
+---
+error[E007]: the input symbol `y` is not in the tape alphabet Γ
+  --> 1:9
+  1 | Σ = {x, y}
+    |         ^
+    = help: Σ must be a subset of Γ: add `y` to Γ

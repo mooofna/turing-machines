@@ -1,0 +1,6 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"// nothing here\\nmachine \\\"empty\\\"\", & [\"E005\"])"
+---
+error[E005]: the machine has no states
+    = help: write a transition such as `δ(q0, ␣) = (q1, ␣, R)`, or declare `Q = {q0}`
