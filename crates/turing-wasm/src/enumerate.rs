@@ -295,7 +295,8 @@ mod tests {
     fn champions_halt_in_the_busy_beaver_convention() {
         for (text, steps, ones) in [
             ("1RB1LB_1LA1RZ", 6.0, 4.0),
-            ("1RB1RZ_0RC1RB_1LC1LA", 21.0, 5.0),
+            ("1RB1RZ_1LB0RC_1LC1LA", 21.0, 5.0),
+            ("1RB1RZ_0RC1RB_1LC1LA", 14.0, 6.0),
             (testing::BB4, 107.0, 13.0),
         ] {
             assert_eq!(
@@ -338,7 +339,9 @@ mod tests {
             VerdictDto::Unsupported { reason } => reason,
             other => panic!("expected unsupported, got {other:?}"),
         };
-        assert!(reason(decide(&testing::increment())).contains("blank tape"));
+        let mut with_input = testing::increment();
+        with_input.input = "1101".into();
+        assert!(reason(decide(&with_input)).contains("blank tape"));
         let two = spec(
             KindDto::Transducer,
             2,
