@@ -250,7 +250,7 @@ one edited in a table; its diagnostics point at whole transitions.
 error[E001]: expected `,`, found `R`
 ```
 
-Typical help texts: `did you mean `start`?` for a misspelt keyword, "a transition starts with
+Typical help texts: "did you mean `start`?" for a misspelt keyword, "a transition starts with
 `δ` or `delta`" for `d(q0, x) = ...`, "a symbol is a single character" for `δ(q0, xy)`, and
 "`*` writes back the symbol read" for a `*` in a read position.
 
