@@ -115,7 +115,8 @@ impl RunTape {
         self.cur
     }
 
-    /// The runs in direction `dir` (left or right) of the head, nearest last.
+    /// The runs in direction `dir` of the head, nearest last. Only meaningful for `L` and `R`;
+    /// `N` gives the right side.
     fn side(&self, dir: Dir) -> &[Run] {
         match dir {
             Dir::L => &self.left,
@@ -142,7 +143,7 @@ impl RunTape {
     fn apply(&mut self, write: Symbol, dir: Dir, n: u64) {
         debug_assert!(n >= 1, "a macro step makes at least one step");
         debug_assert!(
-            n <= self.run_ahead(dir, self.cur).saturating_add(1),
+            dir == Dir::N || n <= self.run_ahead(dir, self.cur).saturating_add(1),
             "a chain may only cover the run ahead"
         );
         let (behind, ahead, delta) = match dir {
@@ -779,6 +780,24 @@ mod tests {
         assert_eq!(sim.run(7), Outcome::OutOfFuel { steps: 7 });
         assert_eq!(sim.macro_steps(), 7);
         assert_eq!(sim.tape().read(), m.alphabet().symbol('1').unwrap());
+    }
+
+    #[test]
+    fn a_stay_loop_repeats_in_one_macro_step_when_not_proving() {
+        let m = Machine::builder("stay")
+            .blank('0')
+            .tape_alphabet(['0', '1'])
+            .transition("q", '0', "q", '0', Dir::N)
+            .build()
+            .unwrap();
+        let mut sim = ChainSim::new(&m, &[s(0), s(1)]).unwrap();
+        assert_eq!(
+            sim.run_inner(5, &mut |_| false, false),
+            Outcome::OutOfFuel { steps: 5 }
+        );
+        assert_eq!(sim.macro_steps(), 1);
+        assert_eq!(sim.tape().read(), s(0));
+        assert_eq!(sim.tape().right(), [run(1, 1)]);
     }
 
     #[test]

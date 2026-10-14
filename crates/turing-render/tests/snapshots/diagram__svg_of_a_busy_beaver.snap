@@ -1,0 +1,46 @@
+---
+source: crates/turing-render/tests/diagram.rs
+expression: "to_svg(&graph, &l, &routes, \"#111111\", \"#ffffff\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="390.8" height="217.98" viewBox="0 0 390.8 217.98" role="img" aria-label="State diagram">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g fill="none" stroke="#111111" stroke-width="1.5">
+<path d="M 86.94 128.25 L 185.06 96.71"/>
+<path d="M 86.94 141.71 L 185.06 173.25"/>
+<path d="M 197.84 69.55 C 165.23 23.48 246.77 23.48 214.16 69.55"/>
+<path d="M 226.94 96.71 L 325.06 128.25"/>
+<path d="M 324 134.98 L 88 134.98"/>
+<path d="M 337.84 114.55 C 305.23 68.48 386.77 68.48 354.16 114.55"/>
+<path d="M 16 134.98 L 44 134.98"/>
+</g>
+<g fill="#ffffff" stroke="#111111" stroke-width="1.5">
+<circle cx="66" cy="134.98" r="22"/>
+<circle cx="206" cy="89.98" r="22"/>
+<circle cx="346" cy="134.98" r="22"/>
+<circle cx="206" cy="179.98" r="22"/>
+<circle cx="206" cy="179.98" r="18"/>
+</g>
+<g fill="#111111">
+<path d="M 185.06 96.71 L 177.56 102.8 L 175.42 96.13 Z"/>
+<path d="M 185.06 173.25 L 175.42 173.83 L 177.56 167.16 Z"/>
+<path d="M 214.16 69.55 L 216.5 60.18 L 222.22 64.23 Z"/>
+<path d="M 325.06 128.25 L 315.42 128.83 L 317.56 122.16 Z"/>
+<path d="M 88 134.98 L 97 131.48 L 97 138.48 Z"/>
+<path d="M 354.16 114.55 L 356.5 105.18 L 362.22 109.23 Z"/>
+<path d="M 44 134.98 L 35 138.48 L 35 131.48 Z"/>
+</g>
+<g font-family="'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="12" fill="#111111" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">
+<text x="134.78" y="105.37" text-anchor="end">0 ↦ 1, R</text>
+<text x="134.78" y="172.99" text-anchor="end">1 ↦ 1, R</text>
+<text x="206" y="27.7" text-anchor="middle">1 ↦ 1, R</text>
+<text x="263.49" y="100.96">0 ↦ 0, R</text>
+<text x="206" y="127.68" text-anchor="middle">1 ↦ 1, L</text>
+<text x="346" y="72.7" text-anchor="middle">0 ↦ 1, L</text>
+</g>
+<g font-family="'Schibsted Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif" fill="#111111" text-anchor="middle">
+<text x="66" y="139.88" font-size="14">A</text>
+<text x="206" y="94.88" font-size="14">B</text>
+<text x="346" y="139.88" font-size="14">C</text>
+<text x="206" y="184.88" font-size="14">H</text>
+</g>
+</svg>
