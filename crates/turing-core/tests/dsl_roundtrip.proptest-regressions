@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 6b3cafe83b95f4e949dd9eb123268b491baf9bf5cc735454ac305af7cc15e5c1 # shrinks to spec = MachineSpec { name: "", kind: Transducer, tapes: 1, blank: '␣', input_alphabet: [' '], tape_alphabet: ['␣', ' '], states: [StateSpec { name: "qacc", is_final: false }], start: "qacc", transitions: [TransitionSpec { from: "qacc", read: [' '], to: "qacc", write: [' '], dir: [L], comment: None, leading: [], span: None }, TransitionSpec { from: "qacc", read: ['␣'], to: "qacc", write: ['␣'], dir: [L], comment: None, leading: [], span: None }], input: "", output: Word, declared: Declared { states: false, input_alphabet: false, tape_alphabet: false, start: false, blank: false }, comments: SpecComments { header: [], trailing: [] } }
