@@ -4,6 +4,7 @@
 //! after a million steps were computed independently with a plain reference simulator.
 
 use proptest::prelude::*;
+use std::fmt::Write as _;
 use turing_core::dsl::{self, FormatStyle};
 use turing_core::standard::{StandardError, parse_standard, spec_from_standard, to_standard};
 use turing_core::{ChainSim, Kind, Machine, Outcome, Simulator, TapeView};
@@ -200,11 +201,18 @@ fn letters_and_digits_limit_the_size() {
 fn machine(source: &str) -> Machine {
     let parsed = dsl::parse(source);
     assert!(
-        !parsed.diagnostics.iter().any(|d| d.is_error()),
+        !parsed
+            .diagnostics
+            .iter()
+            .any(turing_core::Diagnostic::is_error),
         "{:?}",
         parsed.diagnostics
     );
-    parsed.spec.unwrap().compile().unwrap()
+    parsed
+        .spec
+        .expect("the source parses")
+        .compile()
+        .expect("the spec compiles")
 }
 
 fn unsupported(source: &str) -> String {
@@ -237,9 +245,10 @@ fn writing_rejects_what_the_format_cannot_express() {
     let two_halts = "blank = 0\nF = {B, C}\nδ(A, 0) = (B, 1, R)\nδ(A, 1) = (C, 1, R)";
     assert!(unsupported(two_halts).contains("both halt"));
     assert!(unsupported("blank = 0\nΓ = {0, 2}\nδ(A, 0) = (A, 2, R)").contains("digits"));
-    let many: String = (0..26)
-        .map(|i| format!("δ(q{i}, 0) = (q{}, 1, R)\n", i + 1))
-        .collect();
+    let many = (0..26).fold(String::new(), |mut text, i| {
+        writeln!(text, "δ(q{i}, 0) = (q{}, 1, R)", i + 1).expect("writing to a String cannot fail");
+        text
+    });
     let many = format!("blank = 0\nF = {{q26}}\n{many}");
     assert!(unsupported(&many).contains("at most 25"));
 }
