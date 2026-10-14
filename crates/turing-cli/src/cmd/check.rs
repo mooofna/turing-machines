@@ -45,7 +45,7 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
             let name = if machine.name().is_empty() {
                 String::new()
             } else {
-                format!(" `{}`", machine.name())
+                format!("{}, ", machine.name())
             };
             let warnings = if analysis
                 .diagnostics
@@ -58,7 +58,7 @@ pub(crate) fn exec(args: &Args) -> Result<()> {
             };
             writeln!(
                 out,
-                "{} {}: valid{name}, {}{warnings}",
+                "{} {}: {name}{}{warnings}",
                 paint(style::GOOD, "ok"),
                 source.origin,
                 cmd::shape(machine),

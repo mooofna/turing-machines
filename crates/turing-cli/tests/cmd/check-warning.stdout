@@ -1,1 +1,1 @@
-ok unreachable.tm: valid `unreachable`, transducer, 1 tape, 3 states, 3 symbols, 3 transitions, 1 warning
+ok unreachable.tm: unreachable, transducer, 1 tape, 3 states, 3 symbols, 3 transitions, 1 warning

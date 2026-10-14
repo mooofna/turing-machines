@@ -14,9 +14,9 @@ The standard format of the bbchallenge project describes single-tape machines ov
 JSON is the serialised machine spec that the web playground uses.
 
 Examples:
-  tm convert --standard 1RB1RZ_0RC1RB_1LC1LA --to dsl
-  tm convert machines/busy-beaver/bb3.tm --to standard
-  tm convert machine.tm --to json > machine.json";
+  tm convert --standard 1RB1RZ_1LB0RC_1LC1LA --to dsl
+  tm convert bb3.tm --to standard
+  tm convert machines/course/binary-increment.tm --to json > increment.json";
 
 /// Arguments of `tm convert`.
 #[derive(clap::Args, Debug)]

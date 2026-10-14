@@ -18,12 +18,12 @@ pub(crate) struct InputArgs {
 
     /// Numbers in unary, in the course encoding: `--unary 3 4` is the input `#xxx#xxxx#`, with
     /// the machine's tally symbol. A single number is written without `#` if the machine does
-    /// not use `#`. Implies `--format value`
+    /// not use `#`
     #[arg(long, value_name = "N", num_args = 1.., conflicts_with = "input")]
     pub(crate) unary: Option<Vec<u64>>,
 
     /// A number in binary, in the bit order of the machine's output (most significant bit
-    /// first unless the machine says otherwise). Implies `--format value`
+    /// first unless the machine says otherwise)
     #[arg(long, value_name = "N", conflicts_with_all = ["input", "unary"])]
     pub(crate) binary: Option<u128>,
 }
