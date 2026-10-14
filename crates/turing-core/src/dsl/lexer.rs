@@ -65,12 +65,12 @@ pub(super) enum LexError {
 }
 
 /// Whether `c` can start a word.
-pub(crate) fn is_word_start(c: char) -> bool {
+pub(super) fn is_word_start(c: char) -> bool {
     c.is_alphabetic() || c == '_'
 }
 
 /// Whether `c` can continue a word.
-pub(crate) fn is_word_continue(c: char) -> bool {
+pub(super) fn is_word_continue(c: char) -> bool {
     c.is_alphabetic() || c.is_ascii_digit() || c == '_' || c == '\''
 }
 

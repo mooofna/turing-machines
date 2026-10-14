@@ -19,7 +19,6 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 use super::FormatStyle;
-use super::lexer::{is_word_continue, is_word_start};
 use crate::machine::{BitOrder, Decoder, Kind};
 use crate::spec::{MachineSpec, TransitionSpec};
 
@@ -73,7 +72,9 @@ fn string_literal(text: &str) -> String {
     out
 }
 
-/// Whether `glyph` must be quoted to be read back as itself.
+/// Whether `glyph` must be quoted to be read back as itself: whitespace and control
+/// characters, the punctuation of the grammar, `/` (two would start a comment), and `_` and
+/// `␣`, which unquoted stand for the blank.
 fn needs_quotes(glyph: char) -> bool {
     glyph.is_whitespace()
         || glyph.is_control()
@@ -81,7 +82,6 @@ fn needs_quotes(glyph: char) -> bool {
             glyph,
             '(' | ')' | '{' | '}' | ',' | '=' | '\'' | '*' | ';' | '"' | '/' | '_' | '␣'
         )
-        || (is_word_continue(glyph) && !is_word_start(glyph) && !glyph.is_ascii_digit())
 }
 
 /// `{a, b, c}`.
@@ -146,8 +146,12 @@ impl Formatter<'_> {
         let output = match spec.output {
             Decoder::Word => None,
             Decoder::Unary { symbol } => Some(format!("unary {}", self.symbol(symbol))),
-            Decoder::Binary { order: BitOrder::Lsb } => Some("binary lsb".into()),
-            Decoder::Binary { order: BitOrder::Msb } => Some("binary msb".into()),
+            Decoder::Binary {
+                order: BitOrder::Lsb,
+            } => Some("binary lsb".into()),
+            Decoder::Binary {
+                order: BitOrder::Msb,
+            } => Some("binary msb".into()),
         };
         lines.extend(output.map(|o| format!("output {o}")));
         lines
