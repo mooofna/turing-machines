@@ -18,9 +18,11 @@
 //! [`to_standard`] writes a machine back. The format can only express single-tape machines
 //! that move `L` or `R`, have at most 10 symbols, written as the digits `0` to `k - 1` with
 //! blank `0`, and at most 26 states. State names are not kept: the start state becomes `A` and
-//! the others follow in index order. A state without transitions that some transition enters
-//! (other than the start state) is a halting state and is written as `Z`; a machine with two
-//! such states cannot be written, because the format has only one way to halt.
+//! the others follow in index order. A final state without transitions that some transition
+//! enters (other than the start state) is the halting state and is written as `Z`; a machine
+//! with two such states cannot be written, because the format has only one halting state.
+//! Every other state keeps a letter of its own, so for every text that [`parse_standard`]
+//! accepts, [`to_standard`] gives back the same text with each halting letter written as `Z`.
 //!
 //! ```
 //! use turing_core::standard::{parse_standard, to_standard};
@@ -291,6 +293,7 @@ fn parse_entry(chunk: &[u8]) -> Result<Entry, (usize, &'static str)> {
 ///     .blank('0')
 ///     .transition("start", '0', "next", '1', Dir::R)
 ///     .transition("next", '0', "done", '1', Dir::L)
+///     .final_state("done")
 ///     .build()
 ///     .unwrap();
 /// assert_eq!(to_standard(&m).unwrap(), "1RB---_1LZ---");
@@ -350,7 +353,12 @@ pub fn to_standard(machine: &Machine) -> Result<String, StandardError> {
         }
     }
     let halting: Vec<usize> = (0..n)
-        .filter(|&q| !has_transitions[q] && is_target[q] && q != machine.start().index())
+        .filter(|&q| {
+            machine.states()[q].is_final
+                && !has_transitions[q]
+                && is_target[q]
+                && q != machine.start().index()
+        })
         .collect();
     if let [first, second, ..] = halting[..] {
         return Err(unsupported(format!(

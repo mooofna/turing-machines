@@ -25,7 +25,7 @@ pub struct MachineSpec {
     pub name: String,
     /// What the machine is used for.
     pub kind: Kind,
-    /// The number of tapes, 1 to [`MAX_TAPES`](crate::MAX_TAPES).
+    /// The number of tapes, 1 to [`MAX_TAPES`].
     pub tapes: u8,
     /// The blank glyph.
     pub blank: char,
@@ -244,13 +244,17 @@ impl MachineSpec {
                         .flat_map(|t| [t.from.as_str(), t.to.as_str()]),
                 )
                 .chain(old.iter().map(|s| s.name.as_str()));
+            let finals: BTreeSet<&str> = old
+                .iter()
+                .filter(|s| s.is_final)
+                .map(|s| s.name.as_str())
+                .collect();
             let mut seen = BTreeSet::new();
             for name in mentions {
                 if !name.is_empty() && seen.insert(name) {
-                    let is_final = old.iter().any(|s| s.name == name && s.is_final);
                     self.states.push(StateSpec {
                         name: name.into(),
-                        is_final,
+                        is_final: finals.contains(name),
                     });
                 }
             }
@@ -283,12 +287,14 @@ impl MachineSpec {
                 self.input.as_str()
             };
             let mut gamma = alloc::vec![self.blank];
-            for &glyph in declared_sigma
+            let mut seen = BTreeSet::from([self.blank]);
+            for glyph in declared_sigma
                 .chain(used)
                 .chain(&self.tape_alphabet)
-                .chain(input.chars().collect::<Vec<_>>().iter())
+                .copied()
+                .chain(input.chars())
             {
-                if !gamma.contains(&glyph) {
+                if seen.insert(glyph) {
                     gamma.push(glyph);
                 }
             }
@@ -380,13 +386,7 @@ impl MachineSpec {
     pub(crate) fn analyze(&self, map: Option<&SourceMap>) -> (Self, Vec<Diagnostic>) {
         let mut spec = self.clone();
         spec.infer();
-        let mut checker = Checker {
-            spec: &spec,
-            map,
-            diagnostics: Vec::new(),
-        };
-        checker.run();
-        let mut diagnostics = checker.diagnostics;
+        let mut diagnostics = Checker::new(&spec, map).run();
         sort_diagnostics(&mut diagnostics);
         (spec, diagnostics)
     }
@@ -449,14 +449,16 @@ pub(crate) fn edit_distance(a: &str, b: &str) -> usize {
 }
 
 /// The candidate closest to `name` within two edits, preferring earlier candidates on ties.
+/// A candidate that would replace every character of `name` is no suggestion.
 pub(crate) fn closest<'a>(
     name: &str,
     candidates: impl IntoIterator<Item = &'a str>,
 ) -> Option<&'a str> {
+    let length = name.chars().count();
     candidates
         .into_iter()
         .map(|c| (edit_distance(name, c), c))
-        .filter(|&(distance, _)| (1..=2).contains(&distance))
+        .filter(|&(distance, _)| (1..=2).contains(&distance) && distance < length)
         .min_by_key(|&(distance, _)| distance)
         .map(|(_, c)| c)
 }
@@ -489,15 +491,75 @@ fn tapes_noun(n: usize) -> String {
     }
 }
 
+/// How many "did you mean" searches one check may run. Each compares a name with every
+/// state, so the budget keeps checking near linear for any input.
+pub(crate) const MAX_SUGGESTIONS: usize = 64;
+
+/// Lookup tables over an inferred spec, built once so that every check stays near linear.
+struct Index<'a> {
+    states: BTreeSet<&'a str>,
+    gamma: BTreeSet<char>,
+    sigma: BTreeSet<char>,
+    /// For each state, the transition that mentions it first, and whether as its source.
+    first_mention: BTreeMap<&'a str, (usize, bool)>,
+    /// The first position of each glyph in Γ and in Σ.
+    gamma_position: BTreeMap<char, usize>,
+    sigma_position: BTreeMap<char, usize>,
+    /// Where each state of F is written.
+    finals: BTreeMap<&'a str, Span>,
+}
+
+impl<'a> Index<'a> {
+    fn new(spec: &'a MachineSpec, map: Option<&'a SourceMap>) -> Self {
+        let positions = |glyphs: &[char]| {
+            let mut map = BTreeMap::new();
+            for (i, &glyph) in glyphs.iter().enumerate() {
+                map.entry(glyph).or_insert(i);
+            }
+            map
+        };
+        let mut first_mention = BTreeMap::new();
+        for (i, t) in spec.transitions.iter().enumerate() {
+            first_mention.entry(t.from.as_str()).or_insert((i, true));
+            first_mention.entry(t.to.as_str()).or_insert((i, false));
+        }
+        Self {
+            states: spec.states.iter().map(|s| s.name.as_str()).collect(),
+            gamma: spec.tape_alphabet.iter().copied().collect(),
+            sigma: spec.input_alphabet.iter().copied().collect(),
+            first_mention,
+            gamma_position: positions(&spec.tape_alphabet),
+            sigma_position: positions(&spec.input_alphabet),
+            finals: map
+                .iter()
+                .flat_map(|m| &m.finals)
+                .map(|(name, span)| (name.as_str(), *span))
+                .collect(),
+        }
+    }
+}
+
 /// Runs every check on an inferred spec.
 struct Checker<'a> {
     spec: &'a MachineSpec,
     map: Option<&'a SourceMap>,
+    index: Index<'a>,
+    suggestions: usize,
     diagnostics: Vec<Diagnostic>,
 }
 
-impl Checker<'_> {
-    fn run(&mut self) {
+impl<'a> Checker<'a> {
+    fn new(spec: &'a MachineSpec, map: Option<&'a SourceMap>) -> Self {
+        Self {
+            spec,
+            map,
+            index: Index::new(spec, map),
+            suggestions: MAX_SUGGESTIONS,
+            diagnostics: Vec::new(),
+        }
+    }
+
+    fn run(mut self) -> Vec<Diagnostic> {
         self.tapes();
         self.names();
         self.duplicates();
@@ -509,6 +571,7 @@ impl Checker<'_> {
         self.unreachable_states();
         self.final_states();
         self.unused_symbols();
+        self.diagnostics
     }
 
     fn push(&mut self, diagnostic: Diagnostic, span: Option<Span>) {
@@ -518,7 +581,7 @@ impl Checker<'_> {
         });
     }
 
-    fn transition_spans(&self, index: usize) -> Option<&TransitionSpans> {
+    fn transition_spans(&self, index: usize) -> Option<&'a TransitionSpans> {
         self.map.and_then(|m| m.transitions.get(index))
     }
 
@@ -533,6 +596,12 @@ impl Checker<'_> {
             .or_else(|| self.spec.transition_span(index))
     }
 
+    /// The span covering the read symbols of transition `index` in the source.
+    fn read_span(&self, index: usize) -> Option<Span> {
+        let spans = &self.transition_spans(index)?.read;
+        Some(spans.first()?.join(*spans.last()?))
+    }
+
     fn state_decl_span(&self, index: usize) -> Option<Span> {
         if !self.spec.declared.states {
             return None;
@@ -544,37 +613,29 @@ impl Checker<'_> {
     fn state_span(&self, index: usize) -> Option<Span> {
         let name = self.spec.states.get(index).map(|s| s.name.as_str())?;
         self.state_decl_span(index)
+            .or_else(|| self.index.finals.get(name).copied())
             .or_else(|| {
-                self.map
-                    .and_then(|m| m.finals.iter().find(|(n, _)| n == name).map(|&(_, s)| s))
-            })
-            .or_else(|| {
-                let (i, t) = self
-                    .spec
-                    .transitions
-                    .iter()
-                    .enumerate()
-                    .find(|(_, t)| t.from == name || t.to == name)?;
-                self.part_span(i, |s| Some(if t.from == name { s.from } else { s.to }))
+                let &(i, is_from) = self.index.first_mention.get(name)?;
+                self.part_span(i, |s| Some(if is_from { s.from } else { s.to }))
             })
     }
 
-    /// Where a glyph of a declared Σ or Γ is written.
+    /// Where a glyph of a declared Γ or Σ is written.
     fn glyph_decl_span(&self, glyph: char) -> Option<Span> {
         let spec = self.spec;
         let map = self.map?;
         let in_gamma = spec
             .declared
             .tape_alphabet
-            .then(|| spec.tape_alphabet.iter().position(|&c| c == glyph))
+            .then(|| self.index.gamma_position.get(&glyph))
             .flatten()
-            .and_then(|i| map.tape_alphabet.get(i).copied());
+            .and_then(|&i| map.tape_alphabet.get(i).copied());
         in_gamma.or_else(|| {
             spec.declared
                 .input_alphabet
-                .then(|| spec.input_alphabet.iter().position(|&c| c == glyph))
+                .then(|| self.index.sigma_position.get(&glyph))
                 .flatten()
-                .and_then(|i| map.input_alphabet.get(i).copied())
+                .and_then(|&i| map.input_alphabet.get(i).copied())
         })
     }
 
@@ -590,7 +651,8 @@ impl Checker<'_> {
     }
 
     fn names(&mut self) {
-        for (i, state) in self.spec.states.iter().enumerate() {
+        let spec = self.spec;
+        for (i, state) in spec.states.iter().enumerate() {
             if !is_state_name(&state.name) {
                 let message = if state.name.is_empty() {
                     "a state has an empty name".into()
@@ -604,7 +666,7 @@ impl Checker<'_> {
                 self.push(d, self.state_span(i));
             }
         }
-        if self.spec.tape_alphabet.contains(&'\n') {
+        if self.index.gamma.contains(&'\n') {
             let d = Diagnostic::error(codes::INVALID_NAME, "a line break cannot be a symbol");
             self.push(d, None);
         }
@@ -673,18 +735,24 @@ impl Checker<'_> {
             let d = Diagnostic::error(codes::NO_STATES, "the machine has no start state")
                 .with_help("declare one with `start = ...`");
             self.push(d, map_start);
-        } else if spec.state_index(&spec.start).is_none() {
+        } else if !self.index.states.contains(spec.start.as_str()) {
             let d = self.unknown_state(&spec.start);
             self.push(d, map_start);
         }
     }
 
-    fn unknown_state(&self, name: &str) -> Diagnostic {
+    fn unknown_state(&mut self, name: &str) -> Diagnostic {
         let d = Diagnostic::error(
             codes::UNKNOWN_NAME,
             format!("the state `{name}` is not declared in Q"),
         );
-        match closest(name, self.spec.states.iter().map(|s| s.name.as_str())) {
+        let suggestion = if self.suggestions > 0 {
+            self.suggestions -= 1;
+            closest(name, self.spec.states.iter().map(|s| s.name.as_str()))
+        } else {
+            None
+        };
+        match suggestion {
             Some(candidate) => d.with_help(format!("did you mean `{candidate}`?")),
             None => d.with_help(format!("add `{name}` to Q")),
         }
@@ -698,10 +766,12 @@ impl Checker<'_> {
                 show_glyph(glyph)
             ),
         );
+        // Γ has at most a few dozen symbols when this matters; beyond the limit, E009 applies.
         let same_letter = self
             .spec
             .tape_alphabet
             .iter()
+            .take(MAX_SYMBOLS)
             .find(|&&c| c != glyph && c.to_lowercase().eq(glyph.to_lowercase()));
         match same_letter {
             Some(&candidate) => d.with_help(format!("did you mean {}?", show_glyph(candidate))),
@@ -711,7 +781,7 @@ impl Checker<'_> {
 
     fn alphabets(&mut self) {
         let spec = self.spec;
-        if spec.input_alphabet.contains(&spec.blank) {
+        if let Some(&i) = self.index.sigma_position.get(&spec.blank) {
             let d = Diagnostic::error(
                 codes::BLANK_IN_INPUT,
                 format!(
@@ -720,16 +790,11 @@ impl Checker<'_> {
                 ),
             )
             .with_help("Σ holds the symbols of input words; the blank belongs to Γ only");
-            let span = self.map.and_then(|m| {
-                let i = spec.input_alphabet.iter().position(|&c| c == spec.blank)?;
-                m.input_alphabet.get(i).copied()
-            });
-            self.push(d, span);
+            self.push(d, self.map.and_then(|m| m.input_alphabet.get(i).copied()));
         }
         let mut reported = BTreeSet::new();
         for (i, &glyph) in spec.input_alphabet.iter().enumerate() {
-            if glyph != spec.blank && !spec.tape_alphabet.contains(&glyph) && reported.insert(glyph)
-            {
+            if glyph != spec.blank && !self.index.gamma.contains(&glyph) && reported.insert(glyph) {
                 let d = Diagnostic::error(
                     codes::INPUT_NOT_IN_TAPE,
                     format!(
@@ -748,14 +813,8 @@ impl Checker<'_> {
     }
 
     fn limits(&mut self) {
-        let spec = self.spec;
-        let states = spec
-            .states
-            .iter()
-            .map(|s| s.name.as_str())
-            .collect::<BTreeSet<_>>()
-            .len();
-        let symbols = spec.tape_alphabet.iter().collect::<BTreeSet<_>>().len();
+        let states = self.index.states.len();
+        let symbols = self.index.gamma.len();
         let declaration = self.map.and_then(|m| m.states_decl);
         if states > MAX_STATES {
             let d = Diagnostic::error(
@@ -774,7 +833,7 @@ impl Checker<'_> {
             );
             self.push(d, None);
         }
-        let tapes = usize::from(spec.tapes);
+        let tapes = usize::from(self.spec.tapes);
         if states <= MAX_STATES && symbols <= MAX_SYMBOLS && (1..=MAX_TAPES).contains(&tapes) {
             let entries = u32::try_from(tapes)
                 .ok()
@@ -798,16 +857,14 @@ impl Checker<'_> {
     fn transitions(&mut self) {
         let spec = self.spec;
         let tapes = usize::from(spec.tapes);
-        let states: BTreeSet<&str> = spec.states.iter().map(|s| s.name.as_str()).collect();
-        let gamma: BTreeSet<char> = spec.tape_alphabet.iter().copied().collect();
         let mut first: BTreeMap<(&str, &[char]), usize> = BTreeMap::new();
         for (i, t) in spec.transitions.iter().enumerate() {
             self.arity(i, t, tapes);
-            if !states.contains(t.from.as_str()) {
+            if !self.index.states.contains(t.from.as_str()) {
                 let d = self.unknown_state(&t.from);
                 self.push(d, self.part_span(i, |s| Some(s.from)));
             }
-            if t.to != t.from && !states.contains(t.to.as_str()) {
+            if t.to != t.from && !self.index.states.contains(t.to.as_str()) {
                 let d = self.unknown_state(&t.to);
                 self.push(d, self.part_span(i, |s| Some(s.to)));
             }
@@ -815,7 +872,7 @@ impl Checker<'_> {
             let reads = t.read.iter().enumerate().map(|(k, &c)| (c, k, true));
             let writes = t.write.iter().enumerate().map(|(k, &c)| (c, k, false));
             for (glyph, k, is_read) in reads.chain(writes) {
-                if !gamma.contains(&glyph) && reported.insert(glyph) {
+                if !self.index.gamma.contains(&glyph) && reported.insert(glyph) {
                     let d = self.unknown_symbol(glyph);
                     let span = self.part_span(i, |s| {
                         if is_read {
@@ -837,10 +894,17 @@ impl Checker<'_> {
                     .with_help(
                         "a deterministic machine has at most one transition per state and symbol",
                     );
-                    if let Some(span) = spec.transition_span(j) {
-                        d = d.with_related(span, "first defined here");
+                    let (mut span, mut first_span) =
+                        (spec.transition_span(i), spec.transition_span(j));
+                    if span == first_span {
+                        // Both come from one line with a read set: point at the symbols.
+                        span = self.read_span(i).or(span);
+                        first_span = self.read_span(j).or(first_span);
                     }
-                    self.push(d, spec.transition_span(i));
+                    if let Some(first_span) = first_span {
+                        d = d.with_related(first_span, "first defined here");
+                    }
+                    self.push(d, span);
                 }
                 None => {
                     first.insert((t.from.as_str(), t.read.as_slice()), i);
@@ -893,10 +957,7 @@ impl Checker<'_> {
         let spec = self.spec;
         let mut reported = BTreeSet::new();
         for glyph in spec.input.chars() {
-            if glyph != spec.blank
-                && !spec.input_alphabet.contains(&glyph)
-                && reported.insert(glyph)
-            {
+            if glyph != spec.blank && !self.index.sigma.contains(&glyph) && reported.insert(glyph) {
                 let set = if spec.declared.input_alphabet {
                     "Σ"
                 } else {
@@ -917,15 +978,15 @@ impl Checker<'_> {
 
     fn unreachable_states(&mut self) {
         let spec = self.spec;
-        let Some(start) = spec.state_index(&spec.start) else {
+        if !self.index.states.contains(spec.start.as_str()) {
             return;
-        };
+        }
         let mut successors: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
         for t in &spec.transitions {
             successors.entry(&t.from).or_default().push(&t.to);
         }
-        let mut reached = BTreeSet::from([spec.states[start].name.as_str()]);
-        let mut stack = alloc::vec![spec.states[start].name.as_str()];
+        let mut reached = BTreeSet::from([spec.start.as_str()]);
+        let mut stack = alloc::vec![spec.start.as_str()];
         while let Some(q) = stack.pop() {
             for &next in successors.get(q).into_iter().flatten() {
                 if reached.insert(next) {
@@ -975,7 +1036,9 @@ impl Checker<'_> {
         let declared_sigma = spec.declared.input_alphabet.then_some(&spec.input_alphabet);
         let mut reported = BTreeSet::new();
         for &glyph in declared_gamma.into_iter().chain(declared_sigma).flatten() {
-            if glyph != spec.blank && !used.contains(&glyph) && reported.insert(glyph) {
+            // A glyph outside Γ already has an error (E007).
+            let in_gamma = self.index.gamma.contains(&glyph);
+            if glyph != spec.blank && in_gamma && !used.contains(&glyph) && reported.insert(glyph) {
                 let d = Diagnostic::warning(
                     codes::UNUSED_SYMBOL,
                     format!("the symbol {} is never read or written", show_glyph(glyph)),

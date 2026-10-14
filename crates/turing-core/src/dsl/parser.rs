@@ -17,8 +17,8 @@ use super::lexer::{self, LexError, Token, TokenKind};
 use crate::diag::{Diagnostic, Severity, Span};
 use crate::machine::{BitOrder, Decoder, Kind};
 use crate::spec::{
-    MachineSpec, SourceMap, StateSpec, TransitionSpans, TransitionSpec, closest, codes,
-    edit_distance, sort_diagnostics,
+    MAX_SUGGESTIONS, MachineSpec, SourceMap, StateSpec, TransitionSpans, TransitionSpec, closest,
+    codes, edit_distance, sort_diagnostics,
 };
 use crate::symbol::{Dir, MAX_TAPES};
 
@@ -634,6 +634,8 @@ struct Assembler {
     diagnostics: Vec<Diagnostic>,
     /// Whether some part of the text could not be used, so that the spec is incomplete.
     incomplete: bool,
+    /// Whether transitions were dropped because there were too many.
+    truncated: bool,
     spec: MachineSpec,
     map: SourceMap,
 }
@@ -642,6 +644,7 @@ impl Assembler {
     fn new(diagnostics: Vec<Diagnostic>) -> Self {
         Self {
             incomplete: !diagnostics.is_empty(),
+            truncated: false,
             diagnostics,
             spec: MachineSpec::new(),
             map: SourceMap::default(),
@@ -790,7 +793,12 @@ impl Assembler {
 
     /// Marks the states of F as final, or reports names outside a declared Q.
     fn final_states(&mut self, finals: &[Located<String>]) {
+        let mut position: BTreeMap<String, usize> = BTreeMap::new();
+        for (i, state) in self.spec.states.iter().enumerate() {
+            position.entry(state.name.clone()).or_insert(i);
+        }
         let mut seen: BTreeMap<&str, Span> = BTreeMap::new();
+        let mut suggestions = MAX_SUGGESTIONS;
         for state in finals {
             let name = state.value.as_str();
             if let Some(&first) = seen.get(name) {
@@ -806,27 +814,31 @@ impl Assembler {
             }
             seen.insert(name, state.span);
             self.map.finals.push((state.value.clone(), state.span));
-            match self.spec.states.iter_mut().find(|s| s.name == name) {
-                Some(s) => s.is_final = true,
-                None if self.spec.declared.states => {
-                    let mut diagnostic = Diagnostic::error(
-                        codes::UNKNOWN_NAME,
-                        format!("the state `{name}` is not declared in Q"),
-                    )
-                    .with_span(state.span);
-                    let names = self.spec.states.iter().map(|s| s.name.as_str());
-                    diagnostic = match closest(name, names) {
-                        Some(candidate) => {
-                            diagnostic.with_help(format!("did you mean `{candidate}`?"))
-                        }
-                        None => diagnostic.with_help(format!("add `{name}` to Q")),
-                    };
-                    self.diagnostics.push(diagnostic);
-                }
-                None => self.spec.states.push(StateSpec {
+            if let Some(&i) = position.get(name) {
+                self.spec.states[i].is_final = true;
+            } else if self.spec.declared.states {
+                let names = self.spec.states.iter().map(|s| s.name.as_str());
+                let candidate = if suggestions > 0 {
+                    suggestions -= 1;
+                    closest(name, names)
+                } else {
+                    None
+                };
+                let diagnostic = Diagnostic::error(
+                    codes::UNKNOWN_NAME,
+                    format!("the state `{name}` is not declared in Q"),
+                )
+                .with_span(state.span);
+                self.diagnostics.push(match candidate {
+                    Some(candidate) => diagnostic.with_help(format!("did you mean `{candidate}`?")),
+                    None => diagnostic.with_help(format!("add `{name}` to Q")),
+                });
+            } else {
+                position.insert(name.into(), self.spec.states.len());
+                self.spec.states.push(StateSpec {
                     name: name.into(),
                     is_final: true,
-                }),
+                });
             }
         }
     }
@@ -932,7 +944,7 @@ impl Assembler {
             .try_fold(1_usize, |n, set| n.checked_mul(set.len()));
         let total = combinations.and_then(|n| n.checked_add(self.spec.transitions.len()));
         if total.is_none_or(|n| n > MAX_TRANSITIONS) {
-            if !self.incomplete || !self.diagnostics.iter().any(|d| d.code == codes::TOO_LARGE) {
+            if !self.truncated {
                 self.diagnostics.push(
                     Diagnostic::error(
                         codes::TOO_LARGE,
@@ -943,6 +955,7 @@ impl Assembler {
                     .with_span(span),
                 );
             }
+            self.truncated = true;
             self.incomplete = true;
             return;
         }

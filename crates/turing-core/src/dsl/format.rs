@@ -19,7 +19,6 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 use super::FormatStyle;
-use super::lexer::{is_word_continue, is_word_start};
 use crate::machine::{BitOrder, Decoder, Kind};
 use crate::spec::{MachineSpec, TransitionSpec};
 
@@ -73,7 +72,9 @@ fn string_literal(text: &str) -> String {
     out
 }
 
-/// Whether `glyph` must be quoted to be read back as itself.
+/// Whether `glyph` must be quoted to be read back as itself: whitespace and control
+/// characters, the punctuation of the grammar, `/` (two would start a comment), and `_` and
+/// `␣`, which unquoted stand for the blank.
 fn needs_quotes(glyph: char) -> bool {
     glyph.is_whitespace()
         || glyph.is_control()
@@ -81,7 +82,6 @@ fn needs_quotes(glyph: char) -> bool {
             glyph,
             '(' | ')' | '{' | '}' | ',' | '=' | '\'' | '*' | ';' | '"' | '/' | '_' | '␣'
         )
-        || (is_word_continue(glyph) && !is_word_start(glyph) && !glyph.is_ascii_digit())
 }
 
 /// `{a, b, c}`.
@@ -104,14 +104,11 @@ impl Formatter<'_> {
     }
 
     /// A symbol as the parser reads it back: the default blank as `␣` or `_`, any other glyph
-    /// bare or quoted.
+    /// bare or quoted. A bare `_` or `␣` always stands for the blank; since the blank glyph
+    /// itself is needed in `blank = ...`, a blank other than `␣` is written as its glyph.
     fn symbol(&self, glyph: char) -> String {
-        if glyph == self.spec.blank && glyph == '␣' {
+        if glyph == '␣' && glyph == self.spec.blank {
             return if self.ascii() { "_" } else { "␣" }.into();
-        }
-        if glyph == self.spec.blank && glyph == '_' {
-            // A bare `_` stands for the blank, which is exactly this glyph.
-            return "_".into();
         }
         if needs_quotes(glyph) {
             format!("'{glyph}'")
@@ -146,19 +143,17 @@ impl Formatter<'_> {
         if !spec.input.is_empty() {
             lines.push(format!("input {}", string_literal(&spec.input)));
         }
-        match spec.output {
-            Decoder::Word => {}
-            Decoder::Unary { symbol } => {
-                lines.push(format!("output unary {}", self.symbol(symbol)))
-            }
-            Decoder::Binary { order } => lines.push(format!(
-                "output binary {}",
-                match order {
-                    BitOrder::Lsb => "lsb",
-                    BitOrder::Msb => "msb",
-                }
-            )),
-        }
+        let output = match spec.output {
+            Decoder::Word => None,
+            Decoder::Unary { symbol } => Some(format!("unary {}", self.symbol(symbol))),
+            Decoder::Binary {
+                order: BitOrder::Lsb,
+            } => Some("binary lsb".into()),
+            Decoder::Binary {
+                order: BitOrder::Msb,
+            } => Some("binary msb".into()),
+        };
+        lines.extend(output.map(|o| format!("output {o}")));
         lines
     }
 

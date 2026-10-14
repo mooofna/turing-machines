@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Γ = {x, y, ␣}\\nδ(q0, x) = (q0, x, R)\", & [\"W003\"])"
+---
+warning[W003]: the symbol `y` is never read or written
+  --> 1:9
+  1 | Γ = {x, y, ␣}
+    |         ^
+    = help: remove it from the alphabet, or add the transitions that use it

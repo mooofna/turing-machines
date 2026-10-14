@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"d(q0, x) = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected a declaration or a transition, found `d`
+  --> 1:1
+  1 | d(q0, x) = (q1, x, R)
+    | ^
+    = help: a transition starts with `δ` or `delta`, as in `δ(q0, a) = (q1, b, R)`

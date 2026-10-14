@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"strat = q0\\nδ(q0, x) = (q1, x, R)\", & [\"E001\"])"
+---
+error[E001]: expected a declaration or a transition, found `strat`
+  --> 1:1
+  1 | strat = q0
+    | ^^^^^
+    = help: did you mean `start`?

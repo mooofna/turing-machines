@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0, q1, q9}\\nδ(q0, x) = (q1, x, R)\", & [\"W001\"])"
+---
+warning[W001]: the state `q9` cannot be reached from the start state `q0`
+  --> 1:14
+  1 | Q = {q0, q1, q9}
+    |              ^^
+    = help: no chain of transitions leads from the start state to it

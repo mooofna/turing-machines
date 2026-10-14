@@ -1,0 +1,9 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"δ(q0, (x, y)) = (q1, (x, y), (R, R))\", & [\"E010\"])"
+---
+error[E010]: the transition reads 2 symbols, but the machine has 1 tape
+  --> 1:1
+  1 | δ(q0, (x, y)) = (q1, (x, y), (R, R))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: declare `tapes = 2` for a machine with 2 tapes

@@ -1,0 +1,11 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(\"Q = {q0}\\nQ = {q0, q1}\\nδ(q0, x) = (q0, x, R)\", & [\"E011\"])"
+---
+error[E011]: `Q` is declared twice
+  --> 2:1
+  2 | Q = {q0, q1}
+    | ^^^^^^^^^^^^
+  --> 1:1
+  1 | Q = {q0}
+    | -------- first declared here

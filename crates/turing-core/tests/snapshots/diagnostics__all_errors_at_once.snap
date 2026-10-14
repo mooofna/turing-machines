@@ -1,0 +1,50 @@
+---
+source: crates/turing-core/tests/diagnostics.rs
+expression: "check(source, &[\"E002\", \"E001\", \"E006\", \"E008\", \"E003\", \"E004\", \"E004\"])"
+---
+error[E002]: the string is not terminated
+  --> 1:9
+  1 | machine "broken
+    |         ^^^^^^^
+    = help: add a closing `"` before the end of the line
+
+error[E001]: expected `acceptor`, `transducer`, `enumerator` or `beaver`, found `decider`
+  --> 2:6
+  2 | kind decider
+    |      ^^^^^^^
+
+error[E006]: the blank `␣` cannot be part of the input alphabet Σ
+  --> 4:9
+  4 | Σ = {x, ␣}
+    |         ^
+    = help: Σ holds the symbols of input words; the blank belongs to Γ only
+
+error[E008]: `S` is not a direction
+  --> 5:20
+  5 | δ(q0, x) = (q1, x, S)
+    |                    ^
+    = help: use L, R or N
+
+error[E003]: the state `q2` is not declared in Q
+  --> 6:13
+  6 | δ(q0, x) = (q2, x, R)
+    |             ^^
+    = help: did you mean `q0`?
+
+error[E004]: δ(q0, x) is defined twice
+  --> 7:1
+  7 | δ(q0, x) = (q1, y, R)
+    | ^^^^^^^^^^^^^^^^^^^^^
+  --> 6:1
+  6 | δ(q0, x) = (q2, x, R)
+    | --------------------- first defined here
+    = help: a deterministic machine has at most one transition per state and symbol
+
+error[E004]: δ(q1, x) is defined twice
+  --> 9:1
+  9 | δ(q1, x) = (q0, x, L)
+    | ^^^^^^^^^^^^^^^^^^^^^
+  --> 8:1
+  8 | δ(q1, x) = (q0, x, R)
+    | --------------------- first defined here
+    = help: a deterministic machine has at most one transition per state and symbol
