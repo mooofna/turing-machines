@@ -99,22 +99,26 @@ node is either a halting machine with a known running time or proved never to ha
 
 ```console
 $ tm enumerate --states 4
-<!-- measured: paste the output of the release build here -->
+Busy beaver search over 4 states and 2 symbols, in tree normal form
+
+stage                                         resolved   remaining
+nodes of the tree normal form                              858,909
+halting                                        249,693     609,216
+non-halting: cyclers and translated cyclers    588,373      20,843
+non-halting: n-gram closed position sets        18,134       2,709
+non-halting: n-gram CPS with history             2,699          10
+non-halting: n-gram CPS with LRU                     8           2
+non-halting: repeated word lists                     2           0
+holdouts                                                         0
+
+S(4) = 107   1RB1LB_1LA0LC_1RZ1LD_1RD0RA
+Σ(4) = 13    1RB1LB_1LA0LC_1RZ1LD_1RD0RA
 ```
 
-| | Count |
-|---|---:|
-| Nodes of the tree normal form | <!-- measured --> |
-| Halting | <!-- measured --> |
-| Resolved by cyclers and translated cyclers | <!-- measured --> |
-| Resolved by n-gram closed position sets, with their augmentations | <!-- measured --> |
-| Resolved by repeated word lists | <!-- measured --> |
-| Holdouts | <!-- measured --> |
-| S(4) and Σ(4) | <!-- measured --> |
-| Time on an Apple M1 Pro, release build | <!-- measured --> |
-
-The Coq-verified enumeration has 858,909 nodes, of which 249,693 halt, and gives S(4) = 107 and
-Σ(4) = 13 (Coq-BB5, release v1.0.0).
+Every count agrees with the Coq-verified enumeration, which has 858,909 nodes, of which 249,693
+halt, and gives S(4) = 107 and Σ(4) = 13 (Coq-BB5, release v1.0.0). With a release build the
+run takes about half a second on an Apple M1 Pro; in the browser, compiled to WebAssembly, about
+one second.
 
 ## Accuracy
 
