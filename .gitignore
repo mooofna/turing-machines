@@ -8,3 +8,6 @@ web/screenshots
 web/src/lib/engine/pkg
 .DS_Store
 *.profraw
+
+# Local probes
+web/scripts/.probe-*
