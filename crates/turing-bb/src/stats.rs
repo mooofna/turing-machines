@@ -57,9 +57,10 @@ impl Stats {
 
     /// Adds the counts of another shard of the same enumeration and keeps the larger records.
     ///
-    /// Records are compared by [`record_beats`], which does not depend on the order in which
-    /// machines are visited, so merging the shards of an enumeration in any order gives the
-    /// records of the unsharded enumeration.
+    /// Records are compared by value, then by the other value (ones for S, steps for Σ), then
+    /// by transition table. This order does not depend on the order in which machines are
+    /// visited, so merging the shards of an enumeration in any order gives the records of the
+    /// unsharded enumeration.
     pub fn merge(&mut self, other: &Self) {
         self.nodes += other.nodes;
         self.halting += other.halting;
