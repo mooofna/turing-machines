@@ -2,14 +2,18 @@
   Fig. 6.2: Antihydra, first checked against its rule on the machine itself, then the rule
   iterated far beyond what the machine reaches.
 
-  One primary action, Run, starts both jobs in the batch worker. (a) The machine runs from the
-  blank tape on the chain simulator; every time it reaches a configuration A(a, b), the row is
-  compared with the rule: the new a and b and the number of steps since the previous row. The
-  check ends where step counts would leave the range in which this page counts exactly. (b) The
-  rule itself is iterated with big integers, and the counter a is plotted. The figure publishes
-  the number of confirmed rule applications, the number of iterations and the final value of a.
-  It reports that the halting condition was not reached within the iterations; it never claims
-  that the machine does not halt.
+  Both parts start on their own when the figure comes within a viewport of the screen, in the
+  batch worker, so that the text around the figure never waits for a reader's action. (a) The
+  machine runs from the blank tape on the chain simulator; every time it reaches a configuration
+  A(a, b), the row is compared with the rule: the new a and b and the number of steps since the
+  previous row. This first check stops after a time budget or a number of rows that a phone
+  also reaches within it. The one primary action continues the check to the end of the range in
+  which this page counts steps exactly, 2^53; the worker's job cannot be resumed, so it simulates
+  the machine again from the blank tape and the button's description says so. (b) The rule
+  itself is iterated 100,000 times with big integers and the counter a is plotted. The figure
+  publishes the confirmed rule applications, the iterations and the last value of a as they
+  arrive. It reports that the halting condition was not reached within the iterations; it never
+  claims that the machine does not halt.
 -->
 <script lang="ts">
   import { onDestroy } from 'svelte';
@@ -20,6 +24,7 @@
   import { batch, type Call } from '#lib/engine/client.ts';
   import type { AntihydraRowDto, WalkSummaryDto } from '#lib/engine/pkg/turing_wasm.js';
   import type { FigureProps } from '../registry.ts';
+  import { inView } from '../ch4/common/inview.ts';
   import { scrollRegion } from '../ch4/common/scroll.ts';
   import Fn from '../ch4/common/Fn.svelte';
   import WalkChart from './WalkChart.svelte';
@@ -32,14 +37,27 @@
   const SAMPLES = 800;
   /** Rows of the check shown before the disclosure. */
   const VISIBLE = 12;
+  /**
+   * The automatic check stops after this many rows (the start and 31 rule applications, about
+   * 0.3 s on a laptop and well under the budget on a phone) or after the budget, if earlier.
+   */
+  const AUTO_ROWS = 32;
+  const AUTO_BUDGET_MS = 1_500;
+  /** More rows than the check produces before the step count reaches 2^53. */
+  const ALL_ROWS = 1_000;
 
+  /**
+   * `idle` before the figure is seen; `auto` while the first part runs; `partial` after it;
+   * `full` while the check runs to the end; `complete` after that.
+   */
+  type Phase = 'idle' | 'auto' | 'partial' | 'full' | 'complete';
+
+  let phase = $state<Phase>('idle');
   let rows = $state<AntihydraRowDto[]>([]);
-  let checkDone = $state(false);
   let walk = $state<WalkSummaryDto | null>(null);
   let walkMs = $state<number | null>(null);
   let walkDone = $state(false);
   let checkMs = $state<number | null>(null);
-  let running = $state(false);
   let failed = $state(false);
   let expanded = $state(false);
 
@@ -58,73 +76,74 @@
   const allAgree = $derived(rows.length > 0 && rows.every((r) => r.agrees));
   const lastRow = $derived(rows.at(-1) ?? null);
   const shownRows = $derived(expanded ? rows : rows.slice(0, VISIBLE));
+  const checking = $derived(phase === 'auto' || phase === 'full');
 
-  function run() {
-    if (running) return;
-    running = true;
-    failed = false;
-    rows = [];
-    checkDone = false;
-    walk = null;
-    walkDone = false;
-    expanded = false;
-    const engine = batch();
+  /**
+   * Runs the machine check from the blank tape for at most `maxRows` rows and `budgetMs`
+   * milliseconds. Rows the table already has are not added again, so a second run continues
+   * the table where the first stopped.
+   */
+  function check(maxRows: number, budgetMs: number | null, next: Phase) {
     const started = performance.now();
-
-    const check = engine.call({ type: 'antihydra-check', maxRows: 1_000 }, (response) => {
+    const call = batch().call({ type: 'antihydra-check', maxRows }, (response) => {
       if (destroyed || response.type !== 'antihydra-rows') return;
-      if (response.rows.length > 0) rows = [...rows, ...response.rows];
+      const fresh = response.rows.filter((r) => r.iteration >= rows.length);
+      if (fresh.length === 0) return;
+      rows = [...rows, ...fresh];
+      publish('antihydra-checked', confirmed);
     });
-    const iterate = engine.call(
+    calls.push(call);
+    const timer = budgetMs === null ? null : setTimeout(() => call.cancel(), budgetMs);
+    call.done
+      .then(() => {
+        if (destroyed) return;
+        checkMs = performance.now() - started;
+        publish('antihydra-checked', confirmed);
+        phase = next;
+      })
+      .catch(() => {
+        if (!destroyed) failed = true;
+      })
+      .finally(() => {
+        if (timer !== null) clearTimeout(timer);
+      });
+  }
+
+  /** Starts both parts once, when the figure comes near the screen. */
+  function start() {
+    if (phase !== 'idle') return;
+    phase = 'auto';
+    const iterate = batch().call(
       { type: 'antihydra-walk', iterations: ITERATIONS, samples: SAMPLES },
       (response) => {
         if (destroyed || response.type !== 'antihydra-walk') return;
         walk = response.summary;
         walkMs = response.elapsedMs;
+        publish('antihydra-iterations', walk.iterations);
+        publish('antihydra-balance', walk.balance);
       }
     );
-    calls = [check, iterate];
-
-    const checked = check.done.then(() => {
-      if (destroyed) return;
-      checkMs = performance.now() - started;
-      checkDone = true;
-      publish('antihydra-checked', confirmed);
-    });
-    const walked = iterate.done.then(() => {
-      if (destroyed || !walk) return;
-      walkDone = true;
-      publish('antihydra-iterations', walk.iterations);
-      publish('antihydra-balance', walk.balance);
-    });
-    Promise.all([checked, walked])
+    calls.push(iterate);
+    iterate.done
+      .then(() => {
+        if (!destroyed && walk) walkDone = true;
+      })
       .catch(() => {
         if (!destroyed) failed = true;
-      })
-      .finally(() => {
-        if (!destroyed) running = false;
-        calls = [];
       });
+    check(AUTO_ROWS, AUTO_BUDGET_MS, 'partial');
+  }
+
+  /** Runs the check again from the blank tape, to the end of the exact range. */
+  function continueCheck() {
+    if (phase !== 'partial') return;
+    phase = 'full';
+    check(ALL_ROWS, null, 'complete');
   }
 
   onDestroy(() => {
     destroyed = true;
     for (const call of calls) call.cancel();
-  });
-
-  const checkStatus = $derived.by(() => {
-    if (rows.length === 0) return running ? 'Simulating the machine from the blank tape.' : '';
-    const steps = lastRow ? formatInteger(lastRow.steps) : '';
-    if (!checkDone) {
-      return `${formatInteger(confirmed)} rule applications confirmed so far, up to step ${steps}.`;
-    }
-    if (!allAgree)
-      return 'The machine and the rule differ; the check stopped at the first difference.';
-    return (
-      `All ${formatInteger(confirmed)} rule applications agree with the rule, up to step ${steps}, ` +
-      `simulated in ${formatDuration(checkMs ?? 0)} in this browser. The check stops there: ` +
-      `later step counts would be too large for this page to count exactly.`
-    );
   });
 
   const walkStatus = $derived.by(() => {
@@ -150,22 +169,38 @@
   });
 </script>
 
-<div class="antihydra">
-  <div class="controls">
-    <button class="button primary" type="button" onclick={run} disabled={running}>
-      {running ? 'Running' : rows.length > 0 ? 'Run again' : 'Run'}
-    </button>
-    <p class="intro">
-      Simulates the machine <Fact fact={facts['antihydra-machine']} cite={false} /> and compares it with
-      the rule, then iterates the rule {formatInteger(ITERATIONS)} times.
-    </p>
-  </div>
+{#snippet power()}2<span class="visually-hidden"> to the power of </span><sup>53</sup>{/snippet}
+
+<div class="antihydra" {@attach inView(start, '100% 0px')}>
+  <p class="intro">
+    Simulates the machine <Fact fact={facts['antihydra-machine']} cite={false} /> and compares it with
+    the rule, then iterates the rule {formatInteger(ITERATIONS)} times.
+  </p>
 
   <section class="part" aria-labelledby="{id}-check">
     <h3 id="{id}-check" class="part-title">The machine against the rule</h3>
-    <p class="status" role="status">{checkStatus}</p>
+    <p class="status" role="status">
+      {#if failed}
+        The computation failed in this browser.
+      {:else if rows.length === 0}
+        {checking ? 'Simulating the machine from the blank tape.' : ''}
+      {:else if checking}
+        {formatInteger(confirmed)} rule applications confirmed so far, up to step
+        {formatInteger(lastRow?.steps ?? 0)}.
+      {:else if !allAgree}
+        The machine and the rule differ; the check stopped at the first difference.
+      {:else if phase === 'partial'}
+        The first {formatInteger(confirmed)} rule applications agree with the rule, up to step
+        {formatInteger(lastRow?.steps ?? 0)}, simulated in {formatDuration(checkMs ?? 0)} in this browser.
+      {:else}
+        All {formatInteger(confirmed)} rule applications agree with the rule, up to step
+        {formatInteger(lastRow?.steps ?? 0)}, simulated in {formatDuration(checkMs ?? 0)} in this browser.
+        The check stops there: later step counts would exceed {@render power()}, beyond which this
+        page cannot count steps exactly.
+      {/if}
+    </p>
     <div class="scroll" {@attach scrollRegion('Rule applications, scrolls sideways')}>
-      <table class="table rows" aria-busy={running && !checkDone}>
+      <table class="table rows" aria-busy={checking}>
         <caption class="visually-hidden">
           Configurations A(a, b) reached by the machine, with the steps between them and the steps
           the rule predicts
@@ -200,7 +235,7 @@
             </tr>
           {:else}
             <tr>
-              <td colspan="6" class="empty">{running ? 'Simulating' : 'Not run yet.'}</td>
+              <td colspan="6" class="empty">{checking ? 'Simulating' : 'Not run yet.'}</td>
             </tr>
           {/each}
         </tbody>
@@ -219,6 +254,27 @@
           : `Show all ${formatInteger(rows.length)} rows`}
       </button>
     {/if}
+    {#if phase === 'partial' || phase === 'full'}
+      <div class="continue">
+        <button
+          class="button primary"
+          type="button"
+          onclick={continueCheck}
+          disabled={phase === 'full'}
+          aria-describedby="{id}-continue"
+        >
+          <span
+            >{#if phase === 'full'}Checking to {@render power()} steps{:else}Continue the check to
+              {@render power()} steps{/if}</span
+          >
+        </button>
+        <p id="{id}-continue" class="hint">
+          Simulates the machine again from the blank tape, since the check cannot resume where it
+          stopped, and compares every rule application until the step count would exceed
+          {@render power()}. This takes much longer than the first part.
+        </p>
+      </div>
+    {/if}
   </section>
 
   <section class="part" aria-labelledby="{id}-walk">
@@ -232,45 +288,45 @@
       )} iterations of the rule, starting at a = 0."
     />
     {#if walk}
-      <dl class="summary" aria-busy={running && !walkDone}>
+      <dl class="summary" aria-busy={!walkDone}>
         <div>
           <dt>Iterations</dt>
           <dd>
-            <Live value={walk?.iterations ?? null} pending={running && !walkDone} placeholder="" />
+            <Live value={walk?.iterations ?? null} pending={!walkDone} placeholder="" />
           </dd>
         </div>
         <div>
           <dt>Rounds with <Fn name="b" /> even</dt>
           <dd>
-            <Live value={walk?.evens ?? null} pending={running && !walkDone} placeholder="" />
+            <Live value={walk?.evens ?? null} pending={!walkDone} placeholder="" />
           </dd>
         </div>
         <div>
           <dt>Rounds with <Fn name="b" /> odd</dt>
-          <dd><Live value={walk?.odds ?? null} pending={running && !walkDone} placeholder="" /></dd>
+          <dd><Live value={walk?.odds ?? null} pending={!walkDone} placeholder="" /></dd>
         </div>
         <div>
           <dt>Smallest <Fn name="a" /> after the start</dt>
           <dd>
-            <Live value={walk?.minBalance ?? null} pending={running && !walkDone} placeholder="" />
+            <Live value={walk?.minBalance ?? null} pending={!walkDone} placeholder="" />
           </dd>
         </div>
         <div>
           <dt><Fn name="a" /> after the last iteration</dt>
           <dd>
-            <Live value={walk?.balance ?? null} pending={running && !walkDone} placeholder="" />
+            <Live value={walk?.balance ?? null} pending={!walkDone} placeholder="" />
           </dd>
         </div>
         <div>
           <dt>Binary digits of <Fn name="b" /> + 4</dt>
-          <dd><Live value={walk?.bits ?? null} pending={running && !walkDone} placeholder="" /></dd>
+          <dd><Live value={walk?.bits ?? null} pending={!walkDone} placeholder="" /></dd>
         </div>
         <div>
           <dt>Time in this browser</dt>
           <dd>
             <Live
               value={walkDone ? walkMs : null}
-              pending={running && !walkDone}
+              pending={!walkDone}
               format={formatDuration}
               placeholder=""
             />
@@ -303,25 +359,12 @@
       </details>
     {/if}
   </section>
-
-  {#if failed}
-    <p class="status">The computation failed in this browser.</p>
-  {/if}
 </div>
 
 <style>
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-    margin-bottom: var(--space-3);
-  }
-
   .intro {
-    flex: 1 1 18rem;
     max-width: var(--measure);
-    margin: 0;
+    margin: 0 0 var(--space-3);
     font-size: var(--text-sm);
     color: var(--muted);
   }
@@ -330,6 +373,29 @@
     color: var(--text);
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .continue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .continue .hint {
+    flex: 1 1 18rem;
+    max-width: var(--measure);
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .button :global(sup),
+  .status :global(sup),
+  .hint :global(sup) {
+    font-size: 0.72em;
+    line-height: 0;
   }
 
   .part {

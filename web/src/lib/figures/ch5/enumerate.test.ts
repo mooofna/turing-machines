@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { merge, type Progress } from './enumerate.ts';
+import { merge, settle, type Progress } from './enumerate.ts';
 
 const part = (over: Partial<Progress>): Progress => ({
   nodes: 0,
@@ -51,5 +51,37 @@ describe('merge', () => {
   it('is not done while a shard runs', () => {
     expect(merge([part({}), part({ done: false })]).done).toBe(false);
     expect(merge([]).done).toBe(false);
+  });
+});
+
+describe('settle', () => {
+  it('breaks ties between shards by the other value, as the engine does', async () => {
+    const parts = [
+      part({ maxSteps: { value: 6, machine: 'x' }, maxOnes: { value: 13, machine: 'a' } }),
+      part({ maxSteps: { value: 6, machine: 'y' }, maxOnes: { value: 13, machine: 'b' } }),
+      part({ maxSteps: { value: 5, machine: 'z' }, maxOnes: { value: 12, machine: 'c' } })
+    ];
+    const measured: Record<string, { steps: number; ones: number }> = {
+      a: { steps: 96, ones: 13 },
+      b: { steps: 107, ones: 13 },
+      x: { steps: 6, ones: 3 },
+      y: { steps: 6, ones: 4 }
+    };
+    const asked: string[] = [];
+    const settled = await settle(parts, merge(parts), async (m) => {
+      asked.push(m);
+      return measured[m]!;
+    });
+    expect(settled.maxSteps).toEqual({ value: 6, machine: 'y' });
+    expect(settled.maxOnes).toEqual({ value: 13, machine: 'b' });
+    expect(asked.sort()).toEqual(['a', 'b', 'x', 'y']);
+  });
+
+  it('measures nothing without a tie', async () => {
+    const parts = [part({ maxSteps: { value: 7, machine: 'x' } }), part({})];
+    const settled = await settle(parts, merge(parts), () => {
+      throw new Error('no measurement expected');
+    });
+    expect(settled.maxSteps).toEqual({ value: 7, machine: 'x' });
   });
 });

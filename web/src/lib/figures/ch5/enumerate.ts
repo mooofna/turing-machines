@@ -2,9 +2,13 @@
 // worker, or split into shards over several workers.
 //
 // The enumerator splits the tree at a fixed depth and deals the subtrees out round robin, so the
-// shards together visit every node exactly once. Their counts add up; for the records, a tie is
-// resolved in favour of the lower shard, so the machine shown does not depend on how many
-// workers ran.
+// shards together visit every node exactly once. Their counts add up. The records follow the
+// order of the engine (turing-bb `record_beats`): the larger value wins, and on equal values the
+// machine with more ones (for S) or more steps (for Σ). The progress messages carry only the
+// value and the machine, so while shards run a tie goes to the lower shard; at the end the tied
+// machines are measured (`settle`) and the record is the one an unsharded run reports. Only the
+// last tie-break of the engine, by transition table, is not reproduced: such ties keep the
+// lower shard.
 
 import { batch, Engine } from '#lib/engine/client.ts';
 import type { DeciderCountDto, EnumProgressDto, RecordDto } from '#lib/engine/pkg/turing_wasm.js';
@@ -42,6 +46,52 @@ export function merge(parts: readonly Progress[]): Progress {
 
 /** The progress of a shard that has not reported yet. */
 const empty = (): Progress => ({ nodes: 0, halting: 0, holdouts: 0, deciders: [], done: false });
+
+/** Steps and ones of a complete record machine. */
+export type Measure = (machine: string) => Promise<{ steps: number; ones: number }>;
+
+/**
+ * Resolves ties between the records of the shards as the engine does: among the machines with
+ * the record value, the one with the most ones wins for S and the one with the most steps for Σ;
+ * a remaining tie keeps the lower shard.
+ */
+export async function settle(
+  parts: readonly Progress[],
+  merged: Progress,
+  measure: Measure
+): Promise<Progress> {
+  const pick = async (
+    record: RecordDto | undefined,
+    of: (p: Progress) => RecordDto | undefined,
+    tie: 'ones' | 'steps'
+  ) => {
+    if (!record) return record;
+    const tied = [
+      ...new Set(
+        parts
+          .map(of)
+          .filter((r) => r?.value === record.value)
+          .map((r) => r!.machine)
+      )
+    ];
+    if (tied.length < 2) return record;
+    let best = record;
+    let bestTie = -1;
+    for (const machine of tied) {
+      const t = (await measure(machine))[tie];
+      if (t > bestTie) {
+        best = { value: record.value, machine };
+        bestTie = t;
+      }
+    }
+    return best;
+  };
+  return {
+    ...merged,
+    maxSteps: await pick(merged.maxSteps, (p) => p.maxSteps, 'ones'),
+    maxOnes: await pick(merged.maxOnes, (p) => p.maxOnes, 'steps')
+  };
+}
 
 export interface Outcome {
   progress: Progress;
@@ -85,7 +135,8 @@ export function enumerate(
   states: number,
   engines: readonly Engine[],
   shards: number,
-  onProgress: (progress: Progress) => void
+  onProgress: (progress: Progress) => void,
+  measure?: Measure
 ): Job {
   const started = performance.now();
   const parts: Progress[] = Array.from({ length: shards }, empty);
@@ -120,12 +171,16 @@ export function enumerate(
     }
   };
 
-  const done = Promise.all(engines.map(worker)).then(() => ({
-    progress: merge(parts),
-    elapsedMs: performance.now() - started,
-    workers: engines.length,
-    holdouts: holdouts.flat()
-  }));
+  const done = Promise.all(engines.map(worker)).then(async () => {
+    const merged = merge(parts);
+    const progress = shards > 1 && measure ? await settle(parts, merged, measure) : merged;
+    return {
+      progress,
+      elapsedMs: performance.now() - started,
+      workers: engines.length,
+      holdouts: holdouts.flat()
+    };
+  });
 
   return {
     done,

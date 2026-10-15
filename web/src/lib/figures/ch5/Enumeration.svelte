@@ -14,6 +14,7 @@
   import Live, { formatDuration, formatInteger } from '#lib/components/Live.svelte';
   import { facts } from '#lib/content/facts.ts';
   import { batch } from '#lib/engine/client.ts';
+  import { editor } from '#lib/engine/wasm.ts';
   import type { FigureProps } from '../registry.ts';
   import Segmented from '../ch4/common/Segmented.svelte';
   import { scrollRegion } from '../ch4/common/scroll.ts';
@@ -97,9 +98,15 @@
     const cores = typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency || 1;
     const count = states === 4 ? Math.max(1, Math.min(4, cores)) : 1;
     const engines = count > 1 ? pool.workers(count) : [batch()];
-    job = enumerate(states, engines, count > 1 ? SHARDS : 1, (progress) => {
-      if (!destroyed) live = progress;
-    });
+    job = enumerate(
+      states,
+      engines,
+      count > 1 ? SHARDS : 1,
+      (progress) => {
+        if (!destroyed) live = progress;
+      },
+      measure
+    );
     try {
       const result = await job.done;
       if (!destroyed) results[states] = result;
@@ -109,6 +116,15 @@
       job = null;
       if (!destroyed) running = null;
     }
+  }
+
+  /** Steps and ones of a record machine, for ties between shards. */
+  async function measure(machine: string) {
+    const spec = (await editor()).fromStandard(machine).spec;
+    if (!spec) throw new Error(`cannot parse ${machine}`);
+    const { verdict } = await batch().request({ type: 'decide', spec }, 'verdict');
+    if (verdict.kind !== 'halts') throw new Error(`${machine} does not halt`);
+    return { steps: verdict.steps, ones: verdict.ones };
   }
 
   onDestroy(() => {

@@ -102,6 +102,9 @@ test('Fig. 5.1 re-derives S(3) and S(4) with no holdouts', async ({ page }) => {
   await expect(cell('Holdouts', 0)).toHaveText('0');
   await expect(cell(/the most steps/, 0)).toHaveText('107');
   await expect(cell(/the most ones/, 0)).toHaveText('13');
+  // The records are the classic champions, also when the enumeration ran in shards.
+  await expect(figure.locator('.record').first()).toContainText('1RB1LB_1LA0LC_1RZ1LD_1RD0RA');
+  await expect(figure.locator('.record').last()).toContainText('1RB1LB_1LA0LC_1RZ1LD_1RD0RA');
   await expect(figure.locator('td.agree', { hasText: 'agrees' })).toHaveCount(4);
   await expect(figure.locator('td.agree', { hasText: 'differs' })).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -153,30 +156,52 @@ test('Fig. 6.1 computes the towers and fills the text', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('Fig. 6.2 confirms the rule on the machine and iterates it', async ({ page }) => {
+test('Fig. 6.2 checks and iterates Antihydra on its own and continues the check', async ({
+  page
+}) => {
   test.setTimeout(240_000);
   const errors = watch(page);
   await page.goto('/frontier');
   const figure = page.locator('#fig-6-2');
+  const checked = page.locator('[data-live="antihydra-checked"]');
+  // Nothing runs before the figure is near the screen.
+  await expect(checked.first()).toHaveAttribute('data-state', 'pending');
   await figure.scrollIntoViewIfNeeded();
-  await figure.getByRole('button', { name: 'Run' }).click();
   const status = figure.getByRole('status');
-  await expect(status.last()).toContainText('did not reach the halting condition within 100,000', {
-    timeout: 60_000
-  });
-  await expect(status.first()).toContainText('rule applications agree with the rule', {
-    timeout: 180_000
-  });
-  await figure.getByRole('button', { name: /Show all \d+ rows/ }).click();
   const rows = figure.locator('table.rows tbody tr');
-  expect(await rows.count()).toBeGreaterThan(30);
-  await expect(figure.locator('td.agree', { hasText: 'differs' })).toHaveCount(0);
-  await expect(figure.locator('td.agree', { hasText: 'agrees' })).toHaveCount(await rows.count());
-  await expect(rows.first()).toContainText('start');
-  const confirmed = String((await rows.count()) - 1);
-  await expect(page.locator('[data-live="antihydra-checked"]').first()).toHaveText(confirmed);
+
+  // Without any action: the walk and a first part of the check, published into the text.
+  await expect(status.last()).toContainText(
+    'did not reach the halting condition within 100,000 iterations',
+    { timeout: 30_000 }
+  );
+  await expect(status.first()).toContainText('rule applications agree with the rule', {
+    timeout: 30_000
+  });
   await expect(page.locator('[data-live="antihydra-iterations"]').first()).toHaveText('100,000');
   await expect(page.locator('[data-live="antihydra-balance"]')).toHaveText(/^\d{1,3}(,\d{3})*$/);
+  await figure.getByRole('button', { name: /Show all \d+ rows/ }).click();
+  const first = await rows.count();
+  expect(first).toBeGreaterThan(20);
+  expect(first).toBeLessThan(41);
+  await expect(checked.first()).toHaveText(String(first - 1));
+  await expect(figure.locator('td.agree', { hasText: 'differs' })).toHaveCount(0);
+
+  // The primary action continues the check to the end of the exact range.
+  const more = figure.getByRole('button', {
+    name: 'Continue the check to 2 to the power of 53 steps'
+  });
+  await expect(more).toHaveAccessibleDescription(/again from the blank tape/);
+  await more.click();
+  await expect(status.first()).toContainText('All 40 rule applications agree with the rule', {
+    timeout: 180_000
+  });
+  await expect(more).toHaveCount(0);
+  await expect(rows).toHaveCount(41);
+  await expect(rows.first()).toContainText('start');
+  await expect(figure.locator('td.agree', { hasText: 'agrees' })).toHaveCount(41);
+  await expect(figure.locator('td.agree', { hasText: 'differs' })).toHaveCount(0);
+  await expect(checked.first()).toHaveText('40');
   expect(errors).toEqual([]);
 });
 
@@ -211,11 +236,13 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.locator('#fig-6-1').scrollIntoViewIfNeeded();
     await expect(page.locator('#fig-6-1 .count')).toContainText('decimal digits');
     await page.locator('#fig-6-2').scrollIntoViewIfNeeded();
-    await page.locator('#fig-6-2').getByRole('button', { name: 'Run' }).click();
     await expect(page.locator('#fig-6-2').getByRole('status').last()).toContainText(
       'did not reach the halting condition',
       { timeout: 60_000 }
     );
+    await expect(page.locator('#fig-6-2').getByRole('button', { name: /Continue/ })).toBeVisible({
+      timeout: 30_000
+    });
     expect(await violations(page)).toEqual([]);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
