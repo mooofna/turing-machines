@@ -13,8 +13,16 @@
   import type { FigureProps } from '../registry.ts';
   import { inView } from '../ch4/common/inview.ts';
   import { scrollRegion } from '../ch4/common/scroll.ts';
+  import Fn from '../ch4/common/Fn.svelte';
   import Segmented from '../ch4/common/Segmented.svelte';
-  import { digitLines, digitsOfPowerOfTwo } from './towers.ts';
+  import {
+    arrowsMath,
+    digitLines,
+    digitsOfPowerOfTwo,
+    digitsOfSix,
+    scientific,
+    towerFormula
+  } from './towers.ts';
 
   let { id }: FigureProps = $props();
 
@@ -57,13 +65,12 @@
   const indexWidth = $derived(String(lines.at(-1)?.first ?? 1).length);
 </script>
 
-{#snippet tower(height: number)}{#if height <= 1}2{:else}2<sup>{@render tower(height - 1)}</sup
-    >{/if}{/snippet}
+{#snippet legend()}Height <Fn name="k" />{/snippet}
 
 <div class="towers" {@attach inView(() => void compute(), '100% 0px')}>
   <div class="controls">
     <Segmented
-      legend="Height k"
+      {legend}
       name="{id}-k"
       options={[1, 2, 3, 4, 5, 6].map((n) => ({ value: n as K, label: String(n) }))}
       bind:value={k}
@@ -73,19 +80,7 @@
   <div class="plate frame" data-status={failed ? 'error' : values[5] ? 'done' : 'computing'}>
     <div class="summary" aria-live="polite">
       <p class="formula">
-        <span class="lhs">2↑↑{k}</span>
-        <span class="eq">=</span>
-        {#if k <= 4}
-          <span class="power">{@render tower(k)}</span>
-        {:else if k === 5}
-          <span class="power"
-            >2<sup>2↑↑4</sup>{#if values[4]}<span class="eq">=</span>2<sup
-                >{formatInteger(Number(values[4]))}</sup
-              >{/if}</span
-          >
-        {:else}
-          <span class="power">2<sup>2↑↑5</sup></span>
-        {/if}
+        {@html towerFormula(k, values[4] ? formatInteger(Number(values[4])) : undefined)}
       </p>
 
       {#if failed}
@@ -104,15 +99,14 @@
         </p>
       {:else if six}
         <p class="count">
-          about <span class="mono"
-            >{six.mantissa.toFixed(3)} × 10<sup>{formatInteger(six.exponent)}</sup></span
-          >
-          decimal digits
+          about {@html scientific(six.mantissa.toFixed(3), formatInteger(six.exponent))} decimal digits
         </p>
         <p class="explain">
-          The number of digits of 2↑↑6 is ⌊2↑↑5 × log<sub>10</sub> 2⌋ + 1. Written out, this count
-          alone has <span class="mono">{formatInteger(six.exponent + 1)}</span> digits, so 2↑↑6 itself
-          cannot be written out.
+          The number of digits of {@html arrowsMath(6)} is {@html digitsOfSix}. Written out, this
+          count alone has
+          <span class="mono">{formatInteger(six.exponent + 1)}</span> digits, so {@html arrowsMath(
+            6
+          )} itself cannot be written out.
         </p>
       {:else}
         <p class="count"><span class="muted">Computing</span></p>
@@ -145,25 +139,15 @@
   .plate {
     display: flex;
     flex-direction: column;
-    min-height: 24rem;
+    min-height: 21rem;
     padding: var(--space-3);
   }
 
   .formula {
     margin: 0 0 var(--space-2);
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     line-height: 1.6;
-  }
-
-  .eq {
-    margin-inline: 0.3em;
-    color: var(--muted);
-  }
-
-  .power :global(sup),
-  .count sup {
-    font-size: 0.78em;
-    line-height: 0;
+    overflow-x: auto;
   }
 
   .summary {
@@ -173,10 +157,9 @@
   }
 
   .value {
-    margin: var(--space-3) 0 0;
-    font-size: var(--text-display);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    margin: 0;
+    font-size: var(--text-xl);
+    line-height: 1.2;
   }
 
   .count {
@@ -193,7 +176,7 @@
 
   .digits {
     flex: 1;
-    max-height: 16rem;
+    max-height: 13rem;
     overflow: auto;
     border-top: 1px solid var(--rule);
     padding-top: 0.6rem;
@@ -219,7 +202,7 @@
 
   @media (max-width: 47.99rem) {
     .plate {
-      min-height: 22rem;
+      min-height: 18rem;
       padding: var(--space-2);
     }
   }

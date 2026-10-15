@@ -191,7 +191,7 @@
           <th scope="col" class="num">
             <SourceLink id="coqbb5" label="Coq-BB5" /><span class="sub">formally verified</span>
           </th>
-          <th scope="col"><span class="visually-hidden">Comparison</span></th>
+          <th scope="col" class="wide-only"><span class="visually-hidden">Comparison</span></th>
         </tr>
       </thead>
       <tbody>
@@ -201,8 +201,12 @@
             ><Live value={shown?.nodes ?? null} pending={running === size} placeholder="" /></td
           >
           <td class="num rem"></td>
-          <td class="num"><Fact fact={facts[verified.nodes]} cite={false} /></td>
-          <td class="agree">{compare(shown?.nodes, verified.nodes)}</td>
+          <td class="num"
+            ><Fact fact={facts[verified.nodes]} cite={false} /><span class="agree-inline"
+              >{compare(shown?.nodes, verified.nodes)}</span
+            ></td
+          >
+          <td class="agree wide-only">{compare(shown?.nodes, verified.nodes)}</td>
         </tr>
         <tr>
           <th scope="row"
@@ -220,8 +224,12 @@
               placeholder=""
             />
           </td>
-          <td class="num"><Fact fact={facts[verified.halting]} cite={false} /></td>
-          <td class="agree">{compare(shown?.halting, verified.halting)}</td>
+          <td class="num"
+            ><Fact fact={facts[verified.halting]} cite={false} /><span class="agree-inline"
+              >{compare(shown?.halting, verified.halting)}</span
+            ></td
+          >
+          <td class="agree wide-only">{compare(shown?.halting, verified.halting)}</td>
         </tr>
         {#each stages as stage, i (stage.key)}
           <tr class="stage" class:last={i === stages.length - 1}>
@@ -239,15 +247,19 @@
               ><Live value={stage.remaining} pending={running === size} placeholder="" /></td
             >
             <td class="num"></td>
-            <td class="agree"></td>
+            <td class="agree wide-only"></td>
           </tr>
         {/each}
         <tr class="sum">
           <th scope="row">Never halt, all deciders</th>
           <td class="num"><Live value={nonHalting} pending={running === size} placeholder="" /></td>
           <td class="num rem"></td>
-          <td class="num"><Fact fact={facts[verified.nonHalting]} cite={false} /></td>
-          <td class="agree">{compare(nonHalting, verified.nonHalting)}</td>
+          <td class="num"
+            ><Fact fact={facts[verified.nonHalting]} cite={false} /><span class="agree-inline"
+              >{compare(nonHalting, verified.nonHalting)}</span
+            ></td
+          >
+          <td class="agree wide-only">{compare(nonHalting, verified.nonHalting)}</td>
         </tr>
         <tr>
           <th scope="row">Holdouts</th>
@@ -256,12 +268,13 @@
           >
           <td class="num rem"></td>
           <td class="num"></td>
-          <td class="agree"></td>
+          <td class="agree wide-only"></td>
         </tr>
         <tr class="record">
           <th scope="row">
             <Fn name="S" arg={size} />, the most steps
-            {#if shown?.maxSteps}<span class="machine mono">{shown.maxSteps.machine}</span>{/if}
+            {#if shown?.maxSteps}<span class="machine mono wide-only">{shown.maxSteps.machine}</span
+              >{/if}
           </th>
           <td class="num"
             ><Live
@@ -271,13 +284,23 @@
             /></td
           >
           <td class="num rem"></td>
-          <td class="num"><Fact fact={facts[verified.steps]} cite={false} /></td>
-          <td class="agree">{compare(shown?.maxSteps?.value, verified.steps)}</td>
+          <td class="num"
+            ><Fact fact={facts[verified.steps]} cite={false} /><span class="agree-inline"
+              >{compare(shown?.maxSteps?.value, verified.steps)}</span
+            ></td
+          >
+          <td class="agree wide-only">{compare(shown?.maxSteps?.value, verified.steps)}</td>
         </tr>
+        {#if shown?.maxSteps}
+          <tr class="machine-row">
+            <td colspan="5" class="mono">{shown.maxSteps.machine}</td>
+          </tr>
+        {/if}
         <tr class="record">
           <th scope="row">
             <Fn name="Σ" arg={size} />, the most ones
-            {#if shown?.maxOnes}<span class="machine mono">{shown.maxOnes.machine}</span>{/if}
+            {#if shown?.maxOnes}<span class="machine mono wide-only">{shown.maxOnes.machine}</span
+              >{/if}
           </th>
           <td class="num"
             ><Live
@@ -288,8 +311,13 @@
           >
           <td class="num rem"></td>
           <td class="num"></td>
-          <td class="agree"></td>
+          <td class="agree wide-only"></td>
         </tr>
+        {#if shown?.maxOnes}
+          <tr class="machine-row">
+            <td colspan="5" class="mono">{shown.maxOnes.machine}</td>
+          </tr>
+        {/if}
       </tbody>
     </table>
   </div>
@@ -389,13 +417,23 @@
     white-space: nowrap;
   }
 
-  .remain {
+  .remain,
+  .agree-inline,
+  .machine-row {
     display: none;
   }
 
   @media (max-width: 47.99rem) {
     .funnel {
       min-width: 0;
+    }
+
+    .funnel thead th.num {
+      white-space: normal;
+    }
+
+    .indent {
+      padding-left: 0.75rem;
     }
 
     .rem {
@@ -410,8 +448,32 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .agree {
-      width: auto;
+    .wide-only {
+      display: none;
+    }
+
+    .agree-inline {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--muted);
+    }
+
+    .machine-row {
+      display: table-row;
+    }
+
+    .record:has(+ .machine-row) th,
+    .record:has(+ .machine-row) td {
+      border-bottom-color: transparent;
+      padding-bottom: 0.2rem;
+    }
+
+    .machine-row td {
+      padding-top: 0;
+      font-size: var(--text-xs);
+      color: var(--muted);
+      overflow-wrap: anywhere;
     }
   }
 

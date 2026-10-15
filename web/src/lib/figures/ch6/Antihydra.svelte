@@ -176,8 +176,8 @@
             <th scope="col" class="num"><Fn name="a" /></th>
             <th scope="col" class="num"><Fn name="b" /></th>
             <th scope="col" class="num">Steps in the round</th>
-            <th scope="col" class="num">Rule predicts</th>
-            <th scope="col"><span class="visually-hidden">Comparison</span></th>
+            <th scope="col" class="num wide-only">Rule predicts</th>
+            <th scope="col" class="wide-only"><span class="visually-hidden">Comparison</span></th>
           </tr>
         </thead>
         <tbody id="{id}-rows">
@@ -186,9 +186,17 @@
               <td class="num">{row.iteration === 0 ? 'start' : formatInteger(row.iteration)}</td>
               <td class="num">{formatInteger(row.a)}</td>
               <td class="num">{formatInteger(row.b)}</td>
-              <td class="num">{formatInteger(row.delta)}</td>
-              <td class="num">{formatInteger(row.predicted)}</td>
-              <td class="agree" class:differs={!row.agrees}>{row.agrees ? 'agrees' : 'differs'}</td>
+              <td class="num"
+                >{formatInteger(row.delta)}<span class="agree-inline" class:differs={!row.agrees}
+                  >{row.agrees
+                    ? 'agrees with the rule'
+                    : `rule predicts ${formatInteger(row.predicted)}`}</span
+                ></td
+              >
+              <td class="num wide-only">{formatInteger(row.predicted)}</td>
+              <td class="agree wide-only" class:differs={!row.agrees}
+                >{row.agrees ? 'agrees' : 'differs'}</td
+              >
             </tr>
           {:else}
             <tr>
@@ -379,6 +387,37 @@
 
   .empty {
     color: var(--muted);
+  }
+
+  .agree-inline {
+    display: none;
+  }
+
+  @media (max-width: 47.99rem) {
+    .rows {
+      min-width: 0;
+      font-size: var(--text-xs);
+    }
+
+    .rows :global(th),
+    .rows :global(td) {
+      padding-right: 0.6rem;
+    }
+
+    .wide-only {
+      display: none;
+    }
+
+    .agree-inline {
+      display: block;
+      font-family: var(--font-sans);
+      color: var(--muted);
+    }
+
+    .agree-inline.differs {
+      color: var(--text);
+      font-weight: 650;
+    }
   }
 
   .more {

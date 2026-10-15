@@ -7,6 +7,8 @@
   bind:value={states} />.
 -->
 <script lang="ts" generics="T extends string | number">
+  import type { Snippet } from 'svelte';
+
   interface Option {
     value: T;
     /** Visible text of the segment. */
@@ -17,7 +19,7 @@
 
   interface Props {
     /** Name of the choice, shown before the segments. */
-    legend: string;
+    legend: string | Snippet;
     /** Unique name of the radio group on the page. */
     name: string;
     options: readonly Option[];
@@ -31,7 +33,9 @@
 </script>
 
 <fieldset class="segmented" {disabled}>
-  <legend class="legend">{legend}</legend>
+  <legend class="legend"
+    >{#if typeof legend === 'string'}{legend}{:else}{@render legend()}{/if}</legend
+  >
   <div class="options">
     {#each options as option (option.value)}
       <label class="option" class:checked={value === option.value}>
