@@ -1099,7 +1099,7 @@ dependencies = [
 
 [[package]]
 name = "turing-bb"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "divan",
  "num-bigint",
@@ -1113,7 +1113,7 @@ dependencies = [
 
 [[package]]
 name = "turing-cli"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "annotate-snippets",
  "anstream",
@@ -1130,7 +1130,7 @@ dependencies = [
 
 [[package]]
 name = "turing-core"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "divan",
  "insta",
@@ -1142,7 +1142,7 @@ dependencies = [
 
 [[package]]
 name = "turing-render"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "divan",
  "insta",
@@ -1153,7 +1153,7 @@ dependencies = [
 
 [[package]]
 name = "turing-wasm"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "base64",
  "console_error_panic_hook",
