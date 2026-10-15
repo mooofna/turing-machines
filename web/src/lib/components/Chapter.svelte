@@ -59,11 +59,6 @@
   });
 </script>
 
-<svelte:head>
-  <title>{chapter.title}, Turing machines</title>
-  <meta name="description" content={chapter.summary} />
-</svelte:head>
-
 <article class="chapter" bind:this={article} {@attach fillLive}>
   <header class="page row chapter-head">
     <p class="label chapter-number" aria-hidden="true">{chapter.n}</p>
