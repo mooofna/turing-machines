@@ -237,9 +237,14 @@ async function handle(w: Wasm, msg: Envelope<Request>): Promise<void> {
     case 'antihydra-check': {
       const job = new w.AntihydraCheckJob();
       let rows = 0;
+      // Later rows take millions of macro steps; chunks sized to about CHUNK_MS keep the pauses
+      // between them (a clamped setTimeout) from dominating the run.
+      let chunk = 10_000;
       try {
         for (;;) {
-          const batch = job.advance(10_000);
+          const t0 = performance.now();
+          const batch = job.advance(chunk);
+          chunk = adapt(chunk, performance.now() - t0, 10_000, 1_000_000_000);
           rows += batch.rows.length;
           const finished = batch.done || rows >= msg.maxRows || cancelled.has(id);
           send(id, { type: 'antihydra-rows', rows: batch.rows, done: finished }, finished);
