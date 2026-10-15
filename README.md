@@ -10,7 +10,7 @@ browser.
 
 **Live site:** <https://mooofna.github.io/turing-machines/>
 
-![The chapter on the busy beaver function, with the five-state champion drawn as a space-time diagram](docs/images/site.png)
+![The start page of the site: the five-state busy beaver champion drawn as a space-time diagram, with its 47,176,870 steps and 4,098 ones measured in the browser](docs/images/site.png)
 
 ## What is inside
 
@@ -21,6 +21,8 @@ browser.
 | [`turing-render`](crates/turing-render) | Space-time diagrams, the layout and edge routing of state diagrams, and SVG output. |
 | [`turing-cli`](crates/turing-cli) | The command-line tool `tm`: run, trace, check, format, convert, enumerate, decide, render. |
 | [`turing-wasm`](crates/turing-wasm) | Bindings for the website; the TypeScript types are generated from the Rust types. |
+
+![The playground with the four-state champion after twelve steps: the tape, the configuration in course notation and the state diagram with the transition just applied](docs/images/playground.png)
 
 The website in [`web/`](web) is written with SvelteKit. The machines of the gallery are in
 [`machines/`](machines), each with its origin and expected results.
