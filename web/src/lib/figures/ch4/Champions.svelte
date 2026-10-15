@@ -111,11 +111,13 @@
     started.add(key);
     const session = `${id}-${key}`;
     const worker = engine();
+    let opened = false;
     try {
       const text = String((CHAMPIONS.find((c) => c.key === key) ?? CHAMPIONS[0]!).fact.value);
       const parsed = (await editor()).fromStandard(text).spec;
       if (!parsed) throw new Error(`cannot parse ${text}`);
       if (destroyed) return;
+      opened = true;
       await worker.request(
         { type: 'open', session, spec: parsed, input: '', radius: 0 },
         'snapshot'
@@ -130,7 +132,6 @@
         },
         'stopped'
       );
-      worker.call({ type: 'close', session });
       if (destroyed) return;
       const snapshot = final.result.snapshot;
       runs[key] = {
@@ -142,6 +143,8 @@
       };
     } catch {
       if (!destroyed) failed[key] = true;
+    } finally {
+      if (opened) worker.call({ type: 'close', session });
     }
   }
 

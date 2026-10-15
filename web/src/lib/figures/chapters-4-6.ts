@@ -1,4 +1,5 @@
-// Figures of chapters 4 to 6.
+// Figures of chapters 4 to 6. The aspect ratios are those of the built figures after they ran, for
+// reference; the figures size themselves.
 
 import type { Component } from 'svelte';
 import Champions from './ch4/Champions.svelte';
@@ -17,10 +18,15 @@ const entry = (
 ): FigureEntry => ({ component, aspect, aspectPhone, about });
 
 export const figuresFourToSix: Readonly<Record<string, FigureEntry>> = {
-  'fig4.1': entry(Champions, 1.6, 0.55, 'champions for one to five states as space-time diagrams'),
-  'fig4.2': entry(History, 1.9, 0.5, 'milestones of the busy beaver functions'),
-  'fig5.1': entry(Enumeration, 1.5, 0.6, 'enumeration in tree normal form with the decider funnel'),
-  'fig5.2': entry(Deciders, 1.6, 0.5, 'one example machine per decider with its evidence'),
-  'fig6.1': entry(Towers, 2.2, 0.8, 'towers of twos computed exactly'),
-  'fig6.2': entry(Antihydra, 0.9, 0.35, 'Antihydra checked against its rule, then iterated')
+  'fig4.1': entry(Champions, 1.45, 0.35, 'champions for one to five states as space-time diagrams'),
+  'fig4.2': entry(History, 1.4, 0.27, 'milestones of the busy beaver functions'),
+  'fig5.1': entry(
+    Enumeration,
+    1.3,
+    0.25,
+    'enumeration in tree normal form with the decider funnel'
+  ),
+  'fig5.2': entry(Deciders, 1.5, 0.35, 'one example machine per decider with its evidence'),
+  'fig6.1': entry(Towers, 2, 0.6, 'towers of twos computed exactly'),
+  'fig6.2': entry(Antihydra, 0.67, 0.18, 'Antihydra checked against its rule, then iterated')
 };

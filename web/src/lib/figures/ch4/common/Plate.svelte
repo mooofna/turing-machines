@@ -71,9 +71,16 @@
     if (mode === 'exact') {
       const rows = last + 1;
       const cols = extent[1] - extent[0] + 3;
-      const rh = Math.max(1, Math.min(MAX_CELL, Math.floor(innerHeight / rows)));
-      // Square cells while they are large; otherwise up to four times as wide as high.
-      const wide = rh >= 8 ? rh : Math.min(4 * rh, 16);
+      // Whole CSS pixels per row where they fit; otherwise whole device pixels, at least one,
+      // and the plate grows if even that does not fit.
+      const dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+      const whole = Math.floor(innerHeight / rows);
+      const rh =
+        whole >= 1
+          ? Math.min(MAX_CELL, whole)
+          : Math.max(1, Math.floor((innerHeight * dpr) / rows)) / dpr;
+      // Square cells while they are large; otherwise wider than high, at least 6 pixels.
+      const wide = rh >= 8 ? rh : Math.min(16, Math.max(4 * rh, 6));
       const cw = Math.max(1, Math.min(wide, Math.floor(innerWidth / cols)));
       const request: SpaceTimeRequestDto = {
         width: cols,
@@ -132,6 +139,9 @@
 
 <div
   class="plate frame"
+  style:min-height={geometry && geometry.height > plateHeight - 2 * PAD_Y
+    ? `${Math.ceil(geometry.height + 2 * PAD_Y + 2)}px`
+    : undefined}
   bind:clientWidth={plateWidth}
   bind:clientHeight={plateHeight}
   data-status={status}

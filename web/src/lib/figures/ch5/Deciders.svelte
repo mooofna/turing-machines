@@ -136,11 +136,13 @@
     const e = EXAMPLES.find((x) => x.key === key)!;
     const worker = engine();
     const session = `${id}-${key}`;
+    let opened = false;
     try {
       const spec = (await editor()).fromStandard(e.machine).spec;
       if (!spec || destroyed) throw new Error(`cannot parse ${e.machine}`);
       const { verdict } = await worker.request({ type: 'decide', spec }, 'verdict');
       const radius = e.steps + 2;
+      opened = true;
       const first = await worker.request(
         { type: 'open', session, spec, input: '', radius },
         'snapshot'
@@ -165,11 +167,12 @@
         );
         extent = last.snapshot.extent;
       }
-      worker.call({ type: 'close', session });
       if (destroyed) return;
       results[key] = { spec, verdict, extent, ...found };
     } catch {
       if (!destroyed) failed[key] = true;
+    } finally {
+      if (opened) worker.call({ type: 'close', session });
     }
   }
 
