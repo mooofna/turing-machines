@@ -241,14 +241,17 @@ and `1RB0RB_1LC1RB_---0LD_1RA1LD`, as in Coq-BB5.
 | n-gram CPS (3, 3, 400) | 8 |
 | RepWL (2, 3, 320, 400) | 10 |
 
-The records, as complete machines with the halting transition written as `1RZ` (the first
-machine found in enumeration order):
+The records, as complete machines with the halting transition written as `1RZ`. Among the
+machines with the largest S the record is the one that leaves the most ones, and among those
+with the largest Σ the one that runs longest; remaining ties go to the smaller transition table.
+This order does not depend on the enumeration order, so the four workers of the website, which
+each enumerate a part of the tree, report the same machines as a single run:
 
 | Size | S | Machine | Σ | Machine |
 |---|---:|---|---:|---|
 | 1 state | 1 | `1RZ---` | 1 | `1RZ---` |
-| 2 states | 6 | `0RB1RZ_1LA1RB` | 4 | `1RB1LB_1LA1RZ` |
-| 3 states | 21 | `1RB1RZ_1LB0RC_1LC1LA` | 6 | `1RB1LC_1LA1RB_1LB1RZ` |
+| 2 states | 6 | `1RB1LB_1LA1RZ` | 4 | `1RB1LB_1LA1RZ` |
+| 3 states | 21 | `1RB1RZ_1LB0RC_1LC1LA` | 6 | `1RB1RZ_0RC1RB_1LC1LA` |
 | 4 states | 107 | `1RB1LB_1LA0LC_1RZ1LD_1RD0RA` | 13 | `1RB1LB_1LA0LC_1RZ1LD_1RD0RA` |
 | 2 states, 3 symbols | 38 | `1RB2LB1RZ_2LA2RB1LB` | 9 | `1RB2LB1RZ_2LA2RB1LB` |
 

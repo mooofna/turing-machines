@@ -30,6 +30,12 @@ pub struct Stats {
     pub max_steps: Option<(u64, CompactTm)>,
     /// The largest Σ found so far with the complete machine.
     pub max_ones: Option<(u64, CompactTm)>,
+    /// The Σ of the machine in [`Stats::max_steps`]. Among machines with the same S, the
+    /// record is the one that leaves the most ones.
+    pub max_steps_ones: u64,
+    /// The S of the machine in [`Stats::max_ones`]. Among machines with the same Σ, the
+    /// record is the one that runs longest.
+    pub max_ones_steps: u64,
     /// Nodes proved non-halting per stage of the pipeline, named by [`crate::Decider::name`],
     /// in pipeline order.
     pub by_stage: Vec<(String, u64)>,
@@ -49,8 +55,11 @@ impl Stats {
             .map_or(0, |&(_, n)| n)
     }
 
-    /// Adds the counts of another shard of the same enumeration and keeps the larger records
-    /// (the earlier one on ties).
+    /// Adds the counts of another shard of the same enumeration and keeps the larger records.
+    ///
+    /// Records are compared by [`record_beats`], which does not depend on the order in which
+    /// machines are visited, so merging the shards of an enumeration in any order gives the
+    /// records of the unsharded enumeration.
     pub fn merge(&mut self, other: &Self) {
         self.nodes += other.nodes;
         self.halting += other.halting;
@@ -67,15 +76,45 @@ impl Stats {
                 None => self.by_stage.push((name.clone(), *n)),
             }
         }
-        for (mine, theirs) in [
-            (&mut self.max_steps, other.max_steps),
-            (&mut self.max_ones, other.max_ones),
-        ] {
-            if theirs.is_some_and(|(v, _)| mine.is_none_or(|(w, _)| v > w)) {
-                *mine = theirs;
-            }
+        if let Some((s, tm)) = other.max_steps
+            && record_beats(
+                (s, other.max_steps_ones, &tm),
+                self.max_steps,
+                self.max_steps_ones,
+            )
+        {
+            self.max_steps = other.max_steps;
+            self.max_steps_ones = other.max_steps_ones;
+        }
+        if let Some((sigma, tm)) = other.max_ones
+            && record_beats(
+                (sigma, other.max_ones_steps, &tm),
+                self.max_ones,
+                self.max_ones_steps,
+            )
+        {
+            self.max_ones = other.max_ones;
+            self.max_ones_steps = other.max_ones_steps;
         }
     }
+}
+
+/// Whether a candidate record `(value, tie, machine)` beats the current record `current` with
+/// tie value `current_tie`.
+///
+/// A larger value wins; on equal values the larger tie value wins (the number of ones for S,
+/// the number of steps for Σ); on equal tie values the machine with the smaller transition table
+/// wins. This is a total order on records, so the result does not depend on the order of the
+/// enumeration or on how it is split into shards.
+pub(crate) fn record_beats(
+    (value, tie, machine): (u64, u64, &CompactTm),
+    current: Option<(u64, CompactTm)>,
+    current_tie: u64,
+) -> bool {
+    current.is_none_or(|(best, best_machine)| {
+        (value, tie, std::cmp::Reverse(machine.table))
+            > (best, current_tie, std::cmp::Reverse(best_machine.table))
+    })
 }
 
 /// Why an enumeration cannot start.
@@ -298,11 +337,13 @@ impl Enumerator {
                 );
                 let s = steps + 1;
                 let sigma = ones + u64::from(at.1 == 0);
-                if stats.max_steps.is_none_or(|(best, _)| s > best) {
+                if record_beats((s, sigma, &complete), stats.max_steps, stats.max_steps_ones) {
                     stats.max_steps = Some((s, complete));
+                    stats.max_steps_ones = sigma;
                 }
-                if stats.max_ones.is_none_or(|(best, _)| sigma > best) {
+                if record_beats((sigma, s, &complete), stats.max_ones, stats.max_ones_steps) {
                     stats.max_ones = Some((sigma, complete));
+                    stats.max_ones_steps = s;
                 }
             }
             Verdict::NonHalting(id) => {

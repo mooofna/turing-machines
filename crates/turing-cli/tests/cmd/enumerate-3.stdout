@@ -11,4 +11,4 @@ non-halting: repeated word lists                     0           0
 holdouts                                                         0
 
 S(3) = 21   1RB1RZ_1LB0RC_1LC1LA
-Σ(3) = 6    1RB1LC_1LA1RB_1LB1RZ
+Σ(3) = 6    1RB1RZ_0RC1RB_1LC1LA

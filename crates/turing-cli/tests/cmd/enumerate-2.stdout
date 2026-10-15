@@ -10,5 +10,5 @@ non-halting: n-gram CPS with LRU                     0           0
 non-halting: repeated word lists                     0           0
 holdouts                                                         0
 
-S(2) = 6   0RB1RZ_1LA1RB
+S(2) = 6   1RB1LB_1LA1RZ
 Σ(2) = 4   1RB1LB_1LA1RZ

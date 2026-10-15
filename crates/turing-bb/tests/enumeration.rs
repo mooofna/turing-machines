@@ -55,9 +55,12 @@ fn two_states() {
             ("NGRAM_CPS_IMPL2_params_1_1_100", 13)
         ]
     );
-    // The first machine found with six steps, and the classic Σ(2) champion.
-    assert_eq!(stats.max_steps.unwrap().1.to_string(), "0RB1RZ_1LA1RB");
+    // Among the machines with six steps, the one that leaves the most ones: the classic
+    // champion, which also attains Σ(2).
+    assert_eq!(stats.max_steps.unwrap().1.to_string(), "1RB1LB_1LA1RZ");
+    assert_eq!(stats.max_steps_ones, 4);
     assert_eq!(stats.max_ones.unwrap().1.to_string(), "1RB1LB_1LA1RZ");
+    assert_eq!(stats.max_ones_steps, 6);
 }
 
 #[test]
@@ -79,6 +82,13 @@ fn three_states() {
         stats.max_steps.unwrap().1.to_string(),
         "1RB1RZ_1LB0RC_1LC1LA"
     );
+    // No three-state machine attains both maxima; of the machines that leave six ones, this
+    // one runs longest (14 steps).
+    assert_eq!(
+        stats.max_ones.unwrap().1.to_string(),
+        "1RB1RZ_0RC1RB_1LC1LA"
+    );
+    assert_eq!(stats.max_ones_steps, 14);
 }
 
 #[test]
@@ -125,8 +135,11 @@ fn shards_add_up_to_the_full_enumeration() {
         assert_eq!(total.nodes, full.nodes, "{count} shards");
         assert_eq!(total.halting, full.halting);
         assert_eq!(total.by_stage, full.by_stage);
-        assert_eq!(total.max_steps.map(|r| r.0), Some(21));
-        assert_eq!(total.max_ones.map(|r| r.0), Some(6));
+        // The records do not depend on how the tree is split.
+        assert_eq!(total.max_steps, full.max_steps);
+        assert_eq!(total.max_ones, full.max_ones);
+        assert_eq!(total.max_steps_ones, full.max_steps_ones);
+        assert_eq!(total.max_ones_steps, full.max_ones_steps);
     }
 }
 
@@ -253,8 +266,12 @@ fn four_states_in_four_shards() {
     assert_eq!(total.holdouts, full.holdouts);
     assert_eq!(total.by_decider, full.by_decider);
     assert_eq!(total.by_stage, full.by_stage);
-    assert_eq!(total.max_steps.map(|r| r.0), Some(107));
-    assert_eq!(total.max_ones.map(|r| r.0), Some(13));
+    assert_eq!(total.max_steps, full.max_steps);
+    assert_eq!(total.max_ones, full.max_ones);
+    assert_eq!(
+        total.max_ones.unwrap().1.to_string(),
+        "1RB1LB_1LA0LC_1RZ1LD_1RD0RA"
+    );
 }
 
 mod common;
