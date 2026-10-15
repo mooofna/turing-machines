@@ -8,6 +8,9 @@
   let { children } = $props();
 
   const SITE = 'Turing machines';
+  // Absolute addresses for link previews (Open Graph), which crawlers need in full.
+  const ORIGIN = 'https://mooofna.github.io';
+  const OG_IMAGE = `${ORIGIN}/turing-machines/og.png`;
   const DESCRIPTION =
     'Turing machines from Turing’s definition of 1936 to the open problems of the busy beaver function, simulated in the browser with Rust and WebAssembly.';
 
@@ -46,6 +49,20 @@
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="author" content="Maurice Heide" />
+  <link rel="canonical" href={`${ORIGIN}${page.url.pathname}`} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={SITE} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={`${ORIGIN}${page.url.pathname}`} />
+  <meta property="og:image" content={OG_IMAGE} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="675" />
+  <meta
+    property="og:image:alt"
+    content="The start page of the site, with the five-state busy beaver champion drawn as a space-time diagram"
+  />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#0e0e0e" media="(prefers-color-scheme: dark)" />
 </svelte:head>
