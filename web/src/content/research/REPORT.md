@@ -1,4 +1,4 @@
-# Fact-check report (2026-10-14), summary saved from the research agent
+# Fact-check notes, 14 October 2026
 
 Files: facts.json (159 facts, 3 unverified: tnf-origin, zf-tm-254, riemann-tm-claim-2026), sources.json (76).
 
