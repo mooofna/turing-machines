@@ -46,7 +46,10 @@ export function token(name: string): string {
   if (!probe || !probe.isConnected) {
     probe = document.createElement('span');
     probe.setAttribute('aria-hidden', 'true');
-    probe.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;visibility:hidden';
+    // No transition: under prefers-reduced-motion the global styles give every element a
+    // transition of 0.01ms, and the computed colour would still be the previous token's.
+    probe.style.cssText =
+      'position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;transition:none';
     document.body.append(probe);
   }
   probe.style.color = `var(${name})`;
