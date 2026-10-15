@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/mooofna/turing-machines/compare/v1.0.0...v1.1.0) (2026-10-15)
+
+
+### Features
+
+* **web:** add Open Graph metadata and a preview image for link previews ([3ee7199](https://github.com/mooofna/turing-machines/commit/3ee71999705692f357928b54c32f3ee14716d5dc))
+
 ## 1.0.0 (2026-10-15)
 
 
